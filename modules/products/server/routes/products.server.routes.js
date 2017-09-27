@@ -18,6 +18,12 @@ module.exports = function(app) {
     .put(products.update)
     .delete(products.delete);
 
+  // app.route('/api/products/shipping/:shopId').all(core.requiresLoginToken.productsPolicy.isAllowed)
+  //   .put(products.updateShipping);  
+
   // Finish by binding the Product middleware
   app.param('productId', products.productByID);
+  // app.param('shopId',products.productByShipping);
+
+
 };
