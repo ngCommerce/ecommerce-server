@@ -216,6 +216,67 @@ describe('Product CRUD tests with Token Base Authen', function () {
           });
       });
   });
+  it('should be able to get List a Product if logged in with token', function (done) {
+    // Save a new Product
+    agent.post('/api/products')
+      .set('authorization', 'Bearer ' + token)
+      .send(product)
+      .expect(200)
+      .end(function (productSaveErr, productSaveRes) {
+        // Handle Product save error
+        if (productSaveErr) {
+          return done(productSaveErr);
+        }
+
+        // Get a list of Products
+        agent.get('/api/products')
+          .end(function (productsGetErr, productsGetRes) {
+            // Handle Products save error
+            if (productsGetErr) {
+              return done(productsGetErr);
+            }
+
+            // Get Products list
+            var products = productsGetRes.body;
+
+            // Set assertions
+            //(products[0].user.loginToken).should.equal(token);
+            (products.length).should.match(1);
+
+            // Call the assertion callback
+            done();
+          });
+      });
+  });
+  it('should be able to get By ID a Product if logged in with token', function (done) {
+    // Save a new Product
+    agent.post('/api/products')
+      .set('authorization', 'Bearer ' + token)
+      .send(product)
+      .expect(200)
+      .end(function (productSaveErr, productSaveRes) {
+        // Handle Product save error
+        if (productSaveErr) {
+          return done(productSaveErr);
+        }
+        agent.get('/api/products/' + productSaveRes.body._id)
+          .send(product)
+          .expect(200)
+          .end(function (productGetErr, productsGetRes) {
+            // Handle Product save error
+            if (productGetErr) {
+              return done(productGetErr);
+            }
+            // Get Products list
+            var products = productsGetRes.body;
+
+            // Set assertions
+            //(products[0].user.loginToken).should.equal(token);
+            (products.name).should.match('Product name');
+            done();
+          });
+      });
+  });
   afterEach(function (done) {
     User.remove().exec(function () {
       Product.remove().exec(done);
