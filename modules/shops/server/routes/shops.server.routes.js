@@ -13,7 +13,7 @@ module.exports = function (app) {
     .get(shops.cookingListShop, shops.list)
     .post(shops.create);
 
-  app.route('/api/shops/:shopId').all(shopsPolicy.isAllowed)
+  app.route('/api/shops/:shopId').all(core.requiresLoginToken, shopsPolicy.isAllowed)
     .get(shops.read)
     .put(shops.update)
     .delete(shops.delete);

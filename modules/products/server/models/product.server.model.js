@@ -26,6 +26,7 @@ var mongoose = require('mongoose'),
     selectedsize: string;
     title: string;
  */
+
 var ProductSchema = new Schema({
   name: {
     type: String,
@@ -34,11 +35,75 @@ var ProductSchema = new Schema({
     trim: true
   },
   detail: String,
-  unitprice: Number,
-  images:{
+  price: {
+    type: Number,
+    required: 'Please fill Product price'
+  },
+  promotionprice: {
+    type: Number
+  },
+  percentofdiscount: {
+    type: Number
+  },
+  currency: {
+    type: String
+  },
+  images: {
+    type: [String],
+    required: 'Please fill Product images'
+  },
+  reviews: {
     type: [{
-      
+      topic: String,
+      comment: String,
+      rate: Number,
+      created: {
+        type: Date,
+        default: Date.now
+      }
     }]
+  },
+  shippings: {
+    type: [{
+      name: {
+        type: String,
+        default: '',
+        required: 'Please fill Shipping name',
+        trim: true
+      },
+      detail: {
+        type: String,
+        required: 'Please fill Shipping detail'
+      },
+      price: {
+        type: Number,
+        default: 0,
+        required: 'Please fill Shipping price'
+      },
+      duedate: {
+        type: Number,
+        default: 1,
+        required: 'Please fill Shipping price'
+      },
+      created: {
+        type: Date,
+        default: Date.now
+      }
+    }]
+  },
+  categories: {
+    type: [{
+      type: Schema.ObjectId,
+      ref: 'Category'
+    }]
+  },
+  cod: {
+    type: Boolean,
+    default: false
+  },
+  shop: {
+    type: Schema.ObjectId,
+    ref: 'Shop'
   },
   created: {
     type: Date,

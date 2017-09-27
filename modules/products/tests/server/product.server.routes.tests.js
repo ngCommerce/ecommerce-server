@@ -51,7 +51,29 @@ describe('Product CRUD tests', function () {
     // Save a user to the test db and create new Product
     user.save(function () {
       product = {
-        name: 'Product name'
+        name: 'Product name',
+        detail: 'Product detail',
+        price: 100,
+        promotionprice: 80,
+        percentofdiscount: 20,
+        currency: 'Product currency',
+        images: ['Product images'],
+        reviews: [{
+          topic: 'Product reviews topic',
+          comment: 'Product reviews comment',
+          rate: 5,
+          created: new Date()
+        }],
+        shippings: [{
+          name: 'Product shippings name',
+          detail: 'Product shippings detail',
+          price: 100,
+          duedate: 3,
+          created: new Date()
+        }],
+        // categories: category,
+        cod: false,
+        // shop: shop,
       };
 
       done();

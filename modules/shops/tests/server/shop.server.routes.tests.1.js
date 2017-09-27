@@ -119,33 +119,168 @@ describe('Shop CRUD tests', function () {
       });
   });
 
-  it('get list shops', function (done) {
-    var shops = new Shop(shop);
-    shops.save();
-    agent.get('/api/shops')
-      .end(function (shopsGetErr, shopsGetRes) {
-        // Handle Products save error
-        if (shopsGetErr) {
-          return done(shopsGetErr);
+  it('should be able to get List a Shop if logged in with token', function (done) {
+    // Save a new Product
+    agent.post('/api/shops')
+      .set('authorization', 'Bearer ' + token)
+      .send(shop)
+      .expect(200)
+      .end(function (shopSaveErr, shopSaveRes) {
+        // Handle Product save error
+        if (shopSaveErr) {
+          return done(shopSaveErr);
         }
 
-        // Get Products list
-        var shops = shopsGetRes.body;
+        // Get a list of shops
+        agent.get('/api/shops')
+          .end(function (shopsGetErr, shopsGetRes) {
+            // Handle shop save error
+            if (shopsGetErr) {
+              return done(shopsGetErr);
+            }
 
-        // Set assertions
-        //(products[0].user.loginToken).should.equal(token);
-        (shops[0].name).should.match(shop.name);
-        (shops[0].image).should.match(shop.image);
+            // Get shops list
+            var shops = shopsGetRes.body;
+
+            // Set assertions
+            //(products[0].user.loginToken).should.equal(token);
+            (shops.length).should.match(1);
+            (shops[0]._id).should.match(shopSaveRes.body._id);
+            (shops[0].name).should.match(shop.name);
+            (shops[0].image).should.match(shop.image);
 
 
-        // Call the assertion callback
-        done();
+            // Call the assertion callback
+            done();
+          });
       });
   });
 
+  it('should be able to get By ID a Shop if logged in with token', function (done) {
+    // Save a new Shop
+    agent.post('/api/shops')
+      .set('authorization', 'Bearer ' + token)
+      .send(shop)
+      .expect(200)
+      .end(function (shopSaveErr, shopSaveRes) {
+        // Handle shop save error
+        if (shopSaveErr) {
+          return done(shopSaveErr);
+        }
+        agent.get('/api/shops/' + shopSaveRes.body._id)
+          // .send(shop)
+          // .expect(200)
+          .end(function (shopGetErr, shopsGetRes) {
+            // Handle shop save error
+            if (shopGetErr) {
+              return done(shopGetErr);
+            }
+            // Get shop list
+            var shops = shopsGetRes.body;
 
+            // Set assertions
+            //(products[0].user.loginToken).should.equal(token);
+            shops.should.be.instanceof(Object).and.have.property('name', shop.name);
+            shops.should.be.instanceof(Object).and.have.property('detail', shop.detail);
+            shops.should.be.instanceof(Object).and.have.property('image', shop.image);
+            shops.should.be.instanceof(Object).and.have.property('email', shop.email);
+            shops.should.be.instanceof(Object).and.have.property('tel', shop.tel);
+            // shops.should.be.instanceof(Object).and.have.property('rate', 5);
+            shops.should.be.instanceof(Object).and.have.property('map', shop.map).and.have.property('lat', shop.map.lat);
+            shops.should.be.instanceof(Object).and.have.property('map', shop.map).and.have.property('long', shop.map.long);
+            // shops.products.should.be.instanceof(Array).and.have.lengthOf(0);
+            // shops.reviews.should.be.instanceof(Array).and.have.lengthOf(1);
+            done();
+          });
+      });
+  });
 
+  it('should be able to update a Shop if logged in with token', function (done) {
+    // Save a new shops
+    agent.post('/api/shops')
+      .set('authorization', 'Bearer ' + token)
+      .send(shop)
+      .expect(200)
+      .end(function (shopSaveErr, shopSaveRes) {
+        // Handle shop save error
+        if (shopSaveErr) {
+          return done(shopSaveErr);
+        }
 
+        shop.name = "test Shop";
+        agent.put('/api/shops/' + shopSaveRes.body._id)
+          .set('authorization', 'Bearer ' + token)
+          .send(shop)
+          .expect(200)
+          .end(function (shopUpdateErr, shopUpdateRes) {
+            // Handle shop save error
+            if (shopUpdateErr) {
+              return done(shopUpdateErr);
+            }
+            // Get a list of shop
+            agent.get('/api/shops')
+              .end(function (shopsGetErr, shopsGetRes) {
+                // Handle shop save error
+                if (shopsGetErr) {
+                  return done(shopsGetErr);
+                }
+
+                // Get shop list
+                var shops = shopsGetRes.body;
+
+                // Set assertions
+                //(products[0].user.loginToken).should.equal(token);
+                (shops[0].name).should.match('test Shop');
+
+                // Call the assertion callback
+                done();
+              });
+          });
+      });
+  });
+
+  it('should be able to delete a Shop if logged in with token', function (done) {
+    // Save a new shop
+    agent.post('/api/shops')
+      .set('authorization', 'Bearer ' + token)
+      .send(shop)
+      .expect(200)
+      .end(function (shopSaveErr, shopSaveRes) {
+        // Handle shop save error
+        if (shopSaveErr) {
+          return done(shopSaveErr);
+        }
+
+        agent.delete('/api/shops/' + shopSaveRes.body._id)
+          .set('authorization', 'Bearer ' + token)
+          .send(shop)
+          .expect(200)
+          .end(function (shopUpdateErr, shopUpdateRes) {
+            // Handle shop save error
+            if (shopUpdateErr) {
+              return done(shopUpdateErr);
+            }
+            // Get a list of shop
+            agent.get('/api/shops')
+              .end(function (shopsGetErr, shopsGetRes) {
+                // Handle shop save error
+                if (shopsGetErr) {
+                  return done(shopsGetErr);
+                }
+
+                // Get shop list
+                var shops = shopsGetRes.body;
+
+                // Set assertions
+                //(products[0].user.loginToken).should.equal(token);
+                (shops.length).should.match(0);
+
+                // Call the assertion callback
+                done();
+              });
+          });
+      });
+  });
 
   afterEach(function (done) {
     User.remove().exec(function () {
