@@ -82,12 +82,6 @@ describe('Product CRUD tests with Token Base Authen', function () {
             percentofdiscount: 20,
             currency: 'Product currency',
             images: ['Product images'],
-            reviews: [{
-              topic: 'Product reviews topic',
-              comment: 'Product reviews comment',
-              rate: 5,
-              created: new Date()
-            }],
             shippings: [{
               name: 'Product shippings name',
               detail: 'Product shippings detail',
@@ -314,11 +308,64 @@ describe('Product CRUD tests with Token Base Authen', function () {
             (product.shippings.length).should.match(1);
             (product.shippings[0]._id).should.match(productObj.shippings[0]._id);
             (product.shippings[0].name).should.match(productObj.shippings[0].name);
-            (product.shop.name).should.match(shop.name);   
+            (product.shop.name).should.match(shop.name);
             done();
           });
       });
   });
+  it('update product review', function (done) {
+    // Save a new product
+    agent.post('/api/products')
+      .set('authorization', 'Bearer ' + token)
+      .send(product)
+      .expect(200)
+      .end(function (productSaveErr, productSaveRes) {
+        // Handle shop save error
+        if (productSaveErr) {
+          return done(productSaveErr);
+        }
+
+        var review = {
+          topic: 'review topic',
+          comment: 'comment',
+          rate: 5
+        };
+
+        agent.put('/api/products/review/' + productSaveRes.body._id)
+          .set('authorization', 'Bearer ' + token)
+          .send(review)
+          .expect(200)
+          .end(function (productUpdateErr, productUpdateRes) {
+            // Handle shop save error
+            if (productUpdateErr) {
+              return done(productUpdateErr);
+            }
+            // Get a list of product
+            agent.get('/api/products/' + productSaveRes.body._id)
+              .end(function (productGetErr, productsGetRes) {
+                // Handle shop save error
+                if (productGetErr) {
+                  return done(productGetErr);
+                }
+                // Get shop list
+                var products = productsGetRes.body;
+
+                // Set assertions
+                products.reviews.should.be.instanceof(Array).and.have.lengthOf(1);
+                products.reviews[0].should.be.instanceof(Object).and.have.property('topic', review.topic);
+                products.reviews[0].should.be.instanceof(Object).and.have.property('comment', review.comment);
+                products.reviews[0].should.be.instanceof(Object).and.have.property('rate', review.rate);
+                products.reviews[0].should.be.instanceof(Object).and.have.property('user', user.id);
+
+
+
+                done();
+              });
+          });
+      });
+
+  });
+
   afterEach(function (done) {
     User.remove().exec(function () {
       Shop.remove().exec(function () {

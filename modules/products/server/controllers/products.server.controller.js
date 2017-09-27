@@ -193,3 +193,24 @@ exports.productByID = function (req, res, next, id) {
     next();
   });
 };
+
+/**
+ * Update Review
+ */
+exports.updateReview = function (req, res) {
+  if (req.user && req.user !== undefined) {
+    req.body = req.body ? req.body : {};
+    req.body.user = req.user;
+  }
+  req.product.reviews.push(req.body);
+  req.product.save(function (err) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(req.product);
+    }
+  });
+
+};

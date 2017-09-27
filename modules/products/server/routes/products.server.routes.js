@@ -10,8 +10,11 @@ var core = require('../../../core/server/controllers/core.server.controller'),
 module.exports = function (app) {
   // Products Routes
   app.route('/api/products').all(core.requiresLoginToken, productsPolicy.isAllowed)
-    .get(products.getProductList,products.cookingProductList, products.list)
+    .get(products.getProductList, products.cookingProductList, products.list)
     .post(products.create);
+
+  app.route('/api/products/review/:productId').all(core.requiresLoginToken, productsPolicy.isAllowed)
+    .put(products.updateReview);
 
   app.route('/api/products/:productId').all(core.requiresLoginToken, productsPolicy.isAllowed)
     .get(products.read)
