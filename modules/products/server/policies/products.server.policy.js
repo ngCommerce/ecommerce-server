@@ -23,6 +23,9 @@ exports.invokeRolesPolicies = function () {
     }, {
       resources: '/api/products/review/:productId',
       permissions: ['put']
+    }, {
+      resources: '/api/products/shippings/:productId',
+      permissions: ['put']
     }]
   }, {
     roles: ['user'],
@@ -34,6 +37,9 @@ exports.invokeRolesPolicies = function () {
       permissions: ['get']
     }, {
       resources: '/api/products/review/:productId',
+      permissions: ['put']
+    }, {
+      resources: '/api/products/shippings/:productId',
       permissions: ['put']
     }]
   }, {

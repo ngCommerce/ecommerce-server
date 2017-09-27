@@ -214,3 +214,18 @@ exports.updateReview = function (req, res) {
   });
 
 };
+
+exports.updateShipping = function (req, res) {
+
+  req.product.shippings = req.product.shippings.concat(req.body);
+  req.product.save(function (err) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(req.product);
+    }
+  });
+
+};

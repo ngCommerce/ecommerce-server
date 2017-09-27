@@ -366,6 +366,59 @@ describe('Product CRUD tests with Token Base Authen', function () {
 
   });
 
+  it('update product shipping', function (done) {
+    // Save a new product
+    agent.post('/api/products')
+      .set('authorization', 'Bearer ' + token)
+      .send(product)
+      .expect(200)
+      .end(function (productSaveErr, productSaveRes) {
+        // Handle shop save error
+        if (productSaveErr) {
+          return done(productSaveErr);
+        }
+
+        var shippings = [{
+          name: 'review topic',
+          detail: 'comment',
+          price: 5,
+          duedate: 3
+        },{
+          name: 'review topic',
+          detail: 'comment',
+          price: 5,
+          duedate: 3
+        }];
+
+        agent.put('/api/products/shippings/' + productSaveRes.body._id)
+          .set('authorization', 'Bearer ' + token)
+          .send(shippings)
+          .expect(200)
+          .end(function (productUpdateErr, productUpdateRes) {
+            // Handle shop save error
+            if (productUpdateErr) {
+              return done(productUpdateErr);
+            }
+            // Get a list of product
+            agent.get('/api/products/' + productSaveRes.body._id)
+              .end(function (productGetErr, productsGetRes) {
+                // Handle shop save error
+                if (productGetErr) {
+                  return done(productGetErr);
+                }
+                // Get shop list
+                var products = productsGetRes.body;
+
+                // Set assertions
+                products.shippings.should.be.instanceof(Array).and.have.lengthOf(3);
+
+                done();
+              });
+          });
+      });
+
+  });
+
   afterEach(function (done) {
     User.remove().exec(function () {
       Shop.remove().exec(function () {
