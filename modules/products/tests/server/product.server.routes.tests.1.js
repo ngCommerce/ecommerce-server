@@ -109,8 +109,91 @@ describe('Product CRUD tests with Token Base Authen', function () {
           });
       });
   });
+  it('should be able to update a Product if logged in with token', function (done) {
+    // Save a new Product
+    agent.post('/api/products')
+      .set('authorization', 'Bearer ' + token)
+      .send(product)
+      .expect(200)
+      .end(function (productSaveErr, productSaveRes) {
+        // Handle Product save error
+        if (productSaveErr) {
+          return done(productSaveErr);
+        }
 
+        product.name = "test Product";
+        agent.put('/api/products/' + productSaveRes.body._id)
+          .set('authorization', 'Bearer ' + token)
+          .send(product)
+          .expect(200)
+          .end(function (productUpdateErr, productUpdateRes) {
+            // Handle Product save error
+            if (productUpdateErr) {
+              return done(productUpdateErr);
+            }
+            // Get a list of Products
+            agent.get('/api/products')
+              .end(function (productsGetErr, productsGetRes) {
+                // Handle Products save error
+                if (productsGetErr) {
+                  return done(productsGetErr);
+                }
 
+                // Get Products list
+                var products = productsGetRes.body;
+
+                // Set assertions
+                //(products[0].user.loginToken).should.equal(token);
+                (products[0].name).should.match('test Product');
+
+                // Call the assertion callback
+                done();
+              });
+          });
+      });
+  });
+  it('should be able to delete a Product if logged in with token', function (done) {
+    // Save a new Product
+    agent.post('/api/products')
+      .set('authorization', 'Bearer ' + token)
+      .send(product)
+      .expect(200)
+      .end(function (productSaveErr, productSaveRes) {
+        // Handle Product save error
+        if (productSaveErr) {
+          return done(productSaveErr);
+        }
+
+        agent.delete('/api/products/' + productSaveRes.body._id)
+          .set('authorization', 'Bearer ' + token)
+          .send(product)
+          .expect(200)
+          .end(function (productUpdateErr, productUpdateRes) {
+            // Handle Product save error
+            if (productUpdateErr) {
+              return done(productUpdateErr);
+            }
+            // Get a list of Products
+            agent.get('/api/products')
+              .end(function (productsGetErr, productsGetRes) {
+                // Handle Products save error
+                if (productsGetErr) {
+                  return done(productsGetErr);
+                }
+
+                // Get Products list
+                var products = productsGetRes.body;
+
+                // Set assertions
+                //(products[0].user.loginToken).should.equal(token);
+                (products.length).should.match(0);
+
+                // Call the assertion callback
+                done();
+              });
+          });
+      });
+  });
   afterEach(function (done) {
     User.remove().exec(function () {
       Product.remove().exec(done);
