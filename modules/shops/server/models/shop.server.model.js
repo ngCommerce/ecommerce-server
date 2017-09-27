@@ -16,6 +16,30 @@ var ShopSchema = new Schema({
     required: 'Please fill Shop name',
     trim: true
   },
+  detail: {
+    type: String,
+    default: ''
+  },
+  email: {
+    type: String,
+    default: ''
+  },
+  image: {
+    type: String,
+    default: ''
+  },
+  tel: {
+    type: String,
+    default: ''
+  },
+  map: {
+    lat: {
+      type: String
+    },
+    long: {
+      type: String
+    }
+  },
   created: {
     type: Date,
     default: Date.now
