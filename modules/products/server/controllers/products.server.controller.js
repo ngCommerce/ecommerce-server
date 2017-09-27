@@ -32,8 +32,49 @@ exports.create = function (req, res) {
  */
 exports.read = function (req, res) {
   // convert mongoose document to JSON
-  var product = req.product ? req.product.toJSON() : {};
+  var productDB = req.product ? req.product.toJSON() : {};
 
+  var shippings = [];
+  if (productDB.shippings && productDB.shippings.length > 0) {
+    productDB.shippings.forEach(function (shipping) {
+      shippings.push({
+        _id: shipping._id,
+        name: shipping.name
+      });
+    });
+  }
+  var shop = {
+    name: productDB.shop ? productDB.shop.name : '',
+    rate: productDB.shop ? productDB.shop.rate : null
+  };
+  // var isfavorite = false;
+  // if (req.user && req.user !== undefined) {
+  //   if (productDB.favorites && productDB.favorites.length > 0) {
+  //     productDB.favorites.forEach(function (favorite) {
+  //       if (favorite.user.toString() === req.user._id.toString()) {
+  //         isfavorite = true;
+  //       }
+  //     });
+  //   }
+  // }
+
+  var product = {
+    _id: productDB._id,
+    name: productDB.name,
+    detail: productDB.detail,
+    price: productDB.price,
+    promotionprice: productDB.promotionprice,
+    percentofdiscount: productDB.percentofdiscount,
+    currency: productDB.currency,
+    images: productDB.images,
+    rate: 5,
+    // favorites: productDB.favorites,
+    reviews: productDB.reviews,
+    shippings: shippings,
+    shop: shop,
+    // isfavorite: isfavorite,
+    otherproducts: []
+  };
   // Add a custom field to the Article, for determining if the current User is the "owner".
   // NOTE: This field is NOT persisted to the database, since it doesn't exist in the Article model.
   product.isCurrentUserOwner = req.user && product.user && product.user._id.toString() === req.user._id.toString();
@@ -81,7 +122,7 @@ exports.delete = function (req, res) {
  * Get List Product
  */
 exports.getProductList = function (req, res, next) {
-  Product.find({}, '_id name images price promotionprice percentofdiscount currency').sort('-created').populate('user', 'displayName').exec(function (err, products) {
+  Product.find({}, '_id name images price promotionprice percentofdiscount currency categories').sort('-created').populate('user', 'displayName').populate('categories').exec(function (err, products) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -100,10 +141,10 @@ exports.getProductList = function (req, res, next) {
 exports.cookingProductList = function (req, res, next) {
   var products = [];
   req.products.forEach(function (element) {
-    // var categories = [];
-    // element.categories.forEach(function (cate) {
-    //   categories.push({ name: cate.name });
-    // });
+    var categories = [];
+    element.categories.forEach(function (cate) {
+      categories.push({ name: cate.name });
+    });
     products.push({
       _id: element._id,
       name: element.name,
@@ -112,7 +153,7 @@ exports.cookingProductList = function (req, res, next) {
       promotionprice: element.promotionprice,
       percentofdiscount: element.percentofdiscount,
       currency: element.currency,
-      // categories: categories,
+      categories: categories,
       rate: 5
     });
   });
@@ -140,7 +181,7 @@ exports.productByID = function (req, res, next, id) {
     });
   }
 
-  Product.findById(id).populate('user', 'displayName').exec(function (err, product) {
+  Product.findById(id).populate('user', 'displayName').populate('shop').exec(function (err, product) {
     if (err) {
       return next(err);
     } else if (!product) {
@@ -151,4 +192,25 @@ exports.productByID = function (req, res, next, id) {
     req.product = product;
     next();
   });
+};
+
+/**
+ * Update Review
+ */
+exports.updateReview = function (req, res) {
+  if (req.user && req.user !== undefined) {
+    req.body = req.body ? req.body : {};
+    req.body.user = req.user;
+  }
+  req.product.reviews.push(req.body);
+  req.product.save(function (err) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(req.product);
+    }
+  });
+
 };
