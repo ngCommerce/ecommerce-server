@@ -99,6 +99,61 @@ describe('Product Model Unit Tests:', function () {
         done();
       });
     });
+
+    it('should be able to show an error when try to save without price', function (done) {
+      product.price = null;
+
+      return product.save(function (err) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('should be able to show an error when try to save without images', function (done) {
+      product.images = [];
+
+      return product.save(function (err) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('should be able to show an error when try to save without shippings name', function (done) {
+      product.shippings[0].name = '';
+
+      return product.save(function (err) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('should be able to show an error when try to save without shippings detail', function (done) {
+      product.shippings[0].detail = '';
+
+      return product.save(function (err) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('should be able to show an error when try to save without shippings price', function (done) {
+      product.shippings[0].price = null;
+
+      return product.save(function (err) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('should be able to show an error when try to save without shippings duedate', function (done) {
+      product.shippings[0].duedate = null;
+
+      return product.save(function (err) {
+        should.exist(err);
+        done();
+      });
+    });
+
   });
 
   afterEach(function (done) {
