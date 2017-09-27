@@ -189,7 +189,7 @@ describe('Shop CRUD tests', function () {
             shops.should.be.instanceof(Object).and.have.property('map', shop.map).and.have.property('lat', shop.map.lat);
             shops.should.be.instanceof(Object).and.have.property('map', shop.map).and.have.property('long', shop.map.long);
             // shops.products.should.be.instanceof(Array).and.have.lengthOf(0);
-            // shops.reviews.should.be.instanceof(Array).and.have.lengthOf(1);
+            shops.reviews.should.be.instanceof(Array).and.have.lengthOf(0);
             done();
           });
       });
@@ -280,6 +280,72 @@ describe('Shop CRUD tests', function () {
               });
           });
       });
+  });
+
+
+  it('update shop review', function (done) {
+    // Save a new shop
+    agent.post('/api/shops')
+      .set('authorization', 'Bearer ' + token)
+      .send(shop)
+      .expect(200)
+      .end(function (shopSaveErr, shopSaveRes) {
+        // Handle shop save error
+        if (shopSaveErr) {
+          return done(shopSaveErr);
+        }
+
+        var review = {
+          topic: 'review topic',
+          comment: 'comment',
+          rate: 5
+        };
+
+        agent.put('/api/shops/review/' + shopSaveRes.body._id)
+          .set('authorization', 'Bearer ' + token)
+          .send(review)
+          .expect(200)
+          .end(function (shopUpdateErr, shopUpdateRes) {
+            // Handle shop save error
+            if (shopUpdateErr) {
+              return done(shopUpdateErr);
+            }
+            // Get a list of shop
+            agent.get('/api/shops/' + shopSaveRes.body._id)
+              // .send(shop)
+              // .expect(200)
+              .end(function (shopGetErr, shopsGetRes) {
+                // Handle shop save error
+                if (shopGetErr) {
+                  return done(shopGetErr);
+                }
+                // Get shop list
+                var shops = shopsGetRes.body;
+
+                // Set assertions
+                //(products[0].user.loginToken).should.equal(token);
+                shops.should.be.instanceof(Object).and.have.property('name', shop.name);
+                shops.should.be.instanceof(Object).and.have.property('detail', shop.detail);
+                shops.should.be.instanceof(Object).and.have.property('image', shop.image);
+                shops.should.be.instanceof(Object).and.have.property('email', shop.email);
+                shops.should.be.instanceof(Object).and.have.property('tel', shop.tel);
+                // shops.should.be.instanceof(Object).and.have.property('rate', 5);
+                shops.should.be.instanceof(Object).and.have.property('map', shop.map).and.have.property('lat', shop.map.lat);
+                shops.should.be.instanceof(Object).and.have.property('map', shop.map).and.have.property('long', shop.map.long);
+                // shops.products.should.be.instanceof(Array).and.have.lengthOf(0);
+                shops.reviews.should.be.instanceof(Array).and.have.lengthOf(1);
+                shops.reviews[0].should.be.instanceof(Object).and.have.property('topic', review.topic);
+                shops.reviews[0].should.be.instanceof(Object).and.have.property('comment', review.comment);
+                shops.reviews[0].should.be.instanceof(Object).and.have.property('rate', review.rate);
+                shops.reviews[0].should.be.instanceof(Object).and.have.property('user', user.id);
+                
+                
+
+                done();
+              });
+          });
+      });
+
   });
 
   afterEach(function (done) {

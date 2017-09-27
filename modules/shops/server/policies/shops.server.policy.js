@@ -20,6 +20,9 @@ exports.invokeRolesPolicies = function () {
     }, {
       resources: '/api/shops/:shopId',
       permissions: '*'
+    }, {
+      resources: '/api/shops/review/:shopId',
+      permissions: '*'
     }]
   }, {
     roles: ['user'],
@@ -29,6 +32,9 @@ exports.invokeRolesPolicies = function () {
     }, {
       resources: '/api/shops/:shopId',
       permissions: ['get']
+    }, {
+      resources: '/api/shops/review/:shopId',
+      permissions: ['put']
     }]
   }, {
     roles: ['guest'],
@@ -38,6 +44,9 @@ exports.invokeRolesPolicies = function () {
     }, {
       resources: '/api/shops/:shopId',
       permissions: ['get']
+    }, {
+      resources: '/api/shops/review/:shopId',
+      permissions: ['put']
     }]
   }]);
 };
