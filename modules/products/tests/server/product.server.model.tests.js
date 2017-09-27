@@ -6,7 +6,7 @@
 var should = require('should'),
   mongoose = require('mongoose'),
   User = mongoose.model('User'),
-  Category = mongoose.model('Category'),
+  // Category = mongoose.model('Category'),
   // Shop = mongoose.model('Shop'),
   Product = mongoose.model('Product');
 
@@ -14,7 +14,7 @@ var should = require('should'),
  * Globals
  */
 var user,
-  category,
+  // category,
   // shop,
   product;
 
@@ -32,9 +32,9 @@ describe('Product Model Unit Tests:', function () {
       username: 'username',
       password: 'password'
     });
-    category = new Category({
-      name: 'แฟชั่น'
-    });
+    // category = new Category({
+    //   name: 'แฟชั่น'
+    // });
     // shop = new Shop({
     //   name: 'Shop Name',
     //   detail: 'Shop Detail',
@@ -49,34 +49,33 @@ describe('Product Model Unit Tests:', function () {
     // });
 
     user.save(function () {
-      category.save(function () {
-        product = new Product({
-          name: 'Product Name',
-          detail: 'Product detail',
+      product = new Product({
+        name: 'Product Name',
+        detail: 'Product detail',
+        price: 100,
+        promotionprice: 80,
+        percentofdiscount: 20,
+        currency: 'Product currency',
+        images: ['Product images'],
+        reviews: [{
+          topic: 'Product reviews topic',
+          comment: 'Product reviews comment',
+          rate: 5,
+          created: new Date()
+        }],
+        shippings: [{
+          name: 'Product shippings name',
+          detail: 'Product shippings detail',
           price: 100,
-          promotionprice: 80,
-          percentofdiscount: 20,
-          currency: 'Product currency',
-          images: ['Product images'],
-          reviews: [{
-            topic: 'Product reviews topic',
-            comment: 'Product reviews comment',
-            rate: 5,
-            created: new Date()
-          }],
-          shippings: [{
-            name: 'Product shippings name',
-            detail: 'Product shippings detail',
-            price: 100,
-            duedate: 3,
-            created: new Date()
-          }],
-          categories: category,
-          cod: false,
-          // shop: shop,
-          user: user
-        });
+          duedate: 3,
+          created: new Date()
+        }],
+        // categories: category,
+        cod: false,
+        // shop: shop,
+        user: user
       });
+
 
 
       done();
