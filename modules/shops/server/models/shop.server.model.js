@@ -40,6 +40,21 @@ var ShopSchema = new Schema({
       type: String
     }
   },
+  reviews: {
+    type: [{
+      topic: String,
+      comment: String,
+      rate: Number,
+      created: {
+        type: Date,
+        default: Date.now
+      },
+      user: {
+        type: Schema.ObjectId,
+        ref: 'User'
+      }
+    }]
+  },
   created: {
     type: Date,
     default: Date.now

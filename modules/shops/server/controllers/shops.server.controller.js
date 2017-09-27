@@ -121,3 +121,21 @@ exports.shopByID = function (req, res, next, id) {
     next();
   });
 };
+exports.updateReview = function (req, res) {
+  if(req.user && req.user !== undefined){
+    req.body = req.body ? req.body : {};
+    req.body.user = req.user;
+  }
+  
+  req.shop.reviews.push(req.body);
+
+  req.shop.save(function (err) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(req.shop);
+    }
+  });
+};

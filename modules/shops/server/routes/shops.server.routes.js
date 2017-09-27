@@ -18,6 +18,9 @@ module.exports = function (app) {
     .put(shops.update)
     .delete(shops.delete);
 
+  app.route('/api/shops/review/:shopId').all(core.requiresLoginToken, shopsPolicy.isAllowed)
+    .put(shops.updateReview);
+
   // Finish by binding the Shop middleware
   app.param('shopId', shops.shopByID);
 };
