@@ -12,11 +12,11 @@ var path = require('path'),
 /**
  * Create a Product
  */
-exports.create = function(req, res) {
+exports.create = function (req, res) {
   var product = new Product(req.body);
   product.user = req.user;
 
-  product.save(function(err) {
+  product.save(function (err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -30,7 +30,7 @@ exports.create = function(req, res) {
 /**
  * Show the current Product
  */
-exports.read = function(req, res) {
+exports.read = function (req, res) {
   // convert mongoose document to JSON
   var product = req.product ? req.product.toJSON() : {};
 
@@ -44,12 +44,12 @@ exports.read = function(req, res) {
 /**
  * Update a Product
  */
-exports.update = function(req, res) {
+exports.update = function (req, res) {
   var product = req.product;
 
   product = _.extend(product, req.body);
 
-  product.save(function(err) {
+  product.save(function (err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -63,10 +63,10 @@ exports.update = function(req, res) {
 /**
  * Delete an Product
  */
-exports.delete = function(req, res) {
+exports.delete = function (req, res) {
   var product = req.product;
 
-  product.remove(function(err) {
+  product.remove(function (err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -78,24 +78,61 @@ exports.delete = function(req, res) {
 };
 
 /**
- * List of Products
+ * Get List Product
  */
-exports.list = function(req, res) {
-  Product.find().sort('-created').populate('user', 'displayName').exec(function(err, products) {
+exports.getProductList = function (req, res, next) {
+  Product.find({}, '_id name images price promotionprice percentofdiscount currency').sort('-created').populate('user', 'displayName').exec(function (err, products) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      res.jsonp(products);
+      req.products = products;
+      next();
     }
+  });
+
+};
+
+/**
+ * Cooking List Product
+ */
+exports.cookingProductList = function (req, res, next) {
+  var products = [];
+  req.products.forEach(function (element) {
+    // var categories = [];
+    // element.categories.forEach(function (cate) {
+    //   categories.push({ name: cate.name });
+    // });
+    products.push({
+      _id: element._id,
+      name: element.name,
+      image: element.images[0],
+      price: element.price,
+      promotionprice: element.promotionprice,
+      percentofdiscount: element.percentofdiscount,
+      currency: element.currency,
+      // categories: categories,
+      rate: 5
+    });
+  });
+  req.productsCookingList = products;
+  next();
+};
+
+/**
+ * List of Products
+ */
+exports.list = function (req, res) {
+  res.jsonp({
+    items: req.productsCookingList
   });
 };
 
 /**
  * Product middleware
  */
-exports.productByID = function(req, res, next, id) {
+exports.productByID = function (req, res, next, id) {
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).send({
