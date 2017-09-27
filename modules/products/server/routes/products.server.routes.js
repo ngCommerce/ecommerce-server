@@ -7,10 +7,10 @@ var core = require('../../../core/server/controllers/core.server.controller'),
   productsPolicy = require('../policies/products.server.policy'),
   products = require('../controllers/products.server.controller');
 
-module.exports = function(app) {
+module.exports = function (app) {
   // Products Routes
   app.route('/api/products').all(core.requiresLoginToken, productsPolicy.isAllowed)
-    .get(products.list)
+    .get(products.getProductList,products.cookingProductList, products.list)
     .post(products.create);
 
   app.route('/api/products/:productId').all(core.requiresLoginToken, productsPolicy.isAllowed)

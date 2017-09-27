@@ -124,7 +124,7 @@ describe('Product CRUD tests with Token Base Authen', function () {
 
             // Set assertions
             //(products[0].user.loginToken).should.equal(token);
-            (products[0].name).should.match('Product name');
+            (products.items[0].name).should.match('Product name');
 
             // Call the assertion callback
             done();
@@ -142,7 +142,8 @@ describe('Product CRUD tests with Token Base Authen', function () {
         if (productSaveErr) {
           return done(productSaveErr);
         }
-
+        // var products = productSaveRes.body;
+        // (products.name).should.equal('Product name');
         product.name = "test Product";
         agent.put('/api/products/' + productSaveRes.body._id)
           .set('authorization', 'Bearer ' + token)
@@ -153,6 +154,7 @@ describe('Product CRUD tests with Token Base Authen', function () {
             if (productUpdateErr) {
               return done(productUpdateErr);
             }
+
             // Get a list of Products
             agent.get('/api/products')
               .end(function (productsGetErr, productsGetRes) {
@@ -166,7 +168,7 @@ describe('Product CRUD tests with Token Base Authen', function () {
 
                 // Set assertions
                 //(products[0].user.loginToken).should.equal(token);
-                (products[0].name).should.match('test Product');
+                (products.items[0].name).should.equal('test Product');
 
                 // Call the assertion callback
                 done();
@@ -208,7 +210,7 @@ describe('Product CRUD tests with Token Base Authen', function () {
 
                 // Set assertions
                 //(products[0].user.loginToken).should.equal(token);
-                (products.length).should.match(0);
+                (products.items.length).should.match(0);
 
                 // Call the assertion callback
                 done();
@@ -241,9 +243,15 @@ describe('Product CRUD tests with Token Base Authen', function () {
 
             // Set assertions
             //(products[0].user.loginToken).should.equal(token);
-            (products.length).should.match(1);
-
-            // Call the assertion callback
+            (products.items.length).should.match(1);
+            (products.items[0].name).should.match(product.name);
+            (products.items[0].image).should.match(product.images[0]);
+            (products.items[0].price).should.match(product.price);
+            (products.items[0].promotionprice).should.match(product.promotionprice);
+            (products.items[0].percentofdiscount).should.match(product.percentofdiscount);
+            (products.items[0].currency).should.match(product.currency);
+            (products.items[0].rate).should.match(5);
+            // (products.items[0].categories[0].name).should.match(product.categories[0].name);
             done();
           });
       });
