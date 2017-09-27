@@ -6,6 +6,8 @@ var should = require('should'),
   mongoose = require('mongoose'),
   User = mongoose.model('User'),
   Product = mongoose.model('Product'),
+  Category = mongoose.model('Category'),
+  Shop = mongoose.model('Shop'),
   express = require(path.resolve('./config/lib/express'));
 
 /**
@@ -15,6 +17,8 @@ var app,
   agent,
   credentials,
   user,
+  category,
+  shop,
   product,
   token;
 
@@ -48,49 +52,68 @@ describe('Product CRUD tests with Token Base Authen', function () {
       password: credentials.password,
       provider: 'local'
     });
+    category = new Category({
+      name: 'แฟชั่น'
+    });
+    shop = new Shop({
+      name: 'Shop Name',
+      detail: 'Shop Detail',
+      email: 'Shop Email',
+      image: 'https://www.onsite.org/assets/images/teaser/online-e-shop.jpg',
+      tel: '097654321',
+      map: {
+        lat: '13.933954',
+        long: '100.7157976'
+      },
+      user: user
+    });
 
     token = '';
 
     // Save a user to the test db and create new Product
     user.save(function () {
-      product = {
-        name: 'Product name',
-        detail: 'Product detail',
-        price: 100,
-        promotionprice: 80,
-        percentofdiscount: 20,
-        currency: 'Product currency',
-        images: ['Product images'],
-        reviews: [{
-          topic: 'Product reviews topic',
-          comment: 'Product reviews comment',
-          rate: 5,
-          created: new Date()
-        }],
-        shippings: [{
-          name: 'Product shippings name',
-          detail: 'Product shippings detail',
-          price: 100,
-          duedate: 3,
-          created: new Date()
-        }],
-        // categories: category,
-        cod: false,
-        // shop: shop,
-      };
+      shop.save(function () {
+        category.save(function () {
+          product = {
+            name: 'Product name',
+            detail: 'Product detail',
+            price: 100,
+            promotionprice: 80,
+            percentofdiscount: 20,
+            currency: 'Product currency',
+            images: ['Product images'],
+            reviews: [{
+              topic: 'Product reviews topic',
+              comment: 'Product reviews comment',
+              rate: 5,
+              created: new Date()
+            }],
+            shippings: [{
+              name: 'Product shippings name',
+              detail: 'Product shippings detail',
+              price: 100,
+              duedate: 3,
+              created: new Date()
+            }],
+            categories: [category],
+            cod: false,
+            shop: shop,
+          };
 
-      agent.post('/api/auth/signin')
-        .send(credentials)
-        .expect(200)
-        .end(function (signinErr, signinRes) {
-          // Handle signin error
-          if (signinErr) {
-            return done(signinErr);
-          }
-          signinRes.body.loginToken.should.not.be.empty();
-          token = signinRes.body.loginToken;
-          done();
+          agent.post('/api/auth/signin')
+            .send(credentials)
+            .expect(200)
+            .end(function (signinErr, signinRes) {
+              // Handle signin error
+              if (signinErr) {
+                return done(signinErr);
+              }
+              signinRes.body.loginToken.should.not.be.empty();
+              token = signinRes.body.loginToken;
+              done();
+            });
         });
+      });
     });
   });
 
@@ -251,7 +274,7 @@ describe('Product CRUD tests with Token Base Authen', function () {
             (products.items[0].percentofdiscount).should.match(product.percentofdiscount);
             (products.items[0].currency).should.match(product.currency);
             (products.items[0].rate).should.match(5);
-            // (products.items[0].categories[0].name).should.match(product.categories[0].name);
+            (products.items[0].categories[0].name).should.match(product.categories[0].name);
             done();
           });
       });
@@ -267,6 +290,8 @@ describe('Product CRUD tests with Token Base Authen', function () {
         if (productSaveErr) {
           return done(productSaveErr);
         }
+
+        var productObj = productSaveRes.body;
         agent.get('/api/products/' + productSaveRes.body._id)
           .send(product)
           .expect(200)
@@ -276,18 +301,31 @@ describe('Product CRUD tests with Token Base Authen', function () {
               return done(productGetErr);
             }
             // Get Products list
-            var products = productsGetRes.body;
+            var product = productsGetRes.body;
 
             // Set assertions
             //(products[0].user.loginToken).should.equal(token);
-            (products.name).should.match('Product name');
+            (product.name).should.match('Product name');
+            (product.price).should.match(productObj.price);
+            (product.promotionprice).should.match(productObj.promotionprice);
+            (product.percentofdiscount).should.match(productObj.percentofdiscount);
+            (product.currency).should.match(productObj.currency);
+            (product.rate).should.match(5);
+            (product.shippings.length).should.match(1);
+            (product.shippings[0]._id).should.match(productObj.shippings[0]._id);
+            (product.shippings[0].name).should.match(productObj.shippings[0].name);
+            (product.shop.name).should.match(shop.name);   
             done();
           });
       });
   });
   afterEach(function (done) {
     User.remove().exec(function () {
-      Product.remove().exec(done);
+      Shop.remove().exec(function () {
+        Category.remove().exec(function () {
+          Product.remove().exec(done);
+        });
+      });
     });
   });
 });

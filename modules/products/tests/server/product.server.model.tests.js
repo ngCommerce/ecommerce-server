@@ -6,16 +6,16 @@
 var should = require('should'),
   mongoose = require('mongoose'),
   User = mongoose.model('User'),
-  // Category = mongoose.model('Category'),
-  // Shop = mongoose.model('Shop'),
+  Category = mongoose.model('Category'),
+  Shop = mongoose.model('Shop'),
   Product = mongoose.model('Product');
 
 /**
  * Globals
  */
 var user,
-  // category,
-  // shop,
+  category,
+  shop,
   product;
 
 /**
@@ -32,53 +32,57 @@ describe('Product Model Unit Tests:', function () {
       username: 'username',
       password: 'password'
     });
-    // category = new Category({
-    //   name: 'แฟชั่น'
-    // });
-    // shop = new Shop({
-    //   name: 'Shop Name',
-    //   detail: 'Shop Detail',
-    //   email: 'Shop Email',
-    //   image: 'https://www.onsite.org/assets/images/teaser/online-e-shop.jpg',
-    //   tel: '097654321',
-    //   map: {
-    //     lat: '13.933954',
-    //     long: '100.7157976'
-    //   },
-    //   user: user
-    // });
+    category = new Category({
+      name: 'แฟชั่น'
+    });
+    shop = new Shop({
+      name: 'Shop Name',
+      detail: 'Shop Detail',
+      email: 'Shop Email',
+      image: 'https://www.onsite.org/assets/images/teaser/online-e-shop.jpg',
+      tel: '097654321',
+      map: {
+        lat: '13.933954',
+        long: '100.7157976'
+      },
+      user: user
+    });
 
     user.save(function () {
-      product = new Product({
-        name: 'Product Name',
-        detail: 'Product detail',
-        price: 100,
-        promotionprice: 80,
-        percentofdiscount: 20,
-        currency: 'Product currency',
-        images: ['Product images'],
-        reviews: [{
-          topic: 'Product reviews topic',
-          comment: 'Product reviews comment',
-          rate: 5,
-          created: new Date()
-        }],
-        shippings: [{
-          name: 'Product shippings name',
-          detail: 'Product shippings detail',
-          price: 100,
-          duedate: 3,
-          created: new Date()
-        }],
-        // categories: category,
-        cod: false,
-        // shop: shop,
-        user: user
+      shop.save(function () {
+        category.save(function () {
+          product = new Product({
+            name: 'Product Name',
+            detail: 'Product detail',
+            price: 100,
+            promotionprice: 80,
+            percentofdiscount: 20,
+            currency: 'Product currency',
+            images: ['Product images'],
+            reviews: [{
+              topic: 'Product reviews topic',
+              comment: 'Product reviews comment',
+              rate: 5,
+              created: new Date()
+            }],
+            shippings: [{
+              name: 'Product shippings name',
+              detail: 'Product shippings detail',
+              price: 100,
+              duedate: 3,
+              created: new Date()
+            }],
+            categories: category,
+            cod: false,
+            shop: shop,
+            user: user
+          });
+
+
+
+          done();
+        });
       });
-
-
-
-      done();
     });
   });
 
@@ -158,8 +162,12 @@ describe('Product Model Unit Tests:', function () {
 
   afterEach(function (done) {
     Product.remove().exec(function () {
-      User.remove().exec(function () {
-        done();
+      Shop.remove().exec(function () {
+        Category.remove().exec(function () {
+          User.remove().exec(function () {
+            done();
+          });
+        });
       });
     });
   });
