@@ -21,7 +21,7 @@ var app,
 /**
  * Shop routes tests
  */
-describe('Shop CRUD tests', function () {
+describe('Shop CRUD token tests', function () {
 
   before(function (done) {
     // Get application
