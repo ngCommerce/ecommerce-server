@@ -6,6 +6,8 @@ var should = require('should'),
   mongoose = require('mongoose'),
   User = mongoose.model('User'),
   Product = mongoose.model('Product'),
+  Category = mongoose.model('Category'),
+  Shop = mongoose.model('Shop'),
   express = require(path.resolve('./config/lib/express'));
 
 /**
@@ -15,6 +17,8 @@ var app,
   agent,
   credentials,
   user,
+  category,
+  shop,
   product,
   token;
 
@@ -48,49 +52,62 @@ describe('Product CRUD tests with Token Base Authen', function () {
       password: credentials.password,
       provider: 'local'
     });
+    category = new Category({
+      name: 'แฟชั่น'
+    });
+    shop = new Shop({
+      name: 'Shop Name',
+      detail: 'Shop Detail',
+      email: 'Shop Email',
+      image: 'https://www.onsite.org/assets/images/teaser/online-e-shop.jpg',
+      tel: '097654321',
+      map: {
+        lat: '13.933954',
+        long: '100.7157976'
+      },
+      user: user
+    });
 
     token = '';
 
     // Save a user to the test db and create new Product
     user.save(function () {
-      product = {
-        name: 'Product name',
-        detail: 'Product detail',
-        price: 100,
-        promotionprice: 80,
-        percentofdiscount: 20,
-        currency: 'Product currency',
-        images: ['Product images'],
-        reviews: [{
-          topic: 'Product reviews topic',
-          comment: 'Product reviews comment',
-          rate: 5,
-          created: new Date()
-        }],
-        shippings: [{
-          name: 'Product shippings name',
-          detail: 'Product shippings detail',
-          price: 100,
-          duedate: 3,
-          created: new Date()
-        }],
-        // categories: category,
-        cod: false,
-        // shop: shop,
-      };
+      shop.save(function () {
+        category.save(function () {
+          product = {
+            name: 'Product name',
+            detail: 'Product detail',
+            price: 100,
+            promotionprice: 80,
+            percentofdiscount: 20,
+            currency: 'Product currency',
+            images: ['Product images'],
+            shippings: [{
+              name: 'Product shippings name',
+              detail: 'Product shippings detail',
+              price: 100,
+              duedate: 3,
+              created: new Date()
+            }],
+            categories: [category],
+            cod: false,
+            shop: shop,
+          };
 
-      agent.post('/api/auth/signin')
-        .send(credentials)
-        .expect(200)
-        .end(function (signinErr, signinRes) {
-          // Handle signin error
-          if (signinErr) {
-            return done(signinErr);
-          }
-          signinRes.body.loginToken.should.not.be.empty();
-          token = signinRes.body.loginToken;
-          done();
+          agent.post('/api/auth/signin')
+            .send(credentials)
+            .expect(200)
+            .end(function (signinErr, signinRes) {
+              // Handle signin error
+              if (signinErr) {
+                return done(signinErr);
+              }
+              signinRes.body.loginToken.should.not.be.empty();
+              token = signinRes.body.loginToken;
+              done();
+            });
         });
+      });
     });
   });
 
@@ -124,7 +141,7 @@ describe('Product CRUD tests with Token Base Authen', function () {
 
             // Set assertions
             //(products[0].user.loginToken).should.equal(token);
-            (products[0].name).should.match('Product name');
+            (products.items[0].name).should.match('Product name');
 
             // Call the assertion callback
             done();
@@ -142,7 +159,8 @@ describe('Product CRUD tests with Token Base Authen', function () {
         if (productSaveErr) {
           return done(productSaveErr);
         }
-
+        // var products = productSaveRes.body;
+        // (products.name).should.equal('Product name');
         product.name = "test Product";
         agent.put('/api/products/' + productSaveRes.body._id)
           .set('authorization', 'Bearer ' + token)
@@ -153,6 +171,7 @@ describe('Product CRUD tests with Token Base Authen', function () {
             if (productUpdateErr) {
               return done(productUpdateErr);
             }
+
             // Get a list of Products
             agent.get('/api/products')
               .end(function (productsGetErr, productsGetRes) {
@@ -166,7 +185,7 @@ describe('Product CRUD tests with Token Base Authen', function () {
 
                 // Set assertions
                 //(products[0].user.loginToken).should.equal(token);
-                (products[0].name).should.match('test Product');
+                (products.items[0].name).should.equal('test Product');
 
                 // Call the assertion callback
                 done();
@@ -208,7 +227,7 @@ describe('Product CRUD tests with Token Base Authen', function () {
 
                 // Set assertions
                 //(products[0].user.loginToken).should.equal(token);
-                (products.length).should.match(0);
+                (products.items.length).should.match(0);
 
                 // Call the assertion callback
                 done();
@@ -241,9 +260,15 @@ describe('Product CRUD tests with Token Base Authen', function () {
 
             // Set assertions
             //(products[0].user.loginToken).should.equal(token);
-            (products.length).should.match(1);
-
-            // Call the assertion callback
+            (products.items.length).should.match(1);
+            (products.items[0].name).should.match(product.name);
+            (products.items[0].image).should.match(product.images[0]);
+            (products.items[0].price).should.match(product.price);
+            (products.items[0].promotionprice).should.match(product.promotionprice);
+            (products.items[0].percentofdiscount).should.match(product.percentofdiscount);
+            (products.items[0].currency).should.match(product.currency);
+            (products.items[0].rate).should.match(5);
+            (products.items[0].categories[0].name).should.match(product.categories[0].name);
             done();
           });
       });
@@ -259,6 +284,8 @@ describe('Product CRUD tests with Token Base Authen', function () {
         if (productSaveErr) {
           return done(productSaveErr);
         }
+
+        var productObj = productSaveRes.body;
         agent.get('/api/products/' + productSaveRes.body._id)
           .send(product)
           .expect(200)
@@ -268,18 +295,84 @@ describe('Product CRUD tests with Token Base Authen', function () {
               return done(productGetErr);
             }
             // Get Products list
-            var products = productsGetRes.body;
+            var product = productsGetRes.body;
 
             // Set assertions
             //(products[0].user.loginToken).should.equal(token);
-            (products.name).should.match('Product name');
+            (product.name).should.match('Product name');
+            (product.price).should.match(productObj.price);
+            (product.promotionprice).should.match(productObj.promotionprice);
+            (product.percentofdiscount).should.match(productObj.percentofdiscount);
+            (product.currency).should.match(productObj.currency);
+            (product.rate).should.match(5);
+            (product.shippings.length).should.match(1);
+            (product.shippings[0]._id).should.match(productObj.shippings[0]._id);
+            (product.shippings[0].name).should.match(productObj.shippings[0].name);
+            (product.shop.name).should.match(shop.name);
             done();
           });
       });
   });
+  it('update product review', function (done) {
+    // Save a new product
+    agent.post('/api/products')
+      .set('authorization', 'Bearer ' + token)
+      .send(product)
+      .expect(200)
+      .end(function (productSaveErr, productSaveRes) {
+        // Handle shop save error
+        if (productSaveErr) {
+          return done(productSaveErr);
+        }
+
+        var review = {
+          topic: 'review topic',
+          comment: 'comment',
+          rate: 5
+        };
+
+        agent.put('/api/products/review/' + productSaveRes.body._id)
+          .set('authorization', 'Bearer ' + token)
+          .send(review)
+          .expect(200)
+          .end(function (productUpdateErr, productUpdateRes) {
+            // Handle shop save error
+            if (productUpdateErr) {
+              return done(productUpdateErr);
+            }
+            // Get a list of product
+            agent.get('/api/products/' + productSaveRes.body._id)
+              .end(function (productGetErr, productsGetRes) {
+                // Handle shop save error
+                if (productGetErr) {
+                  return done(productGetErr);
+                }
+                // Get shop list
+                var products = productsGetRes.body;
+
+                // Set assertions
+                products.reviews.should.be.instanceof(Array).and.have.lengthOf(1);
+                products.reviews[0].should.be.instanceof(Object).and.have.property('topic', review.topic);
+                products.reviews[0].should.be.instanceof(Object).and.have.property('comment', review.comment);
+                products.reviews[0].should.be.instanceof(Object).and.have.property('rate', review.rate);
+                products.reviews[0].should.be.instanceof(Object).and.have.property('user', user.id);
+
+
+
+                done();
+              });
+          });
+      });
+
+  });
+
   afterEach(function (done) {
     User.remove().exec(function () {
-      Product.remove().exec(done);
+      Shop.remove().exec(function () {
+        Category.remove().exec(function () {
+          Product.remove().exec(done);
+        });
+      });
     });
   });
 });

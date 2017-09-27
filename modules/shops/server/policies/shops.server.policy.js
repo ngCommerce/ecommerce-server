@@ -9,56 +9,56 @@ var acl = require('acl');
 acl = new acl(new acl.memoryBackend());
 
 /**
- * Invoke Products Permissions
+ * Invoke Shops Permissions
  */
 exports.invokeRolesPolicies = function () {
   acl.allow([{
     roles: ['admin'],
     allows: [{
-      resources: '/api/products',
+      resources: '/api/shops',
       permissions: '*'
     }, {
-      resources: '/api/products/:productId',
+      resources: '/api/shops/:shopId',
       permissions: '*'
     }, {
-      resources: '/api/products/review/:productId',
-      permissions: ['put']
+      resources: '/api/shops/review/:shopId',
+      permissions: '*'
     }]
   }, {
     roles: ['user'],
     allows: [{
-      resources: '/api/products',
+      resources: '/api/shops',
       permissions: ['get', 'post']
     }, {
-      resources: '/api/products/:productId',
+      resources: '/api/shops/:shopId',
       permissions: ['get']
     }, {
-      resources: '/api/products/review/:productId',
+      resources: '/api/shops/review/:shopId',
       permissions: ['put']
     }]
   }, {
     roles: ['guest'],
     allows: [{
-      resources: '/api/products',
+      resources: '/api/shops',
       permissions: ['get']
     }, {
-      resources: '/api/products/:productId',
+      resources: '/api/shops/:shopId',
       permissions: ['get']
     }, {
-      resources: '/api/products/review/:productId',
+      resources: '/api/shops/review/:shopId',
       permissions: ['put']
     }]
   }]);
 };
 
 /**
- * Check If Products Policy Allows
+ * Check If Shops Policy Allows
  */
 exports.isAllowed = function (req, res, next) {
   var roles = (req.user) ? req.user.roles : ['guest'];
 
-  // If an Product is being processed and the current user created it then allow any manipulation
-  if (req.product && req.user && req.product.user && req.product.user.id === req.user.id) {
+  // If an Shop is being processed and the current user created it then allow any manipulation
+  if (req.shop && req.user && req.shop.user && req.shop.user.id === req.user.id) {
     return next();
   }
 

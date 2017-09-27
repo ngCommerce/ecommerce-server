@@ -115,8 +115,7 @@ describe('Product CRUD tests', function () {
                 var products = productsGetRes.body;
 
                 // Set assertions
-                (products[0].user._id).should.equal(userId);
-                (products[0].name).should.match('Product name');
+                (products.items[0].name).should.match('Product name');
 
                 // Call the assertion callback
                 done();
@@ -222,7 +221,7 @@ describe('Product CRUD tests', function () {
       request(app).get('/api/products')
         .end(function (req, res) {
           // Set assertion
-          res.body.should.be.instanceof(Array).and.have.lengthOf(1);
+          res.body.items.should.be.instanceof(Array).and.have.lengthOf(1);
 
           // Call the assertion callback
           done();
