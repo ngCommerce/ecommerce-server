@@ -23,7 +23,8 @@ var app,
   category,
   shop,
   shipping,
-  cart;
+  cart,
+  token;
 
 /**
  * Cart routes tests
@@ -112,7 +113,18 @@ describe('Cart CRUD tests', function () {
         shipping.save(function () {
           shop.save(function () {
             product.save(function () {
-              done();
+              agent.post('/api/auth/signin')
+                .send(credentials)
+                .expect(200)
+                .end(function (signinErr, signinRes) {
+                  // Handle signin error
+                  if (signinErr) {
+                    return done(signinErr);
+                  }
+                  signinRes.body.loginToken.should.not.be.empty();
+                  token = signinRes.body.loginToken;
+                  done();
+                });
             });
           });
         });
@@ -120,65 +132,49 @@ describe('Cart CRUD tests', function () {
     });
   });
 
-  it('should be able to get a Cart if logged in', function (done) {
-    agent.post('/api/auth/signin')
-      .send(credentials)
-      .expect(200)
-      .end(function (signinErr, signinRes) {
-        if (signinErr) {
-          return done(signinErr);
-        }
-
-        cart.save(function (err, cart) {
-          agent.get('/api/carts/' + cart._id)
-            .end(function (cartsGetErr, cartsGetRes) {
-              if (cartsGetErr) {
-                return done(cartsGetErr);
-              }
-              (cartsGetRes.body.products.length).should.equal(0);
-              done();
-            });
+  it('should be able to get a Cart if logged in with token', function (done) {
+    cart.save(function (err, cart) {
+      agent.get('/api/carts/' + cart._id)
+        .set('authorization', 'Bearer ' + token)
+        .end(function (cartsGetErr, cartsGetRes) {
+          if (cartsGetErr) {
+            return done(cartsGetErr);
+          }
+          (cartsGetRes.body.products.length).should.equal(0);
+          done();
         });
-      });
+    });
   });
 
-  it('should be able to add product to Cart if logged in', function (done) {
-    agent.post('/api/auth/signin')
-      .send(credentials)
-      .expect(200)
-      .end(function (signinErr, signinRes) {
-        if (signinErr) {
-          return done(signinErr);
-        }
+  it('should be able to add product to Cart if logged in with token', function (done) {
+    cart.products = [];
 
-        cart.products = [];
-
-        cart.save(function (err, cartRes) {
+    cart.save(function (err, cartRes) {
+      if (err) {
+        return done(err);
+      } else {
+        product.save(function (err, prodRes) {
           if (err) {
             return done(err);
           } else {
-            product.save(function (err, prodRes) {
-              if (err) {
-                return done(err);
-              } else {
-                cart.products = [prodRes._id];
-                agent.put('/api/carts/' + cartRes._id)
-                  .send(cart)
-                  .expect(200)
-                  .end(function (cartUpdateErr, cartUpdateRes) {
-                    if (cartUpdateErr) {
-                      return done(cartUpdateErr);
-                    }
+            cart.products = [prodRes._id];
+            agent.put('/api/carts/' + cartRes._id)
+              .set('authorization', 'Bearer ' + token)
+              .send(cart)
+              .expect(200)
+              .end(function (cartUpdateErr, cartUpdateRes) {
+                if (cartUpdateErr) {
+                  return done(cartUpdateErr);
+                }
 
-                    (cartUpdateRes.body.products.length).should.equal(cart.products.length);
+                (cartUpdateRes.body.products.length).should.equal(cart.products.length);
 
-                    done();
-                  });
-              }
-            });
+                done();
+              });
           }
         });
-      });
+      }
+    });
   });
 
   afterEach(function (done) {
