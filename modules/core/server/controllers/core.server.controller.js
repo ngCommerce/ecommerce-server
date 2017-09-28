@@ -51,6 +51,7 @@ exports.requiresLoginToken = function (req, res, next) {
   //check for login token here
   console.log('check token');
   console.log(req.headers);
+  console.log('authorization : ' + req.headers.authorization);
   if (!req.headers.authorization) {
     console.log('not token');
     next();
