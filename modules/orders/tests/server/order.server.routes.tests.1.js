@@ -170,7 +170,189 @@ describe('Order CRUD tests with Token Base Authen', function () {
     done();
   });
 
-  
+  it('should be able to save a Order if logged in with token', function (done) {
+    // Save a new Order
+    agent.post('/api/orders')
+      .set('authorization', 'Bearer ' + token)
+      .send(order)
+      .expect(200)
+      .end(function (orderSaveErr, orderSaveRes) {
+        // Handle Order save error
+        if (orderSaveErr) {
+          return done(orderSaveErr);
+        }
+        (orderSaveRes.body.items.length).should.match(1);
+
+
+        // Get a list of Orders
+        agent.get('/api/orders')
+          .end(function (ordersGetErr, ordersGetRes) {
+            // Handle Orders save error
+            if (ordersGetErr) {
+              return done(ordersGetErr);
+            }
+
+            // Get Orders list
+            var orders = ordersGetRes.body;
+
+            // Set assertions
+            //(Orders[0].user.loginToken).should.equal(token);
+            (orders[0].items[0].totalamount).should.match(order.items[0].totalamount);
+
+            // Call the assertion callback
+            done();
+          });
+      });
+  });
+  it('should be able to update a Order if logged in with token', function (done) {
+    // Save a new Order
+    agent.post('/api/orders')
+      .set('authorization', 'Bearer ' + token)
+      .send(order)
+      .expect(200)
+      .end(function (orderSaveErr, orderSaveRes) {
+        // Handle Order save error
+        if (orderSaveErr) {
+          return done(orderSaveErr);
+        }
+
+        order.discount = 80;
+        agent.put('/api/orders/' + orderSaveRes.body._id)
+          .set('authorization', 'Bearer ' + token)
+          .send(order)
+          .expect(200)
+          .end(function (orderUpdateErr, orderUpdateRes) {
+            // Handle Order save error
+            if (orderUpdateErr) {
+              return done(orderUpdateErr);
+            }
+
+            // Get a list of Orders
+            agent.get('/api/orders')
+              .end(function (ordersGetErr, ordersGetRes) {
+                // Handle Orders save error
+                if (ordersGetErr) {
+                  return done(ordersGetErr);
+                }
+
+                // Get Orders list
+                var orders = ordersGetRes.body;
+
+                // Set assertions
+                //(orders[0].user.loginToken).should.equal(token);
+                (orders[0].discount).should.equal(80);
+
+                // Call the assertion callback
+                done();
+              });
+          });
+      });
+  });
+  it('should be able to delete a Order if logged in with token', function (done) {
+    // Save a new Order
+    agent.post('/api/orders')
+      .set('authorization', 'Bearer ' + token)
+      .send(order)
+      .expect(200)
+      .end(function (orderSaveErr, orderSaveRes) {
+        // Handle Order save error
+        if (orderSaveErr) {
+          return done(orderSaveErr);
+        }
+
+        agent.delete('/api/orders/' + orderSaveRes.body._id)
+          .set('authorization', 'Bearer ' + token)
+          .send(order)
+          .expect(200)
+          .end(function (orderUpdateErr, orderUpdateRes) {
+            // Handle Order save error
+            if (orderUpdateErr) {
+              return done(orderUpdateErr);
+            }
+            // Get a list of Orders
+            agent.get('/api/orders')
+              .end(function (ordersGetErr, ordersGetRes) {
+                // Handle Orders save error
+                if (ordersGetErr) {
+                  return done(ordersGetErr);
+                }
+
+                // Get Orders list
+                var orders = ordersGetRes.body;
+
+                // Set assertions
+                (orders.length).should.match(0);
+
+                // Call the assertion callback
+                done();
+              });
+          });
+      });
+  });
+
+  it('should be able to get List a Order if logged in with token', function (done) {
+    // Save a new Order
+    agent.post('/api/orders')
+      .set('authorization', 'Bearer ' + token)
+      .send(order)
+      .expect(200)
+      .end(function (orderSaveErr, orderSaveRes) {
+        // Handle Order save error
+        if (orderSaveErr) {
+          return done(orderSaveErr);
+        }
+
+        // Get a list of Orders
+        agent.get('/api/orders')
+          .end(function (ordersGetErr, ordersGetRes) {
+            // Handle Orders save error
+            if (ordersGetErr) {
+              return done(ordersGetErr);
+            }
+
+            // Get Orders list
+            var orders = ordersGetRes.body;
+
+            // Set assertions
+            (orders.length).should.match(1);
+            (orders[0].items.length).should.match(1);
+            (orders[0].items[0].totalamount).should.match(18000);
+            done();
+          });
+      });
+  });
+  it('should be able to get By ID a Order if logged in with token', function (done) {
+    // Save a new Order
+    agent.post('/api/orders')
+    .set('authorization', 'Bearer ' + token)
+    .send(order)
+    .expect(200)
+    .end(function (orderSaveErr, orderSaveRes) {
+      // Handle Order save error
+      if (orderSaveErr) {
+        return done(orderSaveErr);
+      }
+
+        var orderObj = orderSaveRes.body;
+        agent.get('/api/orders/' + orderObj._id)
+          .send(order)
+          .expect(200)
+          .end(function (orderGetErr, orderGetRes) {
+            // Handle Order save error
+            if (orderGetErr) {
+              return done(orderGetErr);
+            }
+            // Get Order list
+            var order = orderGetRes.body;
+
+            // Set assertions
+            (order.totalamount).should.match(orderObj.totalamount);
+           
+            done();
+          });
+      });
+  });
+ 
 
   afterEach(function (done) {
     User.remove().exec(function () {
