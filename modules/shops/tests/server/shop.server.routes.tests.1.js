@@ -107,11 +107,12 @@ describe('Shop CRUD token tests', function () {
             }
 
             // Get Products list
-            var shops = shopsGetRes.body;
+            var shops = shopsGetRes.body.items;
 
             // Set assertions
             //(products[0].user.loginToken).should.equal(token);
             (shops[0].name).should.match(shop.name);
+            
 
             // Call the assertion callback
             done();
@@ -140,7 +141,7 @@ describe('Shop CRUD token tests', function () {
             }
 
             // Get shops list
-            var shops = shopsGetRes.body;
+            var shops = shopsGetRes.body.items;
 
             // Set assertions
             //(products[0].user.loginToken).should.equal(token);
@@ -226,7 +227,7 @@ describe('Shop CRUD token tests', function () {
                 }
 
                 // Get shop list
-                var shops = shopsGetRes.body;
+                var shops = shopsGetRes.body.items;
 
                 // Set assertions
                 //(products[0].user.loginToken).should.equal(token);
@@ -269,7 +270,7 @@ describe('Shop CRUD token tests', function () {
                 }
 
                 // Get shop list
-                var shops = shopsGetRes.body;
+                var shops = shopsGetRes.body.items;
 
                 // Set assertions
                 //(products[0].user.loginToken).should.equal(token);

@@ -99,7 +99,7 @@ describe('Shop CRUD tests', function () {
                 }
 
                 // Get Shops list
-                var shops = shopsGetRes.body;
+                var shops = shopsGetRes.body.items;
 
                 // Set assertions
                 // (shops[0].user._id).should.equal(userId);
@@ -209,7 +209,7 @@ describe('Shop CRUD tests', function () {
       request(app).get('/api/shops')
         .end(function (req, res) {
           // Set assertion
-          res.body.should.be.instanceof(Array).and.have.lengthOf(1);
+          res.body.items.should.be.instanceof(Array).and.have.lengthOf(1);
 
           // Call the assertion callback
           done();
