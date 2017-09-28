@@ -45,7 +45,7 @@ exports.read = function (req, res) {
  * Update a Cart
  */
 exports.update = function (req, res) {
-  Cart.findByIdAndUpdate(req.body._id, { $set: { 'products': req.body.products } }).exec(function (err, cartRes) {
+  Cart.findByIdAndUpdate(req.body._id, { $set: { 'items': req.body.items } }).exec(function (err, cartRes) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
