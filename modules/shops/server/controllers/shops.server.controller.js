@@ -95,7 +95,9 @@ exports.cookingListShop = function (req, res, next) {
 };
 
 exports.list = function (req, res) {
-  res.jsonp(req.shops);
+  res.jsonp({
+    items: req.shops
+  });
 };
 
 /**
@@ -122,11 +124,11 @@ exports.shopByID = function (req, res, next, id) {
   });
 };
 exports.updateReview = function (req, res) {
-  if(req.user && req.user !== undefined){
+  if (req.user && req.user !== undefined) {
     req.body = req.body ? req.body : {};
     req.body.user = req.user;
   }
-  
+
   req.shop.reviews.push(req.body);
 
   req.shop.save(function (err) {
