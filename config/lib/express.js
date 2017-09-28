@@ -44,11 +44,7 @@ module.exports.initLocalVariables = function (app) {
   app.locals.livereload = config.livereload;
   app.locals.logo = config.logo;
   app.locals.favicon = config.favicon;
-  var corsOptions = {
-    origin: 'http://localhost:8100/'
-  };
 
-  app.use(cors(corsOptions));
   // Passing the request url to environment locals
   app.use(function (req, res, next) {
     res.locals.host = req.protocol + '://' + req.hostname;
@@ -62,6 +58,12 @@ module.exports.initLocalVariables = function (app) {
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     next();
   });
+
+  var corsOptions = {
+    origin: '*'
+  };
+
+  app.use(cors(corsOptions));
 };
 
 /**
