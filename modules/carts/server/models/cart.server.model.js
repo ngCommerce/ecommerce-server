@@ -10,10 +10,22 @@ var mongoose = require('mongoose'),
  * Cart Schema
  */
 var CartSchema = new Schema({
-  products: {
+  items: {
     type: [{
-      type: Schema.ObjectId,
-      ref: 'Product'
+      product: {
+        type: Schema.ObjectId,
+        ref: 'Product'
+      },
+      delivery: {
+        detail: String,
+        name: String,
+        price: Number
+      },
+      qty: Number,
+      amount: Number,
+      discount: Number,
+      totalamount: Number,
+      deliveryprice: Number
     }]
   },
   user: {

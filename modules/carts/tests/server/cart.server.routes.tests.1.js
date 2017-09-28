@@ -103,7 +103,7 @@ describe('Cart CRUD tests', function () {
     });
 
     cart = new Cart({
-      products: [],
+      items: [],
       user: user
     });
 
@@ -140,14 +140,14 @@ describe('Cart CRUD tests', function () {
           if (cartsGetErr) {
             return done(cartsGetErr);
           }
-          (cartsGetRes.body.products.length).should.equal(0);
+          (cartsGetRes.body.items.length).should.equal(0);
           done();
         });
     });
   });
 
   it('should be able to add product to Cart if logged in with token', function (done) {
-    cart.products = [];
+    cart.items = [];
 
     cart.save(function (err, cartRes) {
       if (err) {
@@ -157,7 +157,7 @@ describe('Cart CRUD tests', function () {
           if (err) {
             return done(err);
           } else {
-            cart.products = [prodRes._id];
+            cart.items = [prodRes._id];
             agent.put('/api/carts/' + cartRes._id)
               .set('authorization', 'Bearer ' + token)
               .send(cart)
@@ -167,7 +167,7 @@ describe('Cart CRUD tests', function () {
                   return done(cartUpdateErr);
                 }
 
-                (cartUpdateRes.body.products.length).should.equal(cart.products.length);
+                (cartUpdateRes.body.items.length).should.equal(cart.items.length);
 
                 done();
               });
