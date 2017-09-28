@@ -8,6 +8,7 @@ var should = require('should'),
   Product = mongoose.model('Product'),
   Category = mongoose.model('Category'),
   Shop = mongoose.model('Shop'),
+  Shipping = mongoose.model('Shipping'),
   express = require(path.resolve('./config/lib/express'));
 
 /**
@@ -19,6 +20,7 @@ var app,
   user,
   category,
   shop,
+  shipping,
   product,
   token;
 
@@ -67,45 +69,48 @@ describe('Product CRUD tests with Token Base Authen', function () {
       },
       user: user
     });
+    shipping = new Shipping({
+      name: 'Shipping Name',
+      detail: 'ส่งด่วน',
+      price: 300,
+      duedate: 2,
+      user: user
+    });
 
     token = '';
 
     // Save a user to the test db and create new Product
     user.save(function () {
-      shop.save(function () {
-        category.save(function () {
-          product = {
-            name: 'Product name',
-            detail: 'Product detail',
-            price: 100,
-            promotionprice: 80,
-            percentofdiscount: 20,
-            currency: 'Product currency',
-            images: ['Product images'],
-            shippings: [{
-              name: 'Product shippings name',
-              detail: 'Product shippings detail',
+      shipping.save(function () {
+        shop.save(function () {
+          category.save(function () {
+            product = {
+              name: 'Product name',
+              detail: 'Product detail',
               price: 100,
-              duedate: 3,
-              created: new Date()
-            }],
-            categories: [category],
-            cod: false,
-            shop: shop,
-          };
+              promotionprice: 80,
+              percentofdiscount: 20,
+              currency: 'Product currency',
+              images: ['Product images'],
+              shippings: [shipping],
+              categories: [category],
+              cod: false,
+              shop: shop,
+            };
 
-          agent.post('/api/auth/signin')
-            .send(credentials)
-            .expect(200)
-            .end(function (signinErr, signinRes) {
-              // Handle signin error
-              if (signinErr) {
-                return done(signinErr);
-              }
-              signinRes.body.loginToken.should.not.be.empty();
-              token = signinRes.body.loginToken;
-              done();
-            });
+            agent.post('/api/auth/signin')
+              .send(credentials)
+              .expect(200)
+              .end(function (signinErr, signinRes) {
+                // Handle signin error
+                if (signinErr) {
+                  return done(signinErr);
+                }
+                signinRes.body.loginToken.should.not.be.empty();
+                token = signinRes.body.loginToken;
+                done();
+              });
+          });
         });
       });
     });
@@ -306,8 +311,8 @@ describe('Product CRUD tests with Token Base Authen', function () {
             (product.currency).should.match(productObj.currency);
             (product.rate).should.match(5);
             (product.shippings.length).should.match(1);
-            (product.shippings[0]._id).should.match(productObj.shippings[0]._id);
-            (product.shippings[0].name).should.match(productObj.shippings[0].name);
+            (product.shippings[0]._id).should.match(shipping.id);
+            (product.shippings[0].name).should.match(shipping.name);
             (product.shop.name).should.match(shop.name);
             done();
           });
@@ -378,17 +383,21 @@ describe('Product CRUD tests with Token Base Authen', function () {
           return done(productSaveErr);
         }
 
-        var shippings = [{
+        var shippingObj1 = new Shipping({
           name: 'review topic',
           detail: 'comment',
           price: 5,
           duedate: 3
-        },{
+        });
+        var shippingObj2 = new Shipping({
           name: 'review topic',
           detail: 'comment',
           price: 5,
           duedate: 3
-        }];
+        });
+        shippingObj1.save();
+        shippingObj2.save();
+        var shippings = [shippingObj1, shippingObj2];
 
         agent.put('/api/products/shippings/' + productSaveRes.body._id)
           .set('authorization', 'Bearer ' + token)
@@ -421,9 +430,11 @@ describe('Product CRUD tests with Token Base Authen', function () {
 
   afterEach(function (done) {
     User.remove().exec(function () {
-      Shop.remove().exec(function () {
-        Category.remove().exec(function () {
-          Product.remove().exec(done);
+      Shipping.remove().exec(function () {
+        Shop.remove().exec(function () {
+          Category.remove().exec(function () {
+            Product.remove().exec(done);
+          });
         });
       });
     });
