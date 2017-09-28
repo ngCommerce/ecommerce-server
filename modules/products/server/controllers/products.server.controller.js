@@ -122,7 +122,7 @@ exports.delete = function (req, res) {
  * Get List Product
  */
 exports.getProductList = function (req, res, next) {
-  Product.find({}, '_id name images price promotionprice percentofdiscount currency categories').sort('-created').populate('user', 'displayName').populate('categories').exec(function (err, products) {
+  Product.find({}, '_id name images price promotionprice percentofdiscount currency categories').sort('-created').populate('user', 'displayName').populate('categories').populate('shippings').exec(function (err, products) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -181,7 +181,7 @@ exports.productByID = function (req, res, next, id) {
     });
   }
 
-  Product.findById(id).populate('user', 'displayName').populate('shop').exec(function (err, product) {
+  Product.findById(id).populate('user', 'displayName').populate('shop').populate('shippings').exec(function (err, product) {
     if (err) {
       return next(err);
     } else if (!product) {

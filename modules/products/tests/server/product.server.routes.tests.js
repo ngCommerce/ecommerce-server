@@ -6,6 +6,9 @@ var should = require('should'),
   mongoose = require('mongoose'),
   User = mongoose.model('User'),
   Product = mongoose.model('Product'),
+  Category = mongoose.model('Category'),
+  Shop = mongoose.model('Shop'),
+  Shipping = mongoose.model('Shipping'),
   express = require(path.resolve('./config/lib/express'));
 
 /**
@@ -15,6 +18,9 @@ var app,
   agent,
   credentials,
   user,
+  category,
+  shop,
+  shipping,
   product;
 
 /**
@@ -48,35 +54,58 @@ describe('Product CRUD tests', function () {
       provider: 'local'
     });
 
+    category = new Category({
+      name: 'แฟชั่น'
+    });
+    shop = new Shop({
+      name: 'Shop Name',
+      detail: 'Shop Detail',
+      email: 'Shop Email',
+      image: 'https://www.onsite.org/assets/images/teaser/online-e-shop.jpg',
+      tel: '097654321',
+      map: {
+        lat: '13.933954',
+        long: '100.7157976'
+      },
+      user: user
+    });
+    shipping = new Shipping({
+      name: 'Shipping Name',
+      detail: 'ส่งด่วน',
+      price: 300,
+      duedate: 2,
+      user: user
+    });
+
     // Save a user to the test db and create new Product
     user.save(function () {
-      product = {
-        name: 'Product name',
-        detail: 'Product detail',
-        price: 100,
-        promotionprice: 80,
-        percentofdiscount: 20,
-        currency: 'Product currency',
-        images: ['Product images'],
-        reviews: [{
-          topic: 'Product reviews topic',
-          comment: 'Product reviews comment',
-          rate: 5,
-          created: new Date()
-        }],
-        shippings: [{
-          name: 'Product shippings name',
-          detail: 'Product shippings detail',
-          price: 100,
-          duedate: 3,
-          created: new Date()
-        }],
-        // categories: category,
-        cod: false,
-        // shop: shop,
-      };
+      shipping.save(function () {
+        shop.save(function () {
+          category.save(function () {
+            product = {
+              name: 'Product name',
+              detail: 'Product detail',
+              price: 100,
+              promotionprice: 80,
+              percentofdiscount: 20,
+              currency: 'Product currency',
+              images: ['Product images'],
+              reviews: [{
+                topic: 'Product reviews topic',
+                comment: 'Product reviews comment',
+                rate: 5,
+                created: new Date()
+              }],
+              categories: category,
+              shop: shop,
+              shippings: [shipping],
+              cod: false
+            };
 
-      done();
+            done();
+          });
+        });
+      });
     });
   });
 
@@ -425,8 +454,16 @@ describe('Product CRUD tests', function () {
   });
 
   afterEach(function (done) {
-    User.remove().exec(function () {
-      Product.remove().exec(done);
+    Product.remove().exec(function () {
+      Category.remove().exec(function () {
+        Shop.remove().exec(function () {
+          Shipping.remove().exec(function () {
+            User.remove().exec(function () {
+              done();
+            });
+          });
+        });
+      });
     });
   });
 });
