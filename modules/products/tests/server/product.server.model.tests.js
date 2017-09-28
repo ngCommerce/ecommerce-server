@@ -8,6 +8,7 @@ var should = require('should'),
   User = mongoose.model('User'),
   Category = mongoose.model('Category'),
   Shop = mongoose.model('Shop'),
+  Shipping = mongoose.model('Shipping'),
   Product = mongoose.model('Product');
 
 /**
@@ -16,6 +17,7 @@ var should = require('should'),
 var user,
   category,
   shop,
+  shipping,
   product;
 
 /**
@@ -47,40 +49,39 @@ describe('Product Model Unit Tests:', function () {
       },
       user: user
     });
-
+    shipping = new Shipping({
+      name: 'Shipping Name',
+      detail: 'ส่งด่วน',
+      price: 300,
+      duedate: 2,
+      user: user
+    });
     user.save(function () {
-      shop.save(function () {
-        category.save(function () {
-          product = new Product({
-            name: 'Product Name',
-            detail: 'Product detail',
-            price: 100,
-            promotionprice: 80,
-            percentofdiscount: 20,
-            currency: 'Product currency',
-            images: ['Product images'],
-            reviews: [{
-              topic: 'Product reviews topic',
-              comment: 'Product reviews comment',
-              rate: 5,
-              created: new Date()
-            }],
-            shippings: [{
-              name: 'Product shippings name',
-              detail: 'Product shippings detail',
+      shipping.save(function () {
+        shop.save(function () {
+          category.save(function () {
+            product = new Product({
+              name: 'Product Name',
+              detail: 'Product detail',
               price: 100,
-              duedate: 3,
-              created: new Date()
-            }],
-            categories: category,
-            cod: false,
-            shop: shop,
-            user: user
+              promotionprice: 80,
+              percentofdiscount: 20,
+              currency: 'Product currency',
+              images: ['Product images'],
+              reviews: [{
+                topic: 'Product reviews topic',
+                comment: 'Product reviews comment',
+                rate: 5,
+                created: new Date()
+              }],
+              shippings: [shipping],
+              categories: category,
+              cod: false,
+              shop: shop,
+              user: user
+            });
+            done();
           });
-
-
-
-          done();
         });
       });
     });
@@ -122,50 +123,16 @@ describe('Product Model Unit Tests:', function () {
       });
     });
 
-    it('should be able to show an error when try to save without shippings name', function (done) {
-      product.shippings[0].name = '';
-
-      return product.save(function (err) {
-        should.exist(err);
-        done();
-      });
-    });
-
-    it('should be able to show an error when try to save without shippings detail', function (done) {
-      product.shippings[0].detail = '';
-
-      return product.save(function (err) {
-        should.exist(err);
-        done();
-      });
-    });
-
-    it('should be able to show an error when try to save without shippings price', function (done) {
-      product.shippings[0].price = null;
-
-      return product.save(function (err) {
-        should.exist(err);
-        done();
-      });
-    });
-
-    it('should be able to show an error when try to save without shippings duedate', function (done) {
-      product.shippings[0].duedate = null;
-
-      return product.save(function (err) {
-        should.exist(err);
-        done();
-      });
-    });
-
   });
 
   afterEach(function (done) {
     Product.remove().exec(function () {
-      Shop.remove().exec(function () {
-        Category.remove().exec(function () {
-          User.remove().exec(function () {
-            done();
+      Category.remove().exec(function () {
+        Shop.remove().exec(function () {
+          Shipping.remove().exec(function () {
+            User.remove().exec(function () {
+              done();
+            });
           });
         });
       });
