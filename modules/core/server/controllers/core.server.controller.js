@@ -53,7 +53,7 @@ exports.requiresLoginToken = function (req, res, next) {
     next();
   } else {
     var loginToken = req.headers.authorization.replace('Bearer ', '');
-
+    console.log('token : ' + loginToken);
     // query DB for the user corresponding to the token and act accordingly
     User.findOne({
       loginToken: loginToken,
@@ -73,6 +73,7 @@ exports.requiresLoginToken = function (req, res, next) {
       }
 
       // bind user object to request and continue
+      console.log(user);
       req.user = user;
       //res.json(user);
       next();
