@@ -49,9 +49,12 @@ exports.renderNotFound = function (req, res) {
  */
 exports.requiresLoginToken = function (req, res, next) {
   //check for login token here
+  console.log('check token');
   if (!req.headers.authorization) {
+    console.log('not token');
     next();
   } else {
+    console.log('have token');
     var loginToken = req.headers.authorization.replace('Bearer ', '');
     console.log('token : ' + loginToken);
     // query DB for the user corresponding to the token and act accordingly
