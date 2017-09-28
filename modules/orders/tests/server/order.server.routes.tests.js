@@ -5,6 +5,9 @@ var should = require('should'),
   path = require('path'),
   mongoose = require('mongoose'),
   User = mongoose.model('User'),
+  Product = mongoose.model('Product'),
+  Shipping = mongoose.model('Shipping'),
+  Shop = mongoose.model('Shop'),
   Order = mongoose.model('Order'),
   express = require(path.resolve('./config/lib/express'));
 
@@ -15,6 +18,9 @@ var app,
   agent,
   credentials,
   user,
+  product,
+  shipping,
+  shop,
   order;
 
 /**
@@ -47,14 +53,90 @@ describe('Order CRUD tests', function () {
       password: credentials.password,
       provider: 'local'
     });
+    shipping = new Shipping([
+      {
+        shipping: {
+          detail: 'วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี',
+          name: 'ส่งแบบส่งด่วน',
+          price: 0
+        }
+      },
+      {
+        shipping: {
+          detail: 'วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี',
+          name: 'ส่งแบบธรรมดา',
+          price: 0
+        }
+      }
+    ]);
+    shop = new Shop({
+      name: 'Shop name'
+    });
+
+    product = new Product([
+      {
+        product: {
+          _id: '1',
+          name: 'Crossfit WorldWide Event',
+          image: 'https://images-eu.ssl-images-amazon.com/images/G/02/AMAZON-FASHION/2016/SHOES/SPORT/MISC/Nikemobilefootball',
+          price: 20000,
+          promotionprice: 18000,
+          percentofdiscount: 10,
+          currency: 'THB',
+          shop: shop,
+          shippings: [shipping]
+        },
+        qty: 1,
+        amount: 20000,
+        discount: 2000,
+        deliveryprice: 0,
+        totalamount: 18000,
+        delivery: {
+          detail: 'วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี',
+          name: 'ส่งแบบส่งด่วน',
+          price: 0
+        }
+      },
+    ]);
 
     // Save a user to the test db and create new Order
     user.save(function () {
-      order = {
-        name: 'Order name'
-      };
+      shipping.save(function () {
+        shop.save(function () {
+          product.save(function () {
+            order = {
+              shippings: [{
+                name: 'Product shippings name',
+                detail: 'Product shippings detail',
+                price: 100,
+                duedate: 3,
+                created: new Date()
+              }],
+              items: [
+                {
+                  product: product[0],
+                  qty: 1,
+                  delivery: {
+                    detail: "วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี",
+                    name: "ส่งแบบส่งด่วน",
+                    price: 0
+                  },
+                  amount: 20000,
+                  discount: 2000,
+                  deliveryprice: 0,
+                  totalamount: 18000,
+                }
+              ],
+              amount: 30000,
+              discount: 2000,
+              totalamount: 28000,
+              deliveryprice: 0,
+            };
 
-      done();
+            done();
+          });
+        });
+      });
     });
   });
 
@@ -94,7 +176,19 @@ describe('Order CRUD tests', function () {
 
                 // Set assertions
                 (orders[0].user._id).should.equal(userId);
-                (orders[0].name).should.match('Order name');
+                // (orders[0].name).should.match('Order name');
+                (orders[0].items.length).should.match(1);
+                (orders[0].items[0].qty).should.match(1);
+                (orders[0].items[0].amount).should.match(20000);
+                (orders[0].items[0].delivery.detail).should.match('วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี');
+                (orders[0].items[0].delivery.name).should.match('ส่งแบบส่งด่วน');
+                (orders[0].items[0].delivery.price).should.match(0);
+                (orders[0].items[0].discount).should.match(2000);
+                (orders[0].items[0].totalamount).should.match(18000);
+                (orders[0].amount).should.match(30000);
+                (orders[0].discount).should.match(2000);
+                (orders[0].totalamount).should.match(28000);
+                (orders[0].deliveryprice).should.match(0);
 
                 // Call the assertion callback
                 done();
@@ -113,9 +207,9 @@ describe('Order CRUD tests', function () {
       });
   });
 
-  it('should not be able to save an Order if no name is provided', function (done) {
+  it('should not be able to save an Order if no items is provided', function (done) {
     // Invalidate name field
-    order.name = '';
+    order.items = null;
 
     agent.post('/api/auth/signin')
       .send(credentials)
@@ -135,7 +229,7 @@ describe('Order CRUD tests', function () {
           .expect(400)
           .end(function (orderSaveErr, orderSaveRes) {
             // Set message assertion
-            (orderSaveRes.body.message).should.match('Please fill Order name');
+            (orderSaveRes.body.message).should.match('Please fill Order items');
 
             // Handle Order save error
             done(orderSaveErr);
@@ -167,7 +261,7 @@ describe('Order CRUD tests', function () {
             }
 
             // Update Order name
-            order.name = 'WHY YOU GOTTA BE SO MEAN?';
+            order.totalamount = 1000;
 
             // Update an existing Order
             agent.put('/api/orders/' + orderSaveRes.body._id)
@@ -181,7 +275,7 @@ describe('Order CRUD tests', function () {
 
                 // Set assertions
                 (orderUpdateRes.body._id).should.equal(orderSaveRes.body._id);
-                (orderUpdateRes.body.name).should.match('WHY YOU GOTTA BE SO MEAN?');
+                (orderUpdateRes.body.totalamount).should.match(1000);
 
                 // Call the assertion callback
                 done();
@@ -218,7 +312,7 @@ describe('Order CRUD tests', function () {
       request(app).get('/api/orders/' + orderObj._id)
         .end(function (req, res) {
           // Set assertion
-          res.body.should.be.instanceof(Object).and.have.property('name', order.name);
+          res.body.should.be.instanceof(Object).and.have.property('totalamount', order.totalamount);
 
           // Call the assertion callback
           done();
@@ -363,7 +457,7 @@ describe('Order CRUD tests', function () {
               }
 
               // Set assertions on new Order
-              (orderSaveRes.body.name).should.equal(order.name);
+              (orderSaveRes.body.totalamount).should.equal(order.totalamount);
               should.exist(orderSaveRes.body.user);
               should.equal(orderSaveRes.body.user._id, orphanId);
 
@@ -390,7 +484,7 @@ describe('Order CRUD tests', function () {
 
                         // Set assertions
                         (orderInfoRes.body._id).should.equal(orderSaveRes.body._id);
-                        (orderInfoRes.body.name).should.equal(order.name);
+                        (orderInfoRes.body.totalamount).should.equal(order.totalamount);
                         should.equal(orderInfoRes.body.user, undefined);
 
                         // Call the assertion callback
@@ -405,7 +499,13 @@ describe('Order CRUD tests', function () {
 
   afterEach(function (done) {
     User.remove().exec(function () {
-      Order.remove().exec(done);
+      Shipping.remove().exec(function () {
+        Shop.remove().exec(function () {
+          Product.remove().exec(function () {
+            Order.remove().exec(done);
+          });
+        });
+      });
     });
   });
 });
