@@ -1,38 +1,60 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
 var should = require('should'),
+  request = require('supertest'),
+  path = require('path'),
   mongoose = require('mongoose'),
   User = mongoose.model('User'),
+  Order = mongoose.model('Order'),
   Product = mongoose.model('Product'),
-  Shipping = mongoose.model('Shipping'),
   Shop = mongoose.model('Shop'),
-  Order = mongoose.model('Order');
+  Shipping = mongoose.model('Shipping'),
+  express = require(path.resolve('./config/lib/express'));
 
 /**
  * Globals
  */
-var user,
+var app,
+  agent,
+  credentials,
+  user,
+  order,
   product,
-  shipping,
   shop,
-  order;
+  shipping,
+  token;
 
 /**
- * Unit tests
+ * Order routes tests
  */
-describe('Order Model Unit Tests:', function () {
+describe('Order CRUD tests with Token Base Authen', function () {
+
+  before(function (done) {
+    // Get application
+    app = express.init(mongoose);
+    agent = request.agent(app);
+
+    done();
+  });
+
   beforeEach(function (done) {
+    // Create user credentials
+    credentials = {
+      username: 'username',
+      password: 'M3@n.jsI$Aw3$0m3'
+    };
+
+    // Create a new user
     user = new User({
       firstName: 'Full',
       lastName: 'Name',
       displayName: 'Full Name',
       email: 'test@test.com',
-      username: 'username',
-      password: 'password'
+      username: credentials.username,
+      password: credentials.password,
+      provider: 'local'
     });
+
     shipping = new Shipping([
       {
         shipping: {
@@ -49,9 +71,20 @@ describe('Order Model Unit Tests:', function () {
         }
       }
     ]);
+
     shop = new Shop({
-      name: 'Shop name'
+      name: 'Shop Name',
+      detail: 'Shop Detail',
+      email: 'Shop Email',
+      image: 'https://www.onsite.org/assets/images/teaser/online-e-shop.jpg',
+      tel: '097654321',
+      map: {
+        lat: '13.933954',
+        long: '100.7157976'
+      },
+      user: user
     });
+
     product = new Product([
       {
         product: {
@@ -78,11 +111,14 @@ describe('Order Model Unit Tests:', function () {
       },
     ]);
 
+    token = '';
+
+    // Save a user to the test db and create new Product
     user.save(function () {
       shipping.save(function () {
         shop.save(function () {
           product.save(function () {
-            order = new Order({
+            order = {
               shippings: [{
                 name: 'Product shippings name',
                 detail: 'Product shippings detail',
@@ -90,82 +126,58 @@ describe('Order Model Unit Tests:', function () {
                 duedate: 3,
                 created: new Date()
               }],
-              items: product,
+              items: [
+                {
+                  product: product[0],
+                  qty: 1,
+                  delivery: {
+                    detail: "วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี",
+                    name: "ส่งแบบส่งด่วน",
+                    price: 0
+                  },
+                  amount: 20000,
+                  discount: 2000,
+                  deliveryprice: 0,
+                  totalamount: 18000,
+                }
+              ],
               amount: 30000,
               discount: 2000,
               totalamount: 28000,
               deliveryprice: 0,
-              user: user
-            });
+            };
 
-            done();
+            agent.post('/api/auth/signin')
+              .send(credentials)
+              .expect(200)
+              .end(function (signinErr, signinRes) {
+                // Handle signin error
+                if (signinErr) {
+                  return done(signinErr);
+                }
+                signinRes.body.loginToken.should.not.be.empty();
+                token = signinRes.body.loginToken;
+                done();
+              });
           });
         });
       });
     });
   });
 
-  describe('Method Save', function () {
-    it('should be able to save without problems', function (done) {
-      this.timeout(0);
-      return order.save(function (err) {
-        should.not.exist(err);
-        done();
-      });
-    });
-
-    it('should be able to show an error when try to save without items', function (done) {
-      order.items = null;
-
-      return order.save(function (err) {
-        should.exist(err);
-        done();
-      });
-    });
-    it('should be able to show an error when try to save without amount', function (done) {
-      order.amount = null;
-
-      return order.save(function (err) {
-        should.exist(err);
-        done();
-      });
-    });
-    it('should be able to show an error when try to save without discount', function (done) {
-      order.discount = null;
-
-      return order.save(function (err) {
-        should.exist(err);
-        done();
-      });
-    });
-    it('should be able to show an error when try to save without totalamount', function (done) {
-      order.totalamount = null;
-
-      return order.save(function (err) {
-        should.exist(err);
-        done();
-      });
-    });
-    it('should be able to show an error when try to save without deliveryprice', function (done) {
-      order.deliveryprice = null;
-
-      return order.save(function (err) {
-        should.exist(err);
-        done();
-      });
-    });
-
-
+  it('should be have Token logged in', function (done) {
+    token.should.not.be.empty();
+    done();
   });
 
+  
+
   afterEach(function (done) {
-    Order.remove().exec(function () {
-      Shipping.remove().exec(function () {
-        Shop.remove().exec(function () {
+    User.remove().exec(function () {
+      Shop.remove().exec(function () {
+        Shipping.remove().exec(function () {
           Product.remove().exec(function () {
-            User.remove().exec(function () {
-              done();
-            });
+            Order.remove().exec(done);
           });
         });
       });

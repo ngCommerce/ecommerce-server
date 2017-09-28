@@ -6,7 +6,7 @@ var should = require('should'),
   mongoose = require('mongoose'),
   User = mongoose.model('User'),
   Product = mongoose.model('Product'),
-  // Shipping = mongoose.model('Shipping'),
+  Shipping = mongoose.model('Shipping'),
   Shop = mongoose.model('Shop'),
   Order = mongoose.model('Order'),
   express = require(path.resolve('./config/lib/express'));
@@ -19,7 +19,7 @@ var app,
   credentials,
   user,
   product,
-  // shipping,
+  shipping,
   shop,
   order;
 
@@ -53,22 +53,22 @@ describe('Order CRUD tests', function () {
       password: credentials.password,
       provider: 'local'
     });
-    // shipping = new Shipping([
-    //   {
-    //     shipping: {
-    //       detail: 'วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี',
-    //       name: 'ส่งแบบส่งด่วน',
-    //       price: 0
-    //     }
-    //   },
-    //   {
-    //     shipping: {
-    //       detail: 'วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี',
-    //       name: 'ส่งแบบธรรมดา',
-    //       price: 0
-    //     }
-    //   }
-    // ]);
+    shipping = new Shipping([
+      {
+        shipping: {
+          detail: 'วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี',
+          name: 'ส่งแบบส่งด่วน',
+          price: 0
+        }
+      },
+      {
+        shipping: {
+          detail: 'วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี',
+          name: 'ส่งแบบธรรมดา',
+          price: 0
+        }
+      }
+    ]);
     shop = new Shop({
       name: 'Shop name'
     });
@@ -83,8 +83,8 @@ describe('Order CRUD tests', function () {
           promotionprice: 18000,
           percentofdiscount: 10,
           currency: 'THB',
-          shop: shop
-          // shippings: [shipping]
+          shop: shop,
+          shippings: [shipping]
         },
         qty: 1,
         amount: 20000,
@@ -101,38 +101,40 @@ describe('Order CRUD tests', function () {
 
     // Save a user to the test db and create new Order
     user.save(function () {
-      shop.save(function () {
-        product.save(function () {
-          order = {
-            shippings: [{
-              name: 'Product shippings name',
-              detail: 'Product shippings detail',
-              price: 100,
-              duedate: 3,
-              created: new Date()
-            }],
-            items: [
-              {
-                product: product[0],
-                qty: 1,
-                delivery: {
-                  detail: "วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี",
-                  name: "ส่งแบบส่งด่วน",
-                  price: 0
-                },
-                amount: 20000,
-                discount: 2000,
-                deliveryprice: 0,
-                totalamount: 18000,
-              }
-            ],
-            amount: 30000,
-            discount: 2000,
-            totalamount: 28000,
-            deliveryprice: 0,
-          };
+      shipping.save(function () {
+        shop.save(function () {
+          product.save(function () {
+            order = {
+              shippings: [{
+                name: 'Product shippings name',
+                detail: 'Product shippings detail',
+                price: 100,
+                duedate: 3,
+                created: new Date()
+              }],
+              items: [
+                {
+                  product: product[0],
+                  qty: 1,
+                  delivery: {
+                    detail: "วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี",
+                    name: "ส่งแบบส่งด่วน",
+                    price: 0
+                  },
+                  amount: 20000,
+                  discount: 2000,
+                  deliveryprice: 0,
+                  totalamount: 18000,
+                }
+              ],
+              amount: 30000,
+              discount: 2000,
+              totalamount: 28000,
+              deliveryprice: 0,
+            };
 
-          done();
+            done();
+          });
         });
       });
     });
@@ -497,9 +499,11 @@ describe('Order CRUD tests', function () {
 
   afterEach(function (done) {
     User.remove().exec(function () {
-      Shop.remove().exec(function () {
-        Product.remove().exec(function () {
-          Order.remove().exec(done);
+      Shipping.remove().exec(function () {
+        Shop.remove().exec(function () {
+          Product.remove().exec(function () {
+            Order.remove().exec(done);
+          });
         });
       });
     });
