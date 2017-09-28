@@ -17,32 +17,9 @@ var OrderSchema = new Schema({
   //   trim: true
   // },
   shipping: {
-    type: [{
-      name: {
-        type: String,
-        default: '',
-        required: 'Please fill Shipping name',
-        trim: true
-      },
-      detail: {
-        type: String,
-        required: 'Please fill Shipping detail'
-      },
-      price: {
-        type: Number,
-        default: 0,
-        required: 'Please fill Shipping price'
-      },
-      duedate: {
-        type: Number,
-        default: 1,
-        required: 'Please fill Shipping price'
-      },
-      created: {
-        type: Date,
-        default: Date.now
-      }
-    }]
+    required: 'Please fill Order shipping',
+    type: Schema.ObjectId,
+    ref: 'Address'
   },
   items: {
     type: [{

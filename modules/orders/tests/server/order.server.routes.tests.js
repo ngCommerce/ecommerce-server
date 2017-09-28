@@ -5,6 +5,7 @@ var should = require('should'),
   path = require('path'),
   mongoose = require('mongoose'),
   User = mongoose.model('User'),
+  Address = mongoose.model('Address'),
   Product = mongoose.model('Product'),
   Shipping = mongoose.model('Shipping'),
   Shop = mongoose.model('Shop'),
@@ -18,6 +19,7 @@ var app,
   agent,
   credentials,
   user,
+  address,
   product,
   shipping,
   shop,
@@ -72,7 +74,16 @@ describe('Order CRUD tests', function () {
     shop = new Shop({
       name: 'Shop name'
     });
-
+    address = new Address({
+      address: '90',
+      district: 'ลำลูกกา',
+      postcode: '12150',
+      province: 'ปทุมธานี',
+      subdistrict: 'ลำลูกกา',
+      firstname: 'amonrat',
+      lastname: 'chantawon',
+      tel: '0934524524'
+    });
     product = new Product([
       {
         product: {
@@ -101,39 +112,35 @@ describe('Order CRUD tests', function () {
 
     // Save a user to the test db and create new Order
     user.save(function () {
-      shipping.save(function () {
-        shop.save(function () {
-          product.save(function () {
-            order = {
-              shippings: [{
-                name: 'Product shippings name',
-                detail: 'Product shippings detail',
-                price: 100,
-                duedate: 3,
-                created: new Date()
-              }],
-              items: [
-                {
-                  product: product[0],
-                  qty: 1,
-                  delivery: {
-                    detail: "วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี",
-                    name: "ส่งแบบส่งด่วน",
-                    price: 0
-                  },
-                  amount: 20000,
-                  discount: 2000,
-                  deliveryprice: 0,
-                  totalamount: 18000,
-                }
-              ],
-              amount: 30000,
-              discount: 2000,
-              totalamount: 28000,
-              deliveryprice: 0,
-            };
+      address.save(function () {
+        shipping.save(function () {
+          shop.save(function () {
+            product.save(function () {
+              order = {
+                shipping: address,
+                items: [
+                  {
+                    product: product[0],
+                    qty: 1,
+                    delivery: {
+                      detail: "วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี",
+                      name: "ส่งแบบส่งด่วน",
+                      price: 0
+                    },
+                    amount: 20000,
+                    discount: 2000,
+                    deliveryprice: 0,
+                    totalamount: 18000,
+                  }
+                ],
+                amount: 30000,
+                discount: 2000,
+                totalamount: 28000,
+                deliveryprice: 0,
+              };
 
-            done();
+              done();
+            });
           });
         });
       });
@@ -499,10 +506,12 @@ describe('Order CRUD tests', function () {
 
   afterEach(function (done) {
     User.remove().exec(function () {
-      Shipping.remove().exec(function () {
-        Shop.remove().exec(function () {
-          Product.remove().exec(function () {
-            Order.remove().exec(done);
+      Address.remove().exec(function () {
+        Shipping.remove().exec(function () {
+          Shop.remove().exec(function () {
+            Product.remove().exec(function () {
+              Order.remove().exec(done);
+            });
           });
         });
       });

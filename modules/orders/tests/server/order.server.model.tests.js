@@ -6,6 +6,7 @@
 var should = require('should'),
   mongoose = require('mongoose'),
   User = mongoose.model('User'),
+  Address = mongoose.model('Address'),
   Product = mongoose.model('Product'),
   Shipping = mongoose.model('Shipping'),
   Shop = mongoose.model('Shop'),
@@ -15,6 +16,7 @@ var should = require('should'),
  * Globals
  */
 var user,
+  address,
   product,
   shipping,
   shop,
@@ -52,6 +54,16 @@ describe('Order Model Unit Tests:', function () {
     shop = new Shop({
       name: 'Shop name'
     });
+    address = new Address({
+      address: '90',
+      district: 'ลำลูกกา',
+      postcode: '12150',
+      province: 'ปทุมธานี',
+      subdistrict: 'ลำลูกกา',
+      firstname: 'amonrat',
+      lastname: 'chantawon',
+      tel: '0934524524'
+    });
     product = new Product([
       {
         product: {
@@ -79,26 +91,22 @@ describe('Order Model Unit Tests:', function () {
     ]);
 
     user.save(function () {
-      shipping.save(function () {
-        shop.save(function () {
-          product.save(function () {
-            order = new Order({
-              shippings: [{
-                name: 'Product shippings name',
-                detail: 'Product shippings detail',
-                price: 100,
-                duedate: 3,
-                created: new Date()
-              }],
-              items: product,
-              amount: 30000,
-              discount: 2000,
-              totalamount: 28000,
-              deliveryprice: 0,
-              user: user
-            });
+      address.save(function () {
+        shipping.save(function () {
+          shop.save(function () {
+            product.save(function () {
+              order = new Order({
+                shipping: address,
+                items: product,
+                amount: 30000,
+                discount: 2000,
+                totalamount: 28000,
+                deliveryprice: 0,
+                user: user
+              });
 
-            done();
+              done();
+            });
           });
         });
       });
@@ -114,6 +122,14 @@ describe('Order Model Unit Tests:', function () {
       });
     });
 
+    it('should be able to show an error when try to save without shipping', function (done) {
+      order.shipping = null;
+
+      return order.save(function (err) {
+        should.exist(err);
+        done();
+      });
+    });
     it('should be able to show an error when try to save without items', function (done) {
       order.items = null;
 
@@ -160,11 +176,13 @@ describe('Order Model Unit Tests:', function () {
 
   afterEach(function (done) {
     Order.remove().exec(function () {
-      Shipping.remove().exec(function () {
-        Shop.remove().exec(function () {
-          Product.remove().exec(function () {
-            User.remove().exec(function () {
-              done();
+      Address.remove().exec(function () {
+        Shipping.remove().exec(function () {
+          Shop.remove().exec(function () {
+            Product.remove().exec(function () {
+              User.remove().exec(function () {
+                done();
+              });
             });
           });
         });

@@ -6,6 +6,7 @@ var should = require('should'),
   mongoose = require('mongoose'),
   User = mongoose.model('User'),
   Order = mongoose.model('Order'),
+  Address = mongoose.model('Address'),
   Product = mongoose.model('Product'),
   Shop = mongoose.model('Shop'),
   Shipping = mongoose.model('Shipping'),
@@ -18,6 +19,7 @@ var app,
   agent,
   credentials,
   user,
+  address,
   order,
   product,
   shop,
@@ -85,6 +87,16 @@ describe('Order CRUD tests with Token Base Authen', function () {
       user: user
     });
 
+    address = new Address({
+      address: '90',
+      district: 'ลำลูกกา',
+      postcode: '12150',
+      province: 'ปทุมธานี',
+      subdistrict: 'ลำลูกกา',
+      firstname: 'amonrat',
+      lastname: 'chantawon',
+      tel: '0934524524'
+    });
     product = new Product([
       {
         product: {
@@ -115,50 +127,46 @@ describe('Order CRUD tests with Token Base Authen', function () {
 
     // Save a user to the test db and create new Product
     user.save(function () {
-      shipping.save(function () {
-        shop.save(function () {
-          product.save(function () {
-            order = {
-              shippings: [{
-                name: 'Product shippings name',
-                detail: 'Product shippings detail',
-                price: 100,
-                duedate: 3,
-                created: new Date()
-              }],
-              items: [
-                {
-                  product: product[0],
-                  qty: 1,
-                  delivery: {
-                    detail: "วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี",
-                    name: "ส่งแบบส่งด่วน",
-                    price: 0
-                  },
-                  amount: 20000,
-                  discount: 2000,
-                  deliveryprice: 0,
-                  totalamount: 18000,
-                }
-              ],
-              amount: 30000,
-              discount: 2000,
-              totalamount: 28000,
-              deliveryprice: 0,
-            };
+      address.save(function () {
+        shipping.save(function () {
+          shop.save(function () {
+            product.save(function () {
+              order = {
+                shipping: address,
+                items: [
+                  {
+                    product: product[0],
+                    qty: 1,
+                    delivery: {
+                      detail: "วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี",
+                      name: "ส่งแบบส่งด่วน",
+                      price: 0
+                    },
+                    amount: 20000,
+                    discount: 2000,
+                    deliveryprice: 0,
+                    totalamount: 18000,
+                  }
+                ],
+                amount: 30000,
+                discount: 2000,
+                totalamount: 28000,
+                deliveryprice: 0,
+              };
 
-            agent.post('/api/auth/signin')
-              .send(credentials)
-              .expect(200)
-              .end(function (signinErr, signinRes) {
-                // Handle signin error
-                if (signinErr) {
-                  return done(signinErr);
-                }
-                signinRes.body.loginToken.should.not.be.empty();
-                token = signinRes.body.loginToken;
-                done();
-              });
+              agent.post('/api/auth/signin')
+                .send(credentials)
+                .expect(200)
+                .end(function (signinErr, signinRes) {
+                  // Handle signin error
+                  if (signinErr) {
+                    return done(signinErr);
+                  }
+                  signinRes.body.loginToken.should.not.be.empty();
+                  token = signinRes.body.loginToken;
+                  done();
+                });
+            });
           });
         });
       });
@@ -324,14 +332,14 @@ describe('Order CRUD tests with Token Base Authen', function () {
   it('should be able to get By ID a Order if logged in with token', function (done) {
     // Save a new Order
     agent.post('/api/orders')
-    .set('authorization', 'Bearer ' + token)
-    .send(order)
-    .expect(200)
-    .end(function (orderSaveErr, orderSaveRes) {
-      // Handle Order save error
-      if (orderSaveErr) {
-        return done(orderSaveErr);
-      }
+      .set('authorization', 'Bearer ' + token)
+      .send(order)
+      .expect(200)
+      .end(function (orderSaveErr, orderSaveRes) {
+        // Handle Order save error
+        if (orderSaveErr) {
+          return done(orderSaveErr);
+        }
 
         var orderObj = orderSaveRes.body;
         agent.get('/api/orders/' + orderObj._id)
@@ -347,19 +355,21 @@ describe('Order CRUD tests with Token Base Authen', function () {
 
             // Set assertions
             (order.totalamount).should.match(orderObj.totalamount);
-           
+
             done();
           });
       });
   });
- 
+
 
   afterEach(function (done) {
     User.remove().exec(function () {
-      Shop.remove().exec(function () {
-        Shipping.remove().exec(function () {
-          Product.remove().exec(function () {
-            Order.remove().exec(done);
+      Address.remove().exec(function () {
+        Shop.remove().exec(function () {
+          Shipping.remove().exec(function () {
+            Product.remove().exec(function () {
+              Order.remove().exec(done);
+            });
           });
         });
       });
