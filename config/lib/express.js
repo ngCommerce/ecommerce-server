@@ -55,8 +55,6 @@ module.exports.initLocalVariables = function (app) {
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     next();
   });
-
-  app.use(allowCrossDomain)
 };
 
 /**
