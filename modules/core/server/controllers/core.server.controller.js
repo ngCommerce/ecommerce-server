@@ -72,7 +72,6 @@ exports.requiresLoginToken = function (req, res, next) {
       }
 
       // bind user object to request and continue
-      console.log(user);
       req.user = user;
       //res.json(user);
       next();
