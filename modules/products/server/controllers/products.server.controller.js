@@ -12,11 +12,11 @@ var path = require('path'),
 /**
  * Create a Product
  */
-exports.create = function(req, res) {
+exports.create = function (req, res) {
   var product = new Product(req.body);
   product.user = req.user;
 
-  product.save(function(err) {
+  product.save(function (err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -30,10 +30,51 @@ exports.create = function(req, res) {
 /**
  * Show the current Product
  */
-exports.read = function(req, res) {
+exports.read = function (req, res) {
   // convert mongoose document to JSON
-  var product = req.product ? req.product.toJSON() : {};
+  var productDB = req.product ? req.product.toJSON() : {};
 
+  var shippings = [];
+  if (productDB.shippings && productDB.shippings.length > 0) {
+    productDB.shippings.forEach(function (shipping) {
+      shippings.push({
+        _id: shipping._id,
+        name: shipping.name
+      });
+    });
+  }
+  var shop = {
+    name: productDB.shop ? productDB.shop.name : '',
+    rate: productDB.shop ? productDB.shop.rate : null
+  };
+  // var isfavorite = false;
+  // if (req.user && req.user !== undefined) {
+  //   if (productDB.favorites && productDB.favorites.length > 0) {
+  //     productDB.favorites.forEach(function (favorite) {
+  //       if (favorite.user.toString() === req.user._id.toString()) {
+  //         isfavorite = true;
+  //       }
+  //     });
+  //   }
+  // }
+
+  var product = {
+    _id: productDB._id,
+    name: productDB.name,
+    detail: productDB.detail,
+    price: productDB.price,
+    promotionprice: productDB.promotionprice,
+    percentofdiscount: productDB.percentofdiscount,
+    currency: productDB.currency,
+    images: productDB.images,
+    rate: 5,
+    // favorites: productDB.favorites,
+    reviews: productDB.reviews,
+    shippings: shippings,
+    shop: shop,
+    // isfavorite: isfavorite,
+    otherproducts: []
+  };
   // Add a custom field to the Article, for determining if the current User is the "owner".
   // NOTE: This field is NOT persisted to the database, since it doesn't exist in the Article model.
   product.isCurrentUserOwner = req.user && product.user && product.user._id.toString() === req.user._id.toString();
@@ -44,12 +85,12 @@ exports.read = function(req, res) {
 /**
  * Update a Product
  */
-exports.update = function(req, res) {
+exports.update = function (req, res) {
   var product = req.product;
 
   product = _.extend(product, req.body);
 
-  product.save(function(err) {
+  product.save(function (err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -63,10 +104,10 @@ exports.update = function(req, res) {
 /**
  * Delete an Product
  */
-exports.delete = function(req, res) {
+exports.delete = function (req, res) {
   var product = req.product;
 
-  product.remove(function(err) {
+  product.remove(function (err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -78,24 +119,61 @@ exports.delete = function(req, res) {
 };
 
 /**
- * List of Products
+ * Get List Product
  */
-exports.list = function(req, res) {
-  Product.find().sort('-created').populate('user', 'displayName').exec(function(err, products) {
+exports.getProductList = function (req, res, next) {
+  Product.find({}, '_id name images price promotionprice percentofdiscount currency categories').sort('-created').populate('user', 'displayName').populate('categories').exec(function (err, products) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      res.jsonp(products);
+      req.products = products;
+      next();
     }
+  });
+
+};
+
+/**
+ * Cooking List Product
+ */
+exports.cookingProductList = function (req, res, next) {
+  var products = [];
+  req.products.forEach(function (element) {
+    var categories = [];
+    element.categories.forEach(function (cate) {
+      categories.push({ name: cate.name });
+    });
+    products.push({
+      _id: element._id,
+      name: element.name,
+      image: element.images[0],
+      price: element.price,
+      promotionprice: element.promotionprice,
+      percentofdiscount: element.percentofdiscount,
+      currency: element.currency,
+      categories: categories,
+      rate: 5
+    });
+  });
+  req.productsCookingList = products;
+  next();
+};
+
+/**
+ * List of Products
+ */
+exports.list = function (req, res) {
+  res.jsonp({
+    items: req.productsCookingList
   });
 };
 
 /**
  * Product middleware
  */
-exports.productByID = function(req, res, next, id) {
+exports.productByID = function (req, res, next, id) {
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).send({
@@ -103,7 +181,7 @@ exports.productByID = function(req, res, next, id) {
     });
   }
 
-  Product.findById(id).populate('user', 'displayName').exec(function (err, product) {
+  Product.findById(id).populate('user', 'displayName').populate('shop').exec(function (err, product) {
     if (err) {
       return next(err);
     } else if (!product) {
@@ -114,4 +192,40 @@ exports.productByID = function(req, res, next, id) {
     req.product = product;
     next();
   });
+};
+
+/**
+ * Update Review
+ */
+exports.updateReview = function (req, res) {
+  if (req.user && req.user !== undefined) {
+    req.body = req.body ? req.body : {};
+    req.body.user = req.user;
+  }
+  req.product.reviews.push(req.body);
+  req.product.save(function (err) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(req.product);
+    }
+  });
+
+};
+
+exports.updateShipping = function (req, res) {
+
+  req.product.shippings = req.product.shippings.concat(req.body);
+  req.product.save(function (err) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(req.product);
+    }
+  });
+
 };
