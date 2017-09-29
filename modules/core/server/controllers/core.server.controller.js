@@ -52,32 +52,36 @@ exports.requiresLoginToken = function (req, res, next) {
   if (!req.headers.authorization) {
     next();
   } else {
-    var loginToken = req.headers.authorization.replace('Bearer ', '');
-    // query DB for the user corresponding to the token and act accordingly
-    User.findOne({
-      loginToken: loginToken,
-      loginExpires: {
-        $gt: Date.now()
-      }
-    }, function (err, user) {
-      if (!user) {
-        return res.status(401).send({
-          message: 'Token is incorrect or has expired. Please login again'
-        });
-      }
-      if (err) {
-        return res.status(500).send({
-          message: 'There was an internal server error processing your login token'
-        });
-      }
+    if (req.headers.authorization.indexOf('Bearer') !== -1) {
+      var loginToken = req.headers.authorization.replace('Bearer ', '');
+      // query DB for the user corresponding to the token and act accordingly
+      User.findOne({
+        loginToken: loginToken,
+        loginExpires: {
+          $gt: Date.now()
+        }
+      }, function (err, user) {
+        if (!user) {
+          return res.status(401).send({
+            message: 'Token is incorrect or has expired. Please login again'
+          });
+        }
+        if (err) {
+          return res.status(500).send({
+            message: 'There was an internal server error processing your login token'
+          });
+        }
 
-      // bind user object to request and continue
-      req.user = user;
-      //res.json(user);
-      next();
-    });
+        // bind user object to request and continue
+        req.user = user;
+        //res.json(user);
+        next();
+      });
+    } else {
+      return res.status(500).send({
+        message: 'There was an internal server error processing your login token'
+      });
+    }
+
   }
-
-
-
 };
