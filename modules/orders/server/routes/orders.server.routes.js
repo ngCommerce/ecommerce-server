@@ -18,6 +18,9 @@ module.exports = function (app) {
     .put(orders.update)
     .delete(orders.delete);
 
+  app.route('/api/ordersnoti')
+    .get(orders.sendNoti);
+
   // Finish by binding the Order middleware
   app.param('orderId', orders.orderByID);
 };

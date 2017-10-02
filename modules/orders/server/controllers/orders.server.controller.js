@@ -7,16 +7,18 @@ var path = require('path'),
   mongoose = require('mongoose'),
   Order = mongoose.model('Order'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
-  _ = require('lodash');
+  _ = require('lodash'),
+  request = require('request'),
+  pushNotiUrl = process.env.PUSH_NOTI_URL || 'https://onesignal.com/api/v1/notifications';
 
 /**
  * Create a Order
  */
-exports.create = function(req, res) {
+exports.create = function (req, res) {
   var order = new Order(req.body);
   order.user = req.user;
 
-  order.save(function(err) {
+  order.save(function (err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -30,7 +32,7 @@ exports.create = function(req, res) {
 /**
  * Show the current Order
  */
-exports.read = function(req, res) {
+exports.read = function (req, res) {
   // convert mongoose document to JSON
   var order = req.order ? req.order.toJSON() : {};
 
@@ -44,12 +46,12 @@ exports.read = function(req, res) {
 /**
  * Update a Order
  */
-exports.update = function(req, res) {
+exports.update = function (req, res) {
   var order = req.order;
 
   order = _.extend(order, req.body);
 
-  order.save(function(err) {
+  order.save(function (err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -63,10 +65,10 @@ exports.update = function(req, res) {
 /**
  * Delete an Order
  */
-exports.delete = function(req, res) {
+exports.delete = function (req, res) {
   var order = req.order;
 
-  order.remove(function(err) {
+  order.remove(function (err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -80,8 +82,8 @@ exports.delete = function(req, res) {
 /**
  * List of Orders
  */
-exports.list = function(req, res) {
-  Order.find().sort('-created').populate('user', 'displayName').exec(function(err, orders) {
+exports.list = function (req, res) {
+  Order.find().sort('-created').populate('user', 'displayName').exec(function (err, orders) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -95,7 +97,7 @@ exports.list = function(req, res) {
 /**
  * Order middleware
  */
-exports.orderByID = function(req, res, next, id) {
+exports.orderByID = function (req, res, next, id) {
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).send({
@@ -113,5 +115,28 @@ exports.orderByID = function(req, res, next, id) {
     }
     req.order = order;
     next();
+  });
+};
+
+
+exports.sendNoti = function (req, res) {
+  //console.log(admtokens);
+  request({
+    url: pushNotiUrl,
+    auth: {
+      'Basic': 'ZjYwY2U4MzYtZTY4OS00YjY5LWJhYzUtZjcxM2Y0MzA0MjMz'
+    },
+    method: 'POST',
+    json: {
+      app_id: '40589992-0f62-47c5-a22e-7771a4dcf67f',
+      contents: { en: 'hello server test notification' },
+      included_segments: ['All']
+    }
+  }, function (error, response, body) {
+    if (error) {
+      console.log('Error sending messages: ', error);
+    } else if (response.body.error) {
+      console.log('Error: ', response.body.error);
+    }
   });
 };
