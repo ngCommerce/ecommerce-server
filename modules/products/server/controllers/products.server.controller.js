@@ -154,7 +154,7 @@ exports.cookingProductList = function (req, res, next) {
       percentofdiscount: element.percentofdiscount,
       currency: element.currency,
       categories: categories,
-      rate: 5
+      rate: element.rate ? element.rate : 5
     });
   });
   req.productsCookingList = products;
