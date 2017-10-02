@@ -31,21 +31,28 @@ exports.create = function (req, res) {
  * Show the current Cart
  */
 exports.read = function (req, res) {
-  // convert mongoose document to JSON
-  var cart = req.cart ? req.cart.toJSON() : {};
+  res.jsonp();
+};
 
-  // Add a custom field to the Article, for determining if the current User is the "owner".
-  // NOTE: This field is NOT persisted to the database, since it doesn't exist in the Article model.
-  cart.isCurrentUserOwner = req.user && cart.user && cart.user._id.toString() === req.user._id.toString();
-
-  res.jsonp(cart);
+exports.getCartByUser = function (req, res) {
+  Cart.findOne({ 'user': req.userID })
+    .populate('items.product')
+    .exec(function (err, result) {
+      if (err) {
+        return res.status(400).send({
+          message: errorHandler.getErrorMessage(err)
+        });
+      } else {
+        res.jsonp(result);
+      }
+    });
 };
 
 /**
  * Update a Cart
  */
 exports.update = function (req, res) {
-  Cart.findByIdAndUpdate(req.body._id, { $set: { 'items': req.body.items } }).exec(function (err, cartRes) {
+  Cart.findByIdAndUpdate(req.cartID, { $set: { 'items': req.body } }).exec(function (err, cartRes) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -60,7 +67,7 @@ exports.update = function (req, res) {
  * Delete an Cart
  */
 exports.delete = function (req, res) {
-  var cart = req.cart;
+  var cart = req.cartID;
 
   cart.remove(function (err) {
     if (err) {
@@ -92,22 +99,11 @@ exports.list = function (req, res) {
  * Cart middleware
  */
 exports.cartByID = function (req, res, next, id) {
+  req.cartID = id;
+  next();
+};
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).send({
-      message: 'Cart is invalid'
-    });
-  }
-
-  Cart.findById(id).populate('user', 'displayName').exec(function (err, cart) {
-    if (err) {
-      return next(err);
-    } else if (!cart) {
-      return res.status(404).send({
-        message: 'No Cart with that identifier has been found'
-      });
-    }
-    req.cart = cart;
-    next();
-  });
+exports.cartByUserID = function (req, res, next, id) {
+  req.userID = id;
+  next();
 };
