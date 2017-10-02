@@ -18,12 +18,13 @@ module.exports = function (app) {
     .put(orders.update)
     .delete(orders.delete);
 
-  app.route('/api/notibuyer')
+  app.route('/api/notibuyer/:message')
     .get(orders.sendNotiBuyer);
-  app.route('/api/notiseller')
+  app.route('/api/notiseller/:message')
     .get(orders.sendNotiSeller);
 
 
   // Finish by binding the Order middleware
   app.param('orderId', orders.orderByID);
+  app.param('message', orders.message);
 };

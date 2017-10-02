@@ -118,6 +118,10 @@ exports.orderByID = function (req, res, next, id) {
   });
 };
 
+exports.message = function (req, res, next, message) {
+  req.message = message;
+  next();
+};
 
 exports.sendNotiBuyer = function (req, res) {
   //console.log(admtokens);
@@ -129,7 +133,7 @@ exports.sendNotiBuyer = function (req, res) {
     method: 'POST',
     json: {
       app_id: 'd5d9533c-3ac8-42e6-bc16-a5984bef02ff',
-      contents: { en: 'hello server test notification to buyer' },
+      contents: { en: req.message },
       included_segments: ['All']
     }
   }, function (error, response, body) {
@@ -155,7 +159,7 @@ exports.sendNotiSeller = function (req, res) {
     method: 'POST',
     json: {
       app_id: 'fdfae3dc-e634-47f4-b959-f04e60f4613b',
-      contents: { en: 'hello server test notification to seller' },
+      contents: { en: req.message },
       included_segments: ['All']
     }
   }, function (error, response, body) {
