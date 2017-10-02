@@ -18,8 +18,11 @@ module.exports = function (app) {
     .put(orders.update)
     .delete(orders.delete);
 
-  app.route('/api/ordersnoti')
-    .get(orders.sendNoti);
+  app.route('/api/notibuyer')
+    .get(orders.sendNotiBuyer);
+  app.route('/api/notiseller')
+    .get(orders.sendNotiSeller);
+
 
   // Finish by binding the Order middleware
   app.param('orderId', orders.orderByID);

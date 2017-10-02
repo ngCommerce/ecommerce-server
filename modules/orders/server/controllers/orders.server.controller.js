@@ -119,17 +119,43 @@ exports.orderByID = function (req, res, next, id) {
 };
 
 
-exports.sendNoti = function (req, res) {
+exports.sendNotiBuyer = function (req, res) {
   //console.log(admtokens);
   request({
     url: pushNotiUrl,
     headers: {
-      'Authorization': 'Basic ZjYwY2U4MzYtZTY4OS00YjY5LWJhYzUtZjcxM2Y0MzA0MjMz'
+      'Authorization': 'Basic ZWNkZWY0MmUtNGJiNC00ZThjLWIyOWUtNzdmNzAxZmMyZDMw'
     },
     method: 'POST',
     json: {
-      app_id: '40589992-0f62-47c5-a22e-7771a4dcf67f',
-      contents: { en: 'hello server test notification' },
+      app_id: 'd5d9533c-3ac8-42e6-bc16-a5984bef02ff',
+      contents: { en: 'hello server test notification to buyer' },
+      included_segments: ['All']
+    }
+  }, function (error, response, body) {
+    if (error) {
+      console.log('Error sending messages: ', error);
+      res.jsonp({ message: error });
+
+    } else if (response.body.error) {
+      console.log('Error: ', response.body.error);
+      res.jsonp({ message: response.body.error });
+    }
+    res.jsonp({ message: 'sent noti success' });
+  });
+};
+
+exports.sendNotiSeller = function (req, res) {
+  //console.log(admtokens);
+  request({
+    url: pushNotiUrl,
+    headers: {
+      'Authorization': 'Basic ZWFkMjNkNDUtZDIyNy00MGU2LTg5ZjEtYmZlY2FkYjUxZDY2'
+    },
+    method: 'POST',
+    json: {
+      app_id: 'fdfae3dc-e634-47f4-b959-f04e60f4613b',
+      contents: { en: 'hello server test notification to seller' },
       included_segments: ['All']
     }
   }, function (error, response, body) {
