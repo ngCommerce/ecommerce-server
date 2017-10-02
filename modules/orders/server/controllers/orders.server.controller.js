@@ -135,8 +135,12 @@ exports.sendNoti = function (req, res) {
   }, function (error, response, body) {
     if (error) {
       console.log('Error sending messages: ', error);
+      res.jsonp({ message: error });
+
     } else if (response.body.error) {
       console.log('Error: ', response.body.error);
+      res.jsonp({ message: response.body.error });
     }
+    res.jsonp({ message: 'sent noti success' });
   });
 };
