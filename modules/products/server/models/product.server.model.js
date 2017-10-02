@@ -84,6 +84,7 @@ var ProductSchema = new Schema({
     type: Boolean,
     default: false
   },
+  rate: { type: Number },
   shop: {
     type: Schema.ObjectId,
     ref: 'Shop'

@@ -67,7 +67,7 @@ exports.read = function (req, res) {
     percentofdiscount: productDB.percentofdiscount,
     currency: productDB.currency,
     images: productDB.images,
-    rate: 5,
+    rate: productDB.rate ? productDB.rate : 5,
     // favorites: productDB.favorites,
     reviews: productDB.reviews,
     shippings: shippings,
