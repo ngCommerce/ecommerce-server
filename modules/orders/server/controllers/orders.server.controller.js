@@ -123,8 +123,8 @@ exports.sendNoti = function (req, res) {
   //console.log(admtokens);
   request({
     url: pushNotiUrl,
-    auth: {
-      'Basic': 'ZjYwY2U4MzYtZTY4OS00YjY5LWJhYzUtZjcxM2Y0MzA0MjMz'
+    headers: {
+      'Authorization': 'Basic ZjYwY2U4MzYtZTY4OS00YjY5LWJhYzUtZjcxM2Y0MzA0MjMz'
     },
     method: 'POST',
     json: {
