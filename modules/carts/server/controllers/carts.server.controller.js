@@ -133,7 +133,20 @@ exports.cartByUserID = function (req, res, next, userId) {
 
   Cart.find({
     user: userId
-  }).populate('user', 'displayName').populate('items.product').exec(function (err, cart) {
+  }).populate('user', 'displayName').populate({
+    path: 'items',
+    populate: {
+      path: 'product',
+      model: 'Product',
+      populate: [{
+        path: 'shop',
+        model: 'Shop'
+      }, {
+        path: 'shippings',
+        model: 'Shipping'
+      }]
+    }
+  }).exec(function (err, cart) {
     if (err) {
       return next(err);
     } else if (!cart) {
