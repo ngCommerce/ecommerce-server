@@ -6,21 +6,19 @@
 var should = require('should'),
   mongoose = require('mongoose'),
   User = mongoose.model('User'),
+  Cart = mongoose.model('Cart'),
   Product = mongoose.model('Product'),
-  Category = mongoose.model('Category'),
-  Shop = mongoose.model('Shop'),
   Shipping = mongoose.model('Shipping'),
-  Cart = mongoose.model('Cart');
+  Shop = mongoose.model('Shop');
 
 /**
  * Globals
  */
 var user,
+  cart,
   product,
-  category,
-  shop,
   shipping,
-  cart;
+  shop;
 
 /**
  * Unit tests
@@ -37,70 +35,46 @@ describe('Cart Model Unit Tests:', function () {
     });
 
     shipping = new Shipping({
-      name: 'shipping1',
-      detail: 'detail shipping1',
-      price: 100,
-      duedate: 10,
-      user: user
-    });
-
-    category = new Category({
-      name: 'category1',
-      user: user
+      shipping: {
+        detail: 'วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี',
+        name: 'ส่งแบบส่งด่วน',
+        price: 0
+      }
     });
 
     shop = new Shop({
-      name: 'shop1',
-      reviews: [{
-        topic: 'toppic1',
-        comment: 'comment1',
-        rate: 5,
-        user: user
-      }],
-      user: user
+      name: 'Shop name'
     });
 
     product = new Product({
-      name: 'product1',
-      detail: 'detail product1',
-      price: 90,
-      promotionprice: 59,
+      name: 'Crossfit WorldWide Event',
+      image: 'https://images-eu.ssl-images-amazon.com/images/G/02/AMAZON-FASHION/2016/SHOES/SPORT/MISC/Nikemobilefootball',
+      price: 20000,
+      promotionprice: 18000,
       percentofdiscount: 10,
-      currency: 'บาท',
-      images: ['image1.jpg', 'image2.jpg'],
-      reviews: [{
-        topic: 'toppic1',
-        comment: 'comment1',
-        rate: 5,
-        user: user
-      }],
-      shippings: [shipping],
-      categories: [category],
-      cod: true,
+      currency: 'THB',
       shop: shop,
-      user: user
+      shippings: [shipping]
     });
 
     user.save(function () {
-      category.save(function () {
-        shipping.save(function () {
-          shop.save(function () {
-            product.save(function () {
-              cart = new Cart({
-                items: [{
-                  product: product._id,
-                  qty: 1,
-                  amount: 100,
-                  discount: 10,
-                  totalamount: 90
-                }],
-                amount: 100,
-                discount: 10,
-                totalamount: 90,
-                user: user
-              });
-              done();
+      shipping.save(function () {
+        shop.save(function () {
+          product.save(function () {
+            cart = new Cart({
+              items: [{
+                product: product,
+                qty: 1,
+                amount: 20000,
+                discount: 2000,
+                totalamount: 18000
+              }],
+              amount: 20000,
+              discount: 2000,
+              totalamount: 18000,
+              user: user
             });
+            done();
           });
         });
       });
@@ -118,11 +92,11 @@ describe('Cart Model Unit Tests:', function () {
   });
 
   afterEach(function (done) {
-    User.remove().exec(function () {
-      Cart.remove().exec(function () {
-        Category.remove().exec(function () {
-          Shop.remove().exec(function () {
-            Product.remove().exec(function () {
+    Cart.remove().exec(function () {
+      Product.remove().exec(function () {
+        Shop.remove().exec(function () {
+          Shipping.remove().exec(function () {
+            User.remove().exec(function () {
               done();
             });
           });

@@ -19,7 +19,7 @@ module.exports = function (app) {
     .delete(carts.delete);
 
   app.route('/api/cartbyuser/:userId').all(core.requiresLoginToken, cartsPolicy.isAllowed)
-    .get(carts.getCartByUser);
+    .get(carts.readByUserID);
 
   // Finish by binding the Cart middleware
   app.param('cartId', carts.cartByID);

@@ -31,34 +31,31 @@ exports.create = function (req, res) {
  * Show the current Cart
  */
 exports.read = function (req, res) {
-  res.jsonp();
-};
+  // convert mongoose document to JSON
+  var cart = req.cart ? req.cart.toJSON() : {};
 
-exports.getCartByUser = function (req, res) {
-  Cart.findOne({ 'user': req.userID })
-    .populate('items.product')
-    .exec(function (err, result) {
-      if (err) {
-        return res.status(400).send({
-          message: errorHandler.getErrorMessage(err)
-        });
-      } else {
-        res.jsonp(result);
-      }
-    });
+  // Add a custom field to the Article, for determining if the current User is the "owner".
+  // NOTE: This field is NOT persisted to the database, since it doesn't exist in the Article model.
+  cart.isCurrentUserOwner = req.user && cart.user && cart.user._id.toString() === req.user._id.toString();
+
+  res.jsonp(cart);
 };
 
 /**
  * Update a Cart
  */
 exports.update = function (req, res) {
-  Cart.findByIdAndUpdate(req.cartID, { $set: { 'items': req.body } }).exec(function (err, cartRes) {
+  var cart = req.cart;
+
+  cart = _.extend(cart, req.body);
+
+  cart.save(function (err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      res.jsonp(req.body);
+      res.jsonp(cart);
     }
   });
 };
@@ -67,7 +64,7 @@ exports.update = function (req, res) {
  * Delete an Cart
  */
 exports.delete = function (req, res) {
-  var cart = req.cartID;
+  var cart = req.cart;
 
   cart.remove(function (err) {
     if (err) {
@@ -99,11 +96,48 @@ exports.list = function (req, res) {
  * Cart middleware
  */
 exports.cartByID = function (req, res, next, id) {
-  req.cartID = id;
-  next();
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).send({
+      message: 'Cart is invalid'
+    });
+  }
+
+  Cart.findById(id).populate('user', 'displayName').exec(function (err, cart) {
+    if (err) {
+      return next(err);
+    } else if (!cart) {
+      return res.status(404).send({
+        message: 'No Cart with that identifier has been found'
+      });
+    }
+    req.cart = cart;
+    next();
+  });
 };
 
-exports.cartByUserID = function (req, res, next, id) {
-  req.userID = id;
-  next();
+// Cart by userId
+
+exports.cartByUserID = function (req, res, next, userId) {
+
+  console.log(userId);
+
+  Cart.find({
+    user: userId
+  }).populate('user', 'displayName').populate('items.product').exec(function (err, cart) {
+    if (err) {
+      return next(err);
+    } else if (!cart) {
+      return res.status(404).send({
+        message: 'No Cart with that identifier has been found'
+      });
+    }
+    req.cart = cart;
+    next();
+  });
+};
+
+exports.readByUserID = function (req, res) {
+  var cart = req.cart[0] ? req.cart[0] : {};
+  res.jsonp(cart);
 };

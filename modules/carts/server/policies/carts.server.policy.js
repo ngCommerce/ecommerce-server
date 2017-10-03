@@ -20,6 +20,9 @@ exports.invokeRolesPolicies = function () {
     }, {
       resources: '/api/carts/:cartId',
       permissions: '*'
+    }, {
+      resources: '/api/cartbyuser/:userId',
+      permissions: '*'
     }]
   }, {
     roles: ['user'],
@@ -28,11 +31,10 @@ exports.invokeRolesPolicies = function () {
       permissions: ['get', 'post']
     }, {
       resources: '/api/carts/:cartId',
-      permissions: ['*']
-    },
-    {
+      permissions: ['get']
+    }, {
       resources: '/api/cartbyuser/:userId',
-      permissions: ['*']
+      permissions: ['get']
     }]
   }, {
     roles: ['guest'],
@@ -41,7 +43,10 @@ exports.invokeRolesPolicies = function () {
       permissions: ['get']
     }, {
       resources: '/api/carts/:cartId',
-      permissions: ['*']
+      permissions: ['get']
+    }, {
+      resources: '/api/cartbyuser/:userId',
+      permissions: ['get']
     }]
   }]);
 };
