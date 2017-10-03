@@ -6,6 +6,7 @@
 var path = require('path'),
   mongoose = require('mongoose'),
   Order = mongoose.model('Order'),
+  Shop = mongoose.model('Shop'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   _ = require('lodash'),
   request = require('request'),
@@ -173,4 +174,111 @@ exports.sendNotiSeller = function (req, res) {
     }
     res.jsonp({ message: 'sent noti success' });
   });
+};
+
+exports.getShopByUser = function (req, res, next) {
+  Shop.find({ user: req.user._id }).exec(function (err, shops) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      if (shops && shops.length > 0) {
+        req.shop = shops[0];
+        next();
+      } else {
+        return res.status(404).send({
+          message: 'Shop not found'
+        });
+      }
+
+    }
+  });
+};
+
+exports.getOrderList = function (req, res, next) {
+  Order.find({ status: { $nin: ['complete', 'cancel'] } }).sort('-created').populate('user', 'displayName').populate('items.product').populate('shipping').exec(function (err, orders) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      req.orders = orders;
+      next();
+    }
+  });
+};
+
+exports.cookingOrderByShop = function (req, res, next) {
+  var data = {
+    waiting: [],
+    accept: [],
+    sent: [],
+    return: []
+  };
+  req.orders.forEach(function (order) {
+    order.items.forEach(function (itm) {
+      if (itm.product.shop && itm.product.shop !== undefined ? itm.product.shop.toString() === req.shop._id.toString() : false) {
+        if (itm.status === 'waiting') {
+          data.waiting.push({
+            order_id: order._id,
+            item_id: itm._id,
+            name: itm.product.name,
+            price: itm.totalamount,
+            qty: itm.qty,
+            rate: itm.product.rate || 0,
+            image: itm.product.images[0] || 'No image',
+            status: itm.status,
+            shipping: order.shipping,
+            delivery: itm.delivery
+          });
+        } else if (itm.status === 'accept') {
+          data.accept.push({
+            order_id: order._id,
+            item_id: itm._id,
+            name: itm.product.name,
+            price: itm.totalamount,
+            qty: itm.qty,
+            rate: itm.product.rate || 0,
+            image: itm.product.images[0] || 'No image',
+            status: itm.status,
+            shipping: order.shipping,
+            delivery: itm.delivery
+          });
+        } else if (itm.status === 'sent') {
+          data.sent.push({
+            order_id: order._id,
+            item_id: itm._id,
+            name: itm.product.name,
+            price: itm.totalamount,
+            qty: itm.qty,
+            rate: itm.product.rate || 0,
+            image: itm.product.images[0] || 'No image',
+            status: itm.status,
+            shipping: order.shipping,
+            delivery: itm.delivery
+          });
+        } else if (itm.status === 'return') {
+          data.return.push({
+            order_id: order._id,
+            item_id: itm._id,
+            name: itm.product.name,
+            price: itm.totalamount,
+            qty: itm.qty,
+            rate: itm.product.rate || 0,
+            image: itm.product.images[0] || 'No image',
+            status: itm.status,
+            shipping: order.shipping,
+            delivery: itm.delivery
+          });
+        }
+      }
+    });
+  });
+  req.orderByShop = data;
+  next();
+};
+
+exports.orderByShops = function (req, res) {
+  res.jsonp(req.orderByShop);
 };
