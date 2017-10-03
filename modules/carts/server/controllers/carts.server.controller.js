@@ -6,6 +6,7 @@
 var path = require('path'),
   mongoose = require('mongoose'),
   Cart = mongoose.model('Cart'),
+  Product = mongoose.model('Product'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   _ = require('lodash');
 
@@ -22,7 +23,11 @@ exports.create = function (req, res) {
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      res.jsonp(cart);
+      Product.populate(cart, {
+        path: 'items.product'
+      }, function (err, cartRes) {
+        res.jsonp(cartRes);
+      });
     }
   });
 };
@@ -55,7 +60,11 @@ exports.update = function (req, res) {
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      res.jsonp(cart);
+      Product.populate(cart, {
+        path: 'items.product'
+      }, function (err, cartRes) {
+        res.jsonp(cartRes);
+      });
     }
   });
 };
@@ -81,7 +90,7 @@ exports.delete = function (req, res) {
  * List of Carts
  */
 exports.list = function (req, res) {
-  Cart.find().sort('-created').populate('user', 'displayName').exec(function (err, carts) {
+  Cart.find().sort('-created').populate('user', 'displayName').populate('items.product').exec(function (err, carts) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -120,7 +129,7 @@ exports.cartByID = function (req, res, next, id) {
 
 exports.cartByUserID = function (req, res, next, userId) {
 
-  console.log(userId);
+  // console.log(userId);
 
   Cart.find({
     user: userId
