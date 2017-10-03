@@ -104,6 +104,9 @@ var UserSchema = new Schema({
   },
   loginExpires: {
     type: Date
+  },
+  tel: {
+    type: String
   }
 });
 
