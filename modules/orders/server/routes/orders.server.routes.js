@@ -18,6 +18,9 @@ module.exports = function (app) {
     .put(orders.update)
     .delete(orders.delete);
 
+  app.route('/api/orderbyshop').all(core.requiresLoginToken, ordersPolicy.isAllowed)
+    .get(orders.getShopByUser, orders.getOrderList, orders.cookingOrderByShop, orders.orderByShops);
+
   app.route('/api/notibuyer/:message')
     .get(orders.sendNotiBuyer);
   app.route('/api/notiseller/:message')

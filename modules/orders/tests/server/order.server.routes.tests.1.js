@@ -62,14 +62,16 @@ describe('Order CRUD tests with Token Base Authen', function () {
         shipping: {
           detail: 'วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี',
           name: 'ส่งแบบส่งด่วน',
-          price: 0
+          price: 0,
+          duedate:2
         }
       },
       {
         shipping: {
           detail: 'วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี',
           name: 'ส่งแบบธรรมดา',
-          price: 0
+          price: 0,
+          duedate:2          
         }
       }
     ]);
