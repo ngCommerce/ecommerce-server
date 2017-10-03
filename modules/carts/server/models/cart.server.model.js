@@ -16,18 +16,31 @@ var CartSchema = new Schema({
         type: Schema.ObjectId,
         ref: 'Product'
       },
-      qty: Number,
-      amount: Number,
-      discount: Number,
-      totalamount: Number
+      qty: {
+        type: Number
+      },
+      amount: {
+        type: Number
+      },
+      discount: {
+        type: Number
+      },
+      totalamount: {
+        type: Number
+      }
     }]
   },
-  amount: { type: Number, default: 0 },
-  discount: { type: Number, default: 0 },
-  totalamount: { type: Number, default: 0 },
+  amount: {
+    type: Number
+  },
+  discount: {
+    type: Number
+  },
+  totalamount: {
+    type: Number
+  },
   user: {
     type: Schema.ObjectId,
-    required: 'Please fill ref user',
     ref: 'User'
   },
   created: {
