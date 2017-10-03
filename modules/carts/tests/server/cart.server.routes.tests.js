@@ -101,18 +101,28 @@ describe('Cart CRUD tests', function () {
       user: user
     });
 
-    cart = new Cart({
-      items: [],
-      user: user
-    });
-
     // Save a user to the test db and create new Cart
     user.save(function () {
       category.save(function () {
         shipping.save(function () {
           shop.save(function () {
             product.save(function () {
-              done();
+              cart = new Cart({
+                items: [{
+                  product: product._id,
+                  qty: 1,
+                  amount: 100,
+                  discount: 10,
+                  totalamount: 90
+                }],
+                amount: 100,
+                discount: 10,
+                totalamount: 90,
+                user: user
+              });
+              cart.save(function () {
+                done();
+              });
             });
           });
         });
@@ -120,7 +130,7 @@ describe('Cart CRUD tests', function () {
     });
   });
 
-  it('should be able to get a Cart if logged in', function (done) {
+  it('should be able to get a Cart if logged in by userID', function (done) {
     agent.post('/api/auth/signin')
       .send(credentials)
       .expect(200)
@@ -129,20 +139,18 @@ describe('Cart CRUD tests', function () {
           return done(signinErr);
         }
 
-        cart.save(function (err, cart) {
-          agent.get('/api/carts/' + cart._id)
-            .end(function (cartsGetErr, cartsGetRes) {
-              if (cartsGetErr) {
-                return done(cartsGetErr);
-              }
-              (cartsGetRes.body.items.length).should.equal(0);
-              done();
-            });
-        });
+        agent.get('/api/cartbyuser/' + user._id)
+          .end(function (cartsGetErr, cartsGetRes) {
+            if (cartsGetErr) {
+              return done(cartsGetErr);
+            }
+            (cartsGetRes.body.items.length).should.equal(1);
+            done();
+          });
       });
   });
 
-  it('should be able to add product to Cart if logged in', function (done) {
+  it('should be able to update items a Cart if logged in', function (done) {
     agent.post('/api/auth/signin')
       .send(credentials)
       .expect(200)
@@ -151,33 +159,32 @@ describe('Cart CRUD tests', function () {
           return done(signinErr);
         }
 
-        cart.items = [];
+        agent.get('/api/cartbyuser/' + user._id)
+          .end(function (cartsGetErr, cartsGetRes) {
+            if (cartsGetErr) {
+              return done(cartsGetErr);
+            }
 
-        cart.save(function (err, cartRes) {
-          if (err) {
-            return done(err);
-          } else {
-            product.save(function (err, prodRes) {
-              if (err) {
-                return done(err);
-              } else {
-                cart.items = [prodRes._id];
-                agent.put('/api/carts/' + cartRes._id)
-                  .send(cart)
-                  .expect(200)
-                  .end(function (cartUpdateErr, cartUpdateRes) {
-                    if (cartUpdateErr) {
-                      return done(cartUpdateErr);
-                    }
+            var items = [];
+            items = cartsGetRes.body.items;
+            items.push(product);
 
-                    (cartUpdateRes.body.items.length).should.equal(cart.items.length);
+            agent.put('/api/carts/' + cart._id)
+              .send(items)
+              .expect(200)
+              .end(function (cartUpdateErr, cartUpdateRes) {
+                if (cartUpdateErr) {
+                  return done(cartUpdateErr);
+                }
 
-                    done();
-                  });
-              }
-            });
-          }
-        });
+                var cart = cartUpdateRes.body;
+
+                (cart.length).should.equal(items.length);
+
+                done();
+              });
+
+          });
       });
   });
 

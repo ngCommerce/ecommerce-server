@@ -18,6 +18,10 @@ module.exports = function (app) {
     .put(carts.update)
     .delete(carts.delete);
 
+  app.route('/api/cartbyuser/:userId').all(core.requiresLoginToken, cartsPolicy.isAllowed)
+    .get(carts.getCartByUser);
+
   // Finish by binding the Cart middleware
   app.param('cartId', carts.cartByID);
+  app.param('userId', carts.cartByUserID);
 };
