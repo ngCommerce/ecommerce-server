@@ -52,8 +52,14 @@ describe('Payment CRUD token tests', function () {
     // Save a user to the test db and create new Payment
     user.save(function () {
       payment = {
-        name: 'Payment name',
-        image: 'Payment Image'
+        payment: [{
+          name: 'Payment name',
+          image: 'Payment Image'
+        }],
+        counterservice: [{
+          name: 'Counterservice name',
+          image: 'Counterservice Image'
+        }]
       };
 
       agent.post('/api/auth/signin')
@@ -101,7 +107,7 @@ describe('Payment CRUD token tests', function () {
             var payments = paymentsGetRes.body;
 
             // Set assertions
-            (payments[0].name).should.match(payment.name);
+            (payments[0].payment[0].name).should.match(payment.payment[0].name);
 
 
 
@@ -137,8 +143,8 @@ describe('Payment CRUD token tests', function () {
             // Set assertions
             (payments.length).should.match(1);
             (payments[0]._id).should.match(paymentSaveRes.body._id);
-            (payments[0].name).should.match(payment.name);
-            (payments[0].image).should.match(payment.image);
+            (payments[0].payment[0].name).should.match(payment.payment[0].name);
+            (payments[0].payment[0].image).should.match(payment.payment[0].image);
 
 
             // Call the assertion callback
@@ -171,8 +177,8 @@ describe('Payment CRUD token tests', function () {
 
             // Set assertions
             //(products[0].user.loginToken).should.equal(token);
-            payments.should.be.instanceof(Object).and.have.property('name', payments.name);
-            payments.should.be.instanceof(Object).and.have.property('image', payments.image);
+            (payments.payment[0].name).should.match(payment.payment[0].name);
+            (payments.payment[0].image).should.match(payment.payment[0].image);
             done();
           });
       });
@@ -190,7 +196,7 @@ describe('Payment CRUD token tests', function () {
           return done(paymentSaveErr);
         }
 
-        payment.name = "test payment";
+        payment.payment[0].name = "test payment";
         agent.put('/api/payments/' + paymentSaveRes.body._id)
           .set('authorization', 'Bearer ' + token)
           .send(payment)
@@ -212,7 +218,7 @@ describe('Payment CRUD token tests', function () {
                 var payments = paymentsGetRes.body;
 
                 // Set assertions
-                (payments[0].name).should.match('test payment');
+                (payments[0].payment[0].name).should.match('test payment');
 
                 // Call the assertion callback
                 done();

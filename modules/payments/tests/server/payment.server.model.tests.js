@@ -30,8 +30,14 @@ describe('Payment Model Unit Tests:', function () {
 
     user.save(function () {
       payment = new Payment({
-        name: 'Payment Name',
-        image: 'Payment Image',
+        payment: [{
+          name: 'Payment name',
+          image: 'Payment Image'
+        }],
+        counterservice: [{
+          name: 'Payment name',
+          image: 'Payment Image'
+        }],
         user: user
       });
 
@@ -49,7 +55,16 @@ describe('Payment Model Unit Tests:', function () {
     });
 
     it('should be able to show an error when try to save without name', function (done) {
-      payment.name = '';
+      payment.payment[0].name = null;
+
+      return payment.save(function (err) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('should be able to show an error when try to save without counterservice', function (done) {
+      payment.counterservice[0].name = null;
 
       return payment.save(function (err) {
         should.exist(err);

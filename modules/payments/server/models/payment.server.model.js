@@ -10,14 +10,33 @@ var mongoose = require('mongoose'),
  * Payment Schema
  */
 var PaymentSchema = new Schema({
-  name: {
-    type: String,
-    default: '',
-    required: 'Please fill Payment name',
-    trim: true
+
+  payment: {
+    type: [{
+      name: {
+        type: String,
+        default: '',
+        required: 'Please fill Payment name',
+        trim: true
+      },
+      image: {
+        type: String,
+      }
+    }]
   },
-  image: {
-    type: String,
+
+  counterservice: {
+    type: [{
+      name: {
+        type: String,
+        default: '',
+        required: 'Please fill Counterservice name',
+        trim: true
+      },
+      image: {
+        type: String,
+      }
+    }]
   },
 
   created: {

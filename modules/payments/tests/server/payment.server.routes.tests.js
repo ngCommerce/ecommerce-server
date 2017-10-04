@@ -51,8 +51,14 @@ describe('Payment CRUD tests', function () {
     // Save a user to the test db and create new Payment
     user.save(function () {
       payment = {
-        name: 'Payment name',
-        image: 'Payment Image'
+        payment: [{
+          name: 'Payment name',
+          image: 'Payment Image'
+        }],
+        counterservice: [{
+          name: 'Counterservice name',
+          image: 'Counterservice Image'
+        }]
       };
 
       done();
@@ -95,7 +101,8 @@ describe('Payment CRUD tests', function () {
 
                 // Set assertions
                 (payments[0].user._id).should.equal(userId);
-                (payments[0].name).should.match('Payment name');
+                (payments[0].payment[0].name).should.match('Payment name');
+                (payments[0].counterservice[0].name).should.match('Counterservice name');
 
                 // Call the assertion callback
                 done();
@@ -116,7 +123,7 @@ describe('Payment CRUD tests', function () {
 
   it('should not be able to save an Payment if no name is provided', function (done) {
     // Invalidate name field
-    payment.name = '';
+    payment.payment[0].name = '';
 
     agent.post('/api/auth/signin')
       .send(credentials)
@@ -168,7 +175,7 @@ describe('Payment CRUD tests', function () {
             }
 
             // Update Payment name
-            payment.name = 'WHY YOU GOTTA BE SO MEAN?';
+            payment.payment[0].name = 'WHY YOU GOTTA BE SO MEAN?';
 
             // Update an existing Payment
             agent.put('/api/payments/' + paymentSaveRes.body._id)
@@ -182,7 +189,7 @@ describe('Payment CRUD tests', function () {
 
                 // Set assertions
                 (paymentUpdateRes.body._id).should.equal(paymentSaveRes.body._id);
-                (paymentUpdateRes.body.name).should.match('WHY YOU GOTTA BE SO MEAN?');
+                (paymentUpdateRes.body.payment[0].name).should.match('WHY YOU GOTTA BE SO MEAN?');
 
                 // Call the assertion callback
                 done();
@@ -219,9 +226,8 @@ describe('Payment CRUD tests', function () {
       request(app).get('/api/payments/' + paymentObj._id)
         .end(function (req, res) {
           // Set assertion
-          res.body.should.be.instanceof(Object).and.have.property('name', payment.name);
-
-          // Call the assertion callback
+          var paymentRes = res.body;
+          (paymentRes.payment[0].name).should.match(payment.payment[0].name);
           done();
         });
     });
@@ -364,7 +370,7 @@ describe('Payment CRUD tests', function () {
               }
 
               // Set assertions on new Payment
-              (paymentSaveRes.body.name).should.equal(payment.name);
+              (paymentSaveRes.body.payment[0].name).should.equal(payment.payment[0].name);
               should.exist(paymentSaveRes.body.user);
               should.equal(paymentSaveRes.body.user._id, orphanId);
 
@@ -391,7 +397,7 @@ describe('Payment CRUD tests', function () {
 
                         // Set assertions
                         (paymentInfoRes.body._id).should.equal(paymentSaveRes.body._id);
-                        (paymentInfoRes.body.name).should.equal(payment.name);
+                        (paymentInfoRes.body.payment[0].name).should.equal(payment.payment[0].name);
                         should.equal(paymentInfoRes.body.user, undefined);
 
                         // Call the assertion callback
