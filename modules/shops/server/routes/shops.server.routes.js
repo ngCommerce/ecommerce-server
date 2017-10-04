@@ -21,6 +21,9 @@ module.exports = function (app) {
   app.route('/api/shops/review/:shopId').all(core.requiresLoginToken, shopsPolicy.isAllowed)
     .put(shops.updateReview);
 
+  app.route('/api/shopbyuser').all(core.requiresLoginToken, shopsPolicy.isAllowed)
+    .get(shops.shopByUser);
+
   // Finish by binding the Shop middleware
   app.param('shopId', shops.shopByID);
 };

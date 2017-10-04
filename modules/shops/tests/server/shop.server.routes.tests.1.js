@@ -112,7 +112,7 @@ describe('Shop CRUD token tests', function () {
             // Set assertions
             //(products[0].user.loginToken).should.equal(token);
             (shops[0].name).should.match(shop.name);
-            
+
 
             // Call the assertion callback
             done();
@@ -339,14 +339,42 @@ describe('Shop CRUD token tests', function () {
                 shops.reviews[0].should.be.instanceof(Object).and.have.property('comment', review.comment);
                 shops.reviews[0].should.be.instanceof(Object).and.have.property('rate', review.rate);
                 shops.reviews[0].should.be.instanceof(Object).and.have.property('user', user.id);
-                
-                
+
+
 
                 done();
               });
           });
       });
 
+  });
+
+  it('should be able to get List a Shop by user if logged in with token', function (done) {
+
+    var ShopObj = new Shop(shop);
+    var ShopObj2 = new Shop(shop);
+    ShopObj2.user = null;
+    ShopObj2.save();
+    ShopObj.save();
+    // Get a list of shops
+    agent.get('/api/shopbyuser')
+      .set('authorization', 'Bearer ' + token)
+      .end(function (shopsGetErr, shopsGetRes) {
+        // Handle shop save error
+        if (shopsGetErr) {
+          return done(shopsGetErr);
+        }
+
+        // Get shops list
+        var shops = shopsGetRes.body;
+
+        // Set assertions
+        //(products[0].user.loginToken).should.equal(token);
+        (shops.length).should.match(1);
+
+        // Call the assertion callback
+        done();
+      });
   });
 
   afterEach(function (done) {
