@@ -286,6 +286,29 @@ describe('Address CRUD tests with Token Base Authen', function () {
       });
   });
 
+  it('should be able to get a address by user if logged in with token', function (done) {
+    // Save a new address
+    var addressObj = new Address(address);
+    var addressObj2 = new Address(address);
+    addressObj.user = user;
+    addressObj.save();
+    addressObj2.save();
+    agent.get('/api/addressbyuser')
+      .set('authorization', 'Bearer ' + token)
+      .end(function (addressGetErr, addresssGetRes) {
+        // Handle address save error
+        if (addressGetErr) {
+          return done(addressGetErr);
+        }
+        // Get addresss list
+        var addresss = addresssGetRes.body;
+
+        // Set assertions
+        (addresss.address.length).should.match(1);
+        done();
+      });
+  });
+
   afterEach(function (done) {
     User.remove().exec(function () {
       Address.remove().exec(done);

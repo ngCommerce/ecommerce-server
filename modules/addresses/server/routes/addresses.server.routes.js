@@ -18,6 +18,9 @@ module.exports = function (app) {
     .put(addresses.update)
     .delete(addresses.delete);
 
+  app.route('/api/addressbyuser').all(core.requiresLoginToken, addressesPolicy.isAllowed)
+    .get(addresses.addressByUser);
+
   // Finish by binding the Address middleware
   app.param('addressId', addresses.addressByID);
 };

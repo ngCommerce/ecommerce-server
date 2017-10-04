@@ -229,3 +229,20 @@ exports.updateShipping = function (req, res) {
   });
 
 };
+
+exports.shopID = function (req, res, next, shopid) {
+  Product.find({ shop: shopid }, '_id name images price promotionprice percentofdiscount currency categories rate').sort('-created').populate('user', 'displayName').populate('categories').populate('shippings').exec(function (err, products) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      req.products = products;
+      next();
+    }
+  });
+};
+
+exports.productByShop = function (req, res) {
+  res.jsonp({ items: req.productsCookingList ? req.productsCookingList : [] });
+};

@@ -141,3 +141,15 @@ exports.updateReview = function (req, res) {
     }
   });
 };
+
+exports.shopByUser = function (req, res) {
+  Shop.find({ user: { _id: req.user._id } }, 'name image _id').sort('-created').populate('user', 'displayName').exec(function (err, shops) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(shops);
+    }
+  });
+};

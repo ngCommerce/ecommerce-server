@@ -20,6 +20,9 @@ exports.invokeRolesPolicies = function () {
     }, {
       resources: '/api/addresses/:addressId',
       permissions: '*'
+    }, {
+      resources: '/api/addressbyuser',
+      permissions: ['get']
     }]
   }, {
     roles: ['user'],
@@ -28,6 +31,9 @@ exports.invokeRolesPolicies = function () {
       permissions: ['get', 'post']
     }, {
       resources: '/api/addresses/:addressId',
+      permissions: ['get']
+    }, {
+      resources: '/api/addressbyuser',
       permissions: ['get']
     }]
   }, {
