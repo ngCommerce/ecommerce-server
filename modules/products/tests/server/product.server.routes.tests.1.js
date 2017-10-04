@@ -429,7 +429,9 @@ describe('Product CRUD tests with Token Base Authen', function () {
   });
 
   it('should be able to get List a Product by Shop if logged in with token', function (done) {
+    var ProductObj = new Product(product);
     // Get a list of Products
+    ProductObj.save();
     agent.get('/api/productsbyshop/' + shop.id)
       .set('authorization', 'Bearer ' + token)
       .end(function (productsGetErr, productsGetRes) {
