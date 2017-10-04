@@ -304,7 +304,7 @@ describe('Address CRUD tests with Token Base Authen', function () {
         var addresss = addresssGetRes.body;
 
         // Set assertions
-        (addresss.length).should.match(1);
+        (addresss.address.length).should.match(1);
         done();
       });
   });

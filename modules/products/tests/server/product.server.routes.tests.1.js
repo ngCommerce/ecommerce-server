@@ -428,6 +428,34 @@ describe('Product CRUD tests with Token Base Authen', function () {
 
   });
 
+  it('should be able to get List a Product by Shop if logged in with token', function (done) {
+    // Get a list of Products
+    agent.get('/api/productsbyshop/' + shop.id)
+      .set('authorization', 'Bearer ' + token)
+      .end(function (productsGetErr, productsGetRes) {
+        // Handle Products save error
+        if (productsGetErr) {
+          return done(productsGetErr);
+        }
+
+        // Get Products list
+        var products = productsGetRes.body;
+
+        // Set assertions
+        //(products[0].user.loginToken).should.equal(token);
+        (products.items.length).should.match(1);
+        (products.items[0].name).should.match(product.name);
+        (products.items[0].image).should.match(product.images[0]);
+        (products.items[0].price).should.match(product.price);
+        (products.items[0].promotionprice).should.match(product.promotionprice);
+        (products.items[0].percentofdiscount).should.match(product.percentofdiscount);
+        (products.items[0].currency).should.match(product.currency);
+        (products.items[0].rate).should.match(5);
+        (products.items[0].categories[0].name).should.match(product.categories[0].name);
+        done();
+      });
+  });
+
   afterEach(function (done) {
     User.remove().exec(function () {
       Shipping.remove().exec(function () {

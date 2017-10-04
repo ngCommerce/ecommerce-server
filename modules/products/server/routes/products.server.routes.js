@@ -24,8 +24,12 @@ module.exports = function (app) {
   app.route('/api/products/shippings/:productId').all(core.requiresLoginToken, productsPolicy.isAllowed)
     .put(products.updateShipping);
 
+  app.route('/api/productsbyshop/:shopId').all(core.requiresLoginToken, productsPolicy.isAllowed)
+    .get(products.productByShop);
+
   // Finish by binding the Product middleware
   app.param('productId', products.productByID);
+  app.param('shopId', products.shopID);
 
 
 

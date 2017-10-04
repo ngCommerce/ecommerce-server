@@ -229,3 +229,11 @@ exports.updateShipping = function (req, res) {
   });
 
 };
+
+exports.shopID = function (req, res, next) {
+  next();
+};
+
+exports.productByShop = function (req, res) {
+  res.jsonp({ items: [] });
+};
