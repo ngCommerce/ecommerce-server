@@ -12,11 +12,11 @@ var path = require('path'),
 /**
  * Create a Address
  */
-exports.create = function(req, res) {
+exports.create = function (req, res) {
   var address = new Address(req.body);
   address.user = req.user;
 
-  address.save(function(err) {
+  address.save(function (err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -30,7 +30,7 @@ exports.create = function(req, res) {
 /**
  * Show the current Address
  */
-exports.read = function(req, res) {
+exports.read = function (req, res) {
   // convert mongoose document to JSON
   var address = req.address ? req.address.toJSON() : {};
 
@@ -44,12 +44,12 @@ exports.read = function(req, res) {
 /**
  * Update a Address
  */
-exports.update = function(req, res) {
+exports.update = function (req, res) {
   var address = req.address;
 
   address = _.extend(address, req.body);
 
-  address.save(function(err) {
+  address.save(function (err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -63,10 +63,10 @@ exports.update = function(req, res) {
 /**
  * Delete an Address
  */
-exports.delete = function(req, res) {
+exports.delete = function (req, res) {
   var address = req.address;
 
-  address.remove(function(err) {
+  address.remove(function (err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -80,8 +80,8 @@ exports.delete = function(req, res) {
 /**
  * List of Addresses
  */
-exports.list = function(req, res) {
-  Address.find().sort('-created').populate('user', 'displayName').exec(function(err, addresses) {
+exports.list = function (req, res) {
+  Address.find().sort('-created').populate('user', 'displayName').exec(function (err, addresses) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -95,7 +95,7 @@ exports.list = function(req, res) {
 /**
  * Address middleware
  */
-exports.addressByID = function(req, res, next, id) {
+exports.addressByID = function (req, res, next, id) {
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).send({
@@ -113,5 +113,17 @@ exports.addressByID = function(req, res, next, id) {
     }
     req.address = address;
     next();
+  });
+};
+
+exports.addressByUser = function (req, res) {
+  Address.find({ user: { _id: req.user._id } }).sort('-created').populate('user', 'displayName').exec(function (err, addresses) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(addresses);
+    }
   });
 };
