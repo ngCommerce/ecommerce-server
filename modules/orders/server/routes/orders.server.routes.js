@@ -11,7 +11,7 @@ module.exports = function (app) {
   // Orders Routes
   app.route('/api/orders').all(core.requiresLoginToken, ordersPolicy.isAllowed)
     .get(orders.list)
-    .post(orders.create);
+    .post(orders.create, orders.getCart, orders.clearCart);
 
   app.route('/api/orders/:orderId').all(core.requiresLoginToken, ordersPolicy.isAllowed)
     .get(orders.read)

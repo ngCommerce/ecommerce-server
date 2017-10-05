@@ -7,6 +7,7 @@ var path = require('path'),
   mongoose = require('mongoose'),
   Order = mongoose.model('Order'),
   Shop = mongoose.model('Shop'),
+  Cart = mongoose.model('Cart'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   _ = require('lodash'),
   request = require('request'),
@@ -15,7 +16,7 @@ var path = require('path'),
 /**
  * Create a Order
  */
-exports.create = function (req, res) {
+exports.create = function (req, res, next) {
   var order = new Order(req.body);
   order.user = req.user;
 
@@ -27,9 +28,48 @@ exports.create = function (req, res) {
     } else {
       var sellerMessage = 'คุณมีรายการสั่งซื้อใหม่';
       var buyerMessage = 'ขอขอบคุณที่ใช้บริการ';
-      sentNotiToSeller(sellerMessage);
-      sentNotiToBuyer(buyerMessage);
-      res.jsonp(order);
+      // sentNotiToSeller(sellerMessage);
+      // sentNotiToBuyer(buyerMessage);
+      // res.jsonp(order);
+      req.resOrder = order;
+      next();
+    }
+  });
+};
+
+exports.getCart = function (req, res, next) {
+  Cart.find({ user: req.user._id }).sort('-created').exec(function (err, carts) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      if (carts && carts.length > 0) {
+        req.cart = carts[0];
+        next();
+      } else {
+        res.jsonp(req.resOrder);
+      }
+    }
+  });
+};
+
+exports.clearCart = function (req, res, next) {
+  Cart.findById(req.cart._id).sort('-created').exec(function (err, cart) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      cart.remove(function (err) {
+        if (err) {
+          return res.status(400).send({
+            message: errorHandler.getErrorMessage(err)
+          });
+        } else {
+          res.jsonp(req.resOrder);
+        }
+      });
     }
   });
 };

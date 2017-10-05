@@ -10,8 +10,6 @@ var should = require('should'),
   Product = mongoose.model('Product'),
   Shop = mongoose.model('Shop'),
   Shipping = mongoose.model('Shipping'),
-  Category = mongoose.model('Category'),
-  Cart = mongoose.model('Cart'),
   express = require(path.resolve('./config/lib/express'));
 
 /**
@@ -26,13 +24,12 @@ var app,
   product,
   shop,
   shipping,
-  category,
   token;
 
 /**
  * Order routes tests
  */
-describe('Save Order clear Cart', function () {
+describe('create Order Clear Cart', function () {
 
   before(function (done) {
     // Get application
@@ -60,16 +57,22 @@ describe('Save Order clear Cart', function () {
       provider: 'local'
     });
 
-    category = new Category({
-      name: 'แฟชั่น'
-    });
-
-    shipping = new Shipping({
-      name: 'ส่งแบบส่งด่วน',
-      detail: 'วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี',
-      price: 0,
-      duedate: 3
-    });
+    shipping = new Shipping([
+      {
+        shipping: {
+          detail: 'วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี',
+          name: 'ส่งแบบส่งด่วน',
+          price: 0
+        }
+      },
+      {
+        shipping: {
+          detail: 'วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี',
+          name: 'ส่งแบบธรรมดา',
+          price: 0
+        }
+      }
+    ]);
 
     shop = new Shop({
       name: 'Shop Name',
@@ -81,20 +84,7 @@ describe('Save Order clear Cart', function () {
         lat: '13.933954',
         long: '100.7157976'
       },
-    });
-
-    product = new Product({
-      name: 'Product name',
-      detail: 'Product detail',
-      price: 100,
-      promotionprice: 80,
-      percentofdiscount: 20,
-      currency: 'Product currency',
-      images: ['Product images'],
-      shippings: [shipping],
-      categories: [category],
-      cod: false,
-      shop: shop,
+      user: user
     });
 
     address = new Address({
@@ -106,6 +96,18 @@ describe('Save Order clear Cart', function () {
       firstname: 'amonrat',
       lastname: 'chantawon',
       tel: '0934524524'
+    });
+    product = new Product({
+      name: 'Product name',
+      detail: 'Product detail',
+      price: 100,
+      promotionprice: 80,
+      percentofdiscount: 20,
+      currency: 'Product currency',
+      images: ['Product images'],
+      shippings: [shipping],
+      cod: false,
+      shop: shop,
     });
 
     // Save a user to the test db and create new Product
@@ -161,52 +163,103 @@ describe('Save Order clear Cart', function () {
     done();
   });
 
-  it('save Order Clear Cart', function (done) {
-    var cart = new Cart({
-      items: [{
-        product: product,
-        qty: 1,
-        amount: 100,
-        discount: 20,
-        totalamount: 80
-      }],
-      amount: 100,
-      discount: 20,
-      totalamount: 80,
-      user: user
-    });
-    cart.save();
-    agent.get('/api/carts')
-      // .set('authorization', 'Bearer ' + token)
+  it('get order by shop', function (done) {
+    var orderObj1 = new Order(order);
+    var orderObj3 = new Order(order);
+    orderObj3.shop = null;
+    var orderObj2 = new Order(order);
+    orderObj2.status = 'complete';
+    orderObj1.save();
+    orderObj2.save();
+    agent.get('/api/orderbyshop')
+      .set('authorization', 'Bearer ' + token)
       .end(function (orderErr, orderRes) {
         // Handle signin error
         if (orderErr) {
           return done(orderErr);
         }
         var ord = orderRes.body;
-        (ord.length).should.match(1);
-        (ord[0].user._id).should.match(user.id);
-        agent.post('/api/orders')
-          .set('authorization', 'Bearer ' + token)
-          .send(order)
-          .expect(200)
-          .end(function (orderErr, orderRes) {
-            // Handle signin error
-            if (orderErr) {
-              return done(orderErr);
-            }
-            agent.get('/api/carts')
-              // .set('authorization', 'Bearer ' + token)
-              .end(function (order2Err, order2Res) {
-                // Handle signin error
-                if (order2Err) {
-                  return done(order2Err);
-                }
-                var ord2 = order2Res.body;
-                (ord2.length).should.match(0);
-                done();
-              });
-          });
+        ord.waiting.should.be.instanceof(Array).and.have.lengthOf(1);
+        ord.accept.should.be.instanceof(Array).and.have.lengthOf(0);
+        ord.sent.should.be.instanceof(Array).and.have.lengthOf(0);
+        ord.return.should.be.instanceof(Array).and.have.lengthOf(0);
+        done();
+      });
+  });
+
+  // 1 waiting >> accept
+  it('set item status waiting to accept', function (done) {
+    var orderObj1 = new Order(order);
+    orderObj1.save();
+    agent.put('/api/updateorderaccept/' + orderObj1.id + '/' + orderObj1.items[0].id)
+      .set('authorization', 'Bearer ' + token)
+      .expect(200)
+      .end(function (orderErr, orderRes) {
+        // Handle signin error
+        if (orderErr) {
+          return done(orderErr);
+        }
+        var ord = orderRes.body;
+        (ord.items[0].status).should.match('accept');
+
+        done();
+      });
+  });
+
+  // 2 accept >> sent
+  it('set item status accept to sent', function (done) {
+    var orderObj1 = new Order(order);
+    orderObj1.save();
+    agent.put('/api/updateordersent/' + orderObj1.id + '/' + orderObj1.items[0].id)
+      .set('authorization', 'Bearer ' + token)
+      .expect(200)
+      .end(function (orderErr, orderRes) {
+        // Handle signin error
+        if (orderErr) {
+          return done(orderErr);
+        }
+        var ord = orderRes.body;
+        (ord.items[0].status).should.match('sent');
+
+        done();
+      });
+  });
+
+  // 3 sent >> complete
+  it('set item status sent to complete', function (done) {
+    var orderObj1 = new Order(order);
+    orderObj1.save();
+    agent.put('/api/updateordercomplete/' + orderObj1.id + '/' + orderObj1.items[0].id)
+      .set('authorization', 'Bearer ' + token)
+      .expect(200)
+      .end(function (orderErr, orderRes) {
+        // Handle signin error
+        if (orderErr) {
+          return done(orderErr);
+        }
+        var ord = orderRes.body;
+        (ord.items[0].status).should.match('complete');
+
+        done();
+      });
+  });
+
+  // 4 waiting >> reject
+  it('set item status waiting to reject', function (done) {
+    var orderObj1 = new Order(order);
+    orderObj1.save();
+    agent.put('/api/updateorderreject/' + orderObj1.id + '/' + orderObj1.items[0].id)
+      .set('authorization', 'Bearer ' + token)
+      .expect(200)
+      .end(function (orderErr, orderRes) {
+        // Handle signin error
+        if (orderErr) {
+          return done(orderErr);
+        }
+        var ord = orderRes.body;
+        (ord.items[0].status).should.match('reject');
+
+        done();
       });
   });
 
