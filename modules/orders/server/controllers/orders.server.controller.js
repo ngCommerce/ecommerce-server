@@ -29,8 +29,8 @@ exports.create = function (req, res, next) {
     } else {
       var sellerMessage = 'คุณมีรายการสั่งซื้อใหม่';
       var buyerMessage = 'ขอขอบคุณที่ใช้บริการ';
-      // sentNotiToSeller(sellerMessage);
-      // sentNotiToBuyer(buyerMessage); 
+      sentNotiToSeller(sellerMessage);
+      sentNotiToBuyer(buyerMessage); 
       req.resOrder = order;
       next();
     }
