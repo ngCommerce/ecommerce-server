@@ -7,6 +7,7 @@ var path = require('path'),
   mongoose = require('mongoose'),
   Order = mongoose.model('Order'),
   Shop = mongoose.model('Shop'),
+  Address = mongoose.model('Address'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   _ = require('lodash'),
   request = require('request'),
@@ -29,7 +30,11 @@ exports.create = function (req, res) {
       var buyerMessage = 'ขอขอบคุณที่ใช้บริการ';
       sentNotiToSeller(sellerMessage);
       sentNotiToBuyer(buyerMessage);
-      res.jsonp(order);
+      Address.populate(order, {
+        path: 'shipping'
+      }, function (err, orderRes) {
+        res.jsonp(orderRes);
+      });
     }
   });
 };
@@ -138,19 +143,27 @@ exports.sendNotiBuyer = function (req, res) {
     method: 'POST',
     json: {
       app_id: 'd5d9533c-3ac8-42e6-bc16-a5984bef02ff',
-      contents: { en: req.message },
+      contents: {
+        en: req.message
+      },
       included_segments: ['All']
     }
   }, function (error, response, body) {
     if (error) {
       console.log('Error sending messages: ', error);
-      res.jsonp({ message: error });
+      res.jsonp({
+        message: error
+      });
 
     } else if (response.body.error) {
       console.log('Error: ', response.body.error);
-      res.jsonp({ message: response.body.error });
+      res.jsonp({
+        message: response.body.error
+      });
     }
-    res.jsonp({ message: 'sent noti success' });
+    res.jsonp({
+      message: 'sent noti success'
+    });
   });
 };
 
@@ -164,24 +177,34 @@ exports.sendNotiSeller = function (req, res) {
     method: 'POST',
     json: {
       app_id: 'fdfae3dc-e634-47f4-b959-f04e60f4613b',
-      contents: { en: req.message },
+      contents: {
+        en: req.message
+      },
       included_segments: ['All']
     }
   }, function (error, response, body) {
     if (error) {
       console.log('Error sending messages: ', error);
-      res.jsonp({ message: error });
+      res.jsonp({
+        message: error
+      });
 
     } else if (response.body.error) {
       console.log('Error: ', response.body.error);
-      res.jsonp({ message: response.body.error });
+      res.jsonp({
+        message: response.body.error
+      });
     }
-    res.jsonp({ message: 'sent noti success' });
+    res.jsonp({
+      message: 'sent noti success'
+    });
   });
 };
 
 exports.getShopByUser = function (req, res, next) {
-  Shop.find({ user: req.user._id }).exec(function (err, shops) {
+  Shop.find({
+    user: req.user._id
+  }).exec(function (err, shops) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -201,7 +224,11 @@ exports.getShopByUser = function (req, res, next) {
 };
 
 exports.getOrderList = function (req, res, next) {
-  Order.find({ status: { $nin: ['complete', 'cancel'] } }).sort('-created').populate('user', 'displayName').populate('items.product').populate('shipping').exec(function (err, orders) {
+  Order.find({
+    status: {
+      $nin: ['complete', 'cancel']
+    }
+  }).sort('-created').populate('user', 'displayName').populate('items.product').populate('shipping').exec(function (err, orders) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -369,7 +396,9 @@ function sentNotiToSeller(message) {
     method: 'POST',
     json: {
       app_id: 'fdfae3dc-e634-47f4-b959-f04e60f4613b',
-      contents: { en: message },
+      contents: {
+        en: message
+      },
       included_segments: ['All']
     }
   }, function (error, response, body) {
@@ -379,7 +408,9 @@ function sentNotiToSeller(message) {
     } else if (response.body.error) {
       console.log('Error: ', response.body.error);
     }
-    console.log({ message: 'sent noti success' });
+    console.log({
+      message: 'sent noti success'
+    });
   });
 }
 
@@ -392,7 +423,9 @@ function sentNotiToBuyer(message) {
     method: 'POST',
     json: {
       app_id: 'd5d9533c-3ac8-42e6-bc16-a5984bef02ff',
-      contents: { en: message },
+      contents: {
+        en: message
+      },
       included_segments: ['All']
     }
   }, function (error, response, body) {
@@ -404,6 +437,8 @@ function sentNotiToBuyer(message) {
       console.log('Error: ', response.body.error);
       // res.jsonp({ message: response.body.error });
     }
-    console.log({ message: 'sent noti success' });
+    console.log({
+      message: 'sent noti success'
+    });
   });
 }
