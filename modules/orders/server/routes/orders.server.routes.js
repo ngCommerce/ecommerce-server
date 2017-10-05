@@ -34,9 +34,9 @@ module.exports = function (app) {
     .put(orders.waitingToReject);
 
   app.route('/api/notibuyer/:message')
-    .get(orders.sendNotiSeller);
-  app.route('/api/notiseller/:message')
     .get(orders.sendNotiBuyer);
+  app.route('/api/notiseller/:message')
+    .get(orders.sendNotiSeller);
 
 
   // Finish by binding the Order middleware
