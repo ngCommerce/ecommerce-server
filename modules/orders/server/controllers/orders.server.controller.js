@@ -392,7 +392,7 @@ function sentNotiToBuyer(message) {
     method: 'POST',
     json: {
       app_id: 'd5d9533c-3ac8-42e6-bc16-a5984bef02ff',
-      contents: { en: message },
+      contents: { en: req.message },
       included_segments: ['All']
     }
   }, function (error, response, body) {
