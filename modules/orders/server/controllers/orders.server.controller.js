@@ -282,3 +282,76 @@ exports.cookingOrderByShop = function (req, res, next) {
 exports.orderByShops = function (req, res) {
   res.jsonp(req.orderByShop);
 };
+
+exports.itemID = function (req, res, next, itemId) {
+  req.itemID = itemId;
+  next();
+};
+
+exports.waitingToAccept = function (req, res) {
+  req.order.items.forEach(function (itm) {
+    if (itm._id.toString() === req.itemID.toString()) {
+      itm.status = 'accept';
+    }
+  });
+  req.order.save(function (err) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(req.order);
+    }
+  });
+};
+
+exports.acceptToSent = function (req, res) {
+  req.order.items.forEach(function (itm) {
+    if (itm._id.toString() === req.itemID.toString()) {
+      itm.status = 'sent';
+    }
+  });
+  req.order.save(function (err) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(req.order);
+    }
+  });
+};
+
+exports.sentToComplete = function (req, res) {
+  req.order.items.forEach(function (itm) {
+    if (itm._id.toString() === req.itemID.toString()) {
+      itm.status = 'complete';
+    }
+  });
+  req.order.save(function (err) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(req.order);
+    }
+  });
+};
+
+exports.waitingToReject = function (req, res) {
+  req.order.items.forEach(function (itm) {
+    if (itm._id.toString() === req.itemID.toString()) {
+      itm.status = 'reject';
+    }
+  });
+  req.order.save(function (err) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(req.order);
+    }
+  });
+};

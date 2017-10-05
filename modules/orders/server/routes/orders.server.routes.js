@@ -21,6 +21,18 @@ module.exports = function (app) {
   app.route('/api/orderbyshop').all(core.requiresLoginToken, ordersPolicy.isAllowed)
     .get(orders.getShopByUser, orders.getOrderList, orders.cookingOrderByShop, orders.orderByShops);
 
+  app.route('/api/updateorderaccept/:orderId/:itemId').all(core.requiresLoginToken, ordersPolicy.isAllowed)
+    .put(orders.waitingToAccept);
+
+  app.route('/api/updateordersent/:orderId/:itemId').all(core.requiresLoginToken, ordersPolicy.isAllowed)
+    .put(orders.acceptToSent);
+
+  app.route('/api/updateordercomplete/:orderId/:itemId').all(core.requiresLoginToken, ordersPolicy.isAllowed)
+    .put(orders.sentToComplete);
+
+  app.route('/api/updateorderreject/:orderId/:itemId').all(core.requiresLoginToken, ordersPolicy.isAllowed)
+    .put(orders.waitingToReject);
+
   app.route('/api/notibuyer/:message')
     .get(orders.sendNotiBuyer);
   app.route('/api/notiseller/:message')
@@ -30,4 +42,5 @@ module.exports = function (app) {
   // Finish by binding the Order middleware
   app.param('orderId', orders.orderByID);
   app.param('message', orders.message);
+  app.param('itemId', orders.itemID);
 };

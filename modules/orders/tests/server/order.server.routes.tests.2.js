@@ -172,7 +172,7 @@ describe('Order tests get in items by product.shop', function () {
     orderObj1.save();
     orderObj2.save();
     agent.get('/api/orderbyshop')
-      //.set('authorization', 'Bearer ' + token)
+      .set('authorization', 'Bearer ' + token)
       .end(function (orderErr, orderRes) {
         // Handle signin error
         if (orderErr) {
@@ -183,6 +183,82 @@ describe('Order tests get in items by product.shop', function () {
         ord.accept.should.be.instanceof(Array).and.have.lengthOf(0);
         ord.sent.should.be.instanceof(Array).and.have.lengthOf(0);
         ord.return.should.be.instanceof(Array).and.have.lengthOf(0);
+        done();
+      });
+  });
+
+  // 1 waiting >> accept
+  it('set item status waiting to accept', function (done) {
+    var orderObj1 = new Order(order);
+    orderObj1.save();
+    agent.put('/api/updateorderaccept/' + orderObj1.id + '/' + orderObj1.items[0].id)
+      .set('authorization', 'Bearer ' + token)
+      .expect(200)
+      .end(function (orderErr, orderRes) {
+        // Handle signin error
+        if (orderErr) {
+          return done(orderErr);
+        }
+        var ord = orderRes.body;
+        (ord.items[0].status).should.match('accept');
+
+        done();
+      });
+  });
+
+  // 2 accept >> sent
+  it('set item status accept to sent', function (done) {
+    var orderObj1 = new Order(order);
+    orderObj1.save();
+    agent.put('/api/updateordersent/' + orderObj1.id + '/' + orderObj1.items[0].id)
+      .set('authorization', 'Bearer ' + token)
+      .expect(200)
+      .end(function (orderErr, orderRes) {
+        // Handle signin error
+        if (orderErr) {
+          return done(orderErr);
+        }
+        var ord = orderRes.body;
+        (ord.items[0].status).should.match('sent');
+
+        done();
+      });
+  });
+
+  // 3 sent >> complete
+  it('set item status sent to complete', function (done) {
+    var orderObj1 = new Order(order);
+    orderObj1.save();
+    agent.put('/api/updateordercomplete/' + orderObj1.id + '/' + orderObj1.items[0].id)
+      .set('authorization', 'Bearer ' + token)
+      .expect(200)
+      .end(function (orderErr, orderRes) {
+        // Handle signin error
+        if (orderErr) {
+          return done(orderErr);
+        }
+        var ord = orderRes.body;
+        (ord.items[0].status).should.match('complete');
+
+        done();
+      });
+  });
+
+  // 4 waiting >> reject
+  it('set item status waiting to reject', function (done) {
+    var orderObj1 = new Order(order);
+    orderObj1.save();
+    agent.put('/api/updateorderreject/' + orderObj1.id + '/' + orderObj1.items[0].id)
+      .set('authorization', 'Bearer ' + token)
+      .expect(200)
+      .end(function (orderErr, orderRes) {
+        // Handle signin error
+        if (orderErr) {
+          return done(orderErr);
+        }
+        var ord = orderRes.body;
+        (ord.items[0].status).should.match('reject');
+
         done();
       });
   });

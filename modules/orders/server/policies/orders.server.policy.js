@@ -23,6 +23,18 @@ exports.invokeRolesPolicies = function () {
     }, {
       resources: '/api/orderbyshop',
       permissions: ['get']
+    }, {
+      resources: '/api/updateorderaccept/:orderId/:itemId',
+      permissions: ['put']
+    }, {
+      resources: '/api/updateordersent/:orderId/:itemId',
+      permissions: ['put']
+    }, {
+      resources: '/api/updateordercomplete/:orderId/:itemId',
+      permissions: ['put']
+    }, {
+      resources: '/api/updateorderreject/:orderId/:itemId',
+      permissions: ['put']
     }]
   }, {
     roles: ['user'],
@@ -35,6 +47,18 @@ exports.invokeRolesPolicies = function () {
     }, {
       resources: '/api/orderbyshop',
       permissions: ['get']
+    }, {
+      resources: '/api/updateorderaccept/:orderId/:itemId',
+      permissions: ['put']
+    }, {
+      resources: '/api/updateordersent/:orderId/:itemId',
+      permissions: ['put']
+    }, {
+      resources: '/api/updateordercomplete/:orderId/:itemId',
+      permissions: ['put']
+    }, {
+      resources: '/api/updateorderreject/:orderId/:itemId',
+      permissions: ['put']
     }]
   }, {
     roles: ['guest'],
