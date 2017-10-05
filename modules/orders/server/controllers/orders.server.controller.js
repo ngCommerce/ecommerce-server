@@ -25,6 +25,10 @@ exports.create = function (req, res) {
         message: errorHandler.getErrorMessage(err)
       });
     } else {
+      var sellerMessage = 'คุณมีรายการสั่งซื้อใหม่';
+      var buyerMessage = 'ขอขอบคุณที่ใช้บริการ';
+      sentNotiToSeller(sellerMessage);
+      sentNotiToBuyer(buyerMessage);
       res.jsonp(order);
     }
   });
@@ -355,3 +359,51 @@ exports.waitingToReject = function (req, res) {
     }
   });
 };
+
+function sentNotiToSeller(message) {
+  request({
+    url: pushNotiUrl,
+    headers: {
+      'Authorization': 'Basic ZWFkMjNkNDUtZDIyNy00MGU2LTg5ZjEtYmZlY2FkYjUxZDY2'
+    },
+    method: 'POST',
+    json: {
+      app_id: 'fdfae3dc-e634-47f4-b959-f04e60f4613b',
+      contents: { en: message },
+      included_segments: ['All']
+    }
+  }, function (error, response, body) {
+    if (error) {
+      console.log('Error sending messages: ', error);
+
+    } else if (response.body.error) {
+      console.log('Error: ', response.body.error);
+    }
+    console.log({ message: 'sent noti success' });
+  });
+}
+
+function sentNotiToBuyer(message) {
+  request({
+    url: pushNotiUrl,
+    headers: {
+      'Authorization': 'Basic ZWNkZWY0MmUtNGJiNC00ZThjLWIyOWUtNzdmNzAxZmMyZDMw'
+    },
+    method: 'POST',
+    json: {
+      app_id: 'd5d9533c-3ac8-42e6-bc16-a5984bef02ff',
+      contents: { en: req.message },
+      included_segments: ['All']
+    }
+  }, function (error, response, body) {
+    if (error) {
+      console.log('Error sending messages: ', error);
+      // res.jsonp({ message: error });
+
+    } else if (response.body.error) {
+      console.log('Error: ', response.body.error);
+      // res.jsonp({ message: response.body.error });
+    }
+    console.log({ message: 'sent noti success' });
+  });
+}
