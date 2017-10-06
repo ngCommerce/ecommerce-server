@@ -30,7 +30,7 @@ exports.create = function (req, res, next) {
       var sellerMessage = 'คุณมีรายการสั่งซื้อใหม่';
       var buyerMessage = 'ขอขอบคุณที่ใช้บริการ';
       sentNotiToSeller(sellerMessage);
-      sentNotiToBuyer(buyerMessage); 
+      sentNotiToBuyer(buyerMessage);
       req.resOrder = order;
       next();
     }
@@ -38,7 +38,9 @@ exports.create = function (req, res, next) {
 };
 
 exports.getCart = function (req, res, next) {
-  Cart.find({ user: req.user._id }).sort('-created').exec(function (err, carts) {
+  Cart.find({
+    user: req.user._id
+  }).sort('-created').exec(function (err, carts) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -158,7 +160,7 @@ exports.orderByID = function (req, res, next, id) {
     });
   }
 
-  Order.findById(id).populate('user', 'displayName').exec(function (err, order) {
+  Order.findById(id).populate('user', 'displayName').populate('items.product').exec(function (err, order) {
     if (err) {
       return next(err);
     } else if (!order) {
@@ -363,9 +365,11 @@ exports.itemID = function (req, res, next, itemId) {
 };
 
 exports.waitingToAccept = function (req, res) {
+  var productname = '';
   req.order.items.forEach(function (itm) {
     if (itm._id.toString() === req.itemID.toString()) {
       itm.status = 'accept';
+      productname = itm.product.name;
     }
   });
   req.order.save(function (err) {
@@ -374,15 +378,19 @@ exports.waitingToAccept = function (req, res) {
         message: errorHandler.getErrorMessage(err)
       });
     } else {
+      var buyerMessage = productname + ' ได้รับการยืนยันแล้ว กำลังเตรียมการจัดส่ง'; // คนซื้อ
+      sentNotiToBuyer(buyerMessage);
       res.jsonp(req.order);
     }
   });
 };
 
 exports.acceptToSent = function (req, res) {
+  var productname = '';
   req.order.items.forEach(function (itm) {
     if (itm._id.toString() === req.itemID.toString()) {
       itm.status = 'sent';
+      productname = itm.product.name;
     }
   });
   req.order.save(function (err) {
@@ -391,15 +399,19 @@ exports.acceptToSent = function (req, res) {
         message: errorHandler.getErrorMessage(err)
       });
     } else {
+      var buyerMessage = productname + ' จัดส่งแล้ว หมายเลขพัสดุ: 123456789'; // คนซื้อ
+      sentNotiToBuyer(buyerMessage);
       res.jsonp(req.order);
     }
   });
 };
 
 exports.sentToComplete = function (req, res) {
+  var productname = '';
   req.order.items.forEach(function (itm) {
     if (itm._id.toString() === req.itemID.toString()) {
       itm.status = 'complete';
+      productname = itm.product.name;
     }
   });
   req.order.save(function (err) {
@@ -408,15 +420,20 @@ exports.sentToComplete = function (req, res) {
         message: errorHandler.getErrorMessage(err)
       });
     } else {
+      var buyerMessage = productname + ' ดำเนินการเสร็จสิ้น ขอบคุณที่ใช้บริการ'; // คนซื้อ
+      sentNotiToBuyer(buyerMessage);
       res.jsonp(req.order);
     }
   });
 };
 
 exports.waitingToReject = function (req, res) {
+  var productname = '';
+
   req.order.items.forEach(function (itm) {
     if (itm._id.toString() === req.itemID.toString()) {
       itm.status = 'reject';
+      productname = itm.product.name;
     }
   });
   req.order.save(function (err) {
@@ -425,6 +442,8 @@ exports.waitingToReject = function (req, res) {
         message: errorHandler.getErrorMessage(err)
       });
     } else {
+      var buyerMessage = productname + ' ถูกยกเลิกคำสั่งซื้อ ขออภัยในความไม่สะดวก'; // คนซื้อ
+      sentNotiToBuyer(buyerMessage);
       res.jsonp(req.order);
     }
   });
