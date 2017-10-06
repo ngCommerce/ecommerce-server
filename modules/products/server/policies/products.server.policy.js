@@ -29,6 +29,9 @@ exports.invokeRolesPolicies = function () {
     }, {
       resources: '/api/productsbyshop/:productbyshopId',
       permissions: ['get']
+    }, {
+      resources: '/api/productupdatehitorylog/:productId',
+      permissions: ['get']
     }]
   }, {
     roles: ['user'],
@@ -46,6 +49,9 @@ exports.invokeRolesPolicies = function () {
       permissions: ['put']
     }, {
       resources: '/api/productsbyshop/:productbyshopId',
+      permissions: ['get']
+    }, {
+      resources: '/api/productupdatehitorylog/:productId',
       permissions: ['get']
     }]
   }, {

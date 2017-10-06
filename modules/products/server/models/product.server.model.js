@@ -84,10 +84,24 @@ var ProductSchema = new Schema({
     type: Boolean,
     default: false
   },
-  rate: { type: Number },
+  rate: {
+    type: Number
+  },
   shop: {
     type: Schema.ObjectId,
     ref: 'Shop'
+  },
+  historylog: {
+    type: [{
+      user: {
+        type: Schema.ObjectId,
+        ref: 'User'
+      },
+      created: {
+        type: Date,
+        default: Date.now
+      }
+    }]
   },
   created: {
     type: Date,

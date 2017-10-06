@@ -143,7 +143,9 @@ exports.cookingProductList = function (req, res, next) {
   req.products.forEach(function (element) {
     var categories = [];
     element.categories.forEach(function (cate) {
-      categories.push({ name: cate.name });
+      categories.push({
+        name: cate.name
+      });
     });
     products.push({
       _id: element._id,
@@ -231,7 +233,9 @@ exports.updateShipping = function (req, res) {
 };
 
 exports.shopID = function (req, res, next, shopid) {
-  Product.find({ shop: shopid }, '_id name images price promotionprice percentofdiscount currency categories rate').sort('-created').populate('user', 'displayName').populate('categories').populate('shippings').exec(function (err, products) {
+  Product.find({
+    shop: shopid
+  }, '_id name images price promotionprice percentofdiscount currency categories rate').sort('-created').populate('user', 'displayName').populate('categories').populate('shippings').exec(function (err, products) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -244,5 +248,22 @@ exports.shopID = function (req, res, next, shopid) {
 };
 
 exports.productByShop = function (req, res) {
-  res.jsonp({ items: req.productsCookingList ? req.productsCookingList : [] });
+  res.jsonp({
+    items: req.productsCookingList ? req.productsCookingList : []
+  });
+};
+
+exports.updateHistoryLog = function (req, res, next) {
+  req.product.historylog.push({
+    user: req.user
+  });
+  req.product.save(function (err) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(req.product);
+    }
+  });
 };

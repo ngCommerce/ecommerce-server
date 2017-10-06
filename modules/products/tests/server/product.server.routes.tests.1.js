@@ -292,8 +292,7 @@ describe('Product CRUD tests with Token Base Authen', function () {
 
         var productObj = productSaveRes.body;
         agent.get('/api/products/' + productSaveRes.body._id)
-          .send(product)
-          .expect(200)
+          .set('authorization', 'Bearer ' + token)
           .end(function (productGetErr, productsGetRes) {
             // Handle Product save error
             if (productGetErr) {
@@ -314,10 +313,47 @@ describe('Product CRUD tests with Token Base Authen', function () {
             (product.shippings[0]._id).should.match(shipping.id);
             (product.shippings[0].name).should.match(shipping.name);
             (product.shop.name).should.match(shop.name);
+
+
             done();
           });
       });
   });
+
+  it('should be able to Product update historylog if logged in with token', function (done) {
+    // Save a new Product
+    agent.post('/api/products')
+      .set('authorization', 'Bearer ' + token)
+      .send(product)
+      .expect(200)
+      .end(function (productSaveErr, productSaveRes) {
+        // Handle Product save error
+        if (productSaveErr) {
+          return done(productSaveErr);
+        }
+
+        var productObj = productSaveRes.body;
+        agent.get('/api/productupdatehitorylog/' + productSaveRes.body._id)
+          .set('authorization', 'Bearer ' + token)
+          .end(function (productGetErr, productsGetRes) {
+            // Handle Product save error
+            if (productGetErr) {
+              return done(productGetErr);
+            }
+            // Get Products list
+            var product = productsGetRes.body;
+
+            // Set assertions
+
+            (product.historylog.length).should.match(1);
+            (product.historylog[0].user).should.match(user.id);
+
+
+            done();
+          });
+      });
+  });
+
   it('update product review', function (done) {
     // Save a new product
     agent.post('/api/products')
