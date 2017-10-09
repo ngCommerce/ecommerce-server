@@ -7,6 +7,7 @@ var path = require('path'),
   mongoose = require('mongoose'),
   Cart = mongoose.model('Cart'),
   Product = mongoose.model('Product'),
+  Shipping = mongoose.model('Shipping'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   _ = require('lodash');
 
@@ -26,7 +27,11 @@ exports.create = function (req, res) {
       Product.populate(cart, {
         path: 'items.product'
       }, function (err, cartRes) {
-        res.jsonp(cartRes);
+        Shipping.populate(cart, {
+          path: 'items.product.shippings'
+        }, function (err, cartRes2) {
+          res.jsonp(cartRes2);
+        });
       });
     }
   });
@@ -63,7 +68,11 @@ exports.update = function (req, res) {
       Product.populate(cart, {
         path: 'items.product'
       }, function (err, cartRes) {
-        res.jsonp(cartRes);
+        Shipping.populate(cart, {
+          path: 'items.product.shippings'
+        }, function (err, cartRes2) {
+          res.jsonp(cartRes2);
+        });
       });
     }
   });
