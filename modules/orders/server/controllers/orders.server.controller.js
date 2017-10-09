@@ -300,7 +300,7 @@ exports.cookingOrderByShop = function (req, res, next) {
             order_id: order._id,
             item_id: itm._id,
             name: itm.product.name,
-            price: itm.totalamount,
+            price: (itm.amount || 0) - (itm.discount || 0),
             qty: itm.qty,
             rate: itm.product.rate || 0,
             image: itm.product.images[0] || 'No image',
