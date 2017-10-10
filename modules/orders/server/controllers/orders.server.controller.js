@@ -9,6 +9,8 @@ var path = require('path'),
   Shop = mongoose.model('Shop'),
   Cart = mongoose.model('Cart'),
   Address = mongoose.model('Address'),
+  Product = mongoose.model('Product'),
+  User = mongoose.model('User'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   _ = require('lodash'),
   request = require('request'),
@@ -27,12 +29,25 @@ exports.create = function (req, res, next) {
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      var sellerMessage = 'คุณมีรายการสั่งซื้อใหม่';
-      var buyerMessage = 'ขอขอบคุณที่ใช้บริการ';
-      sentNotiToSeller(sellerMessage);
-      sentNotiToBuyer(buyerMessage, req.user.pushnotifications);
-      req.resOrder = order;
-      next();
+      Product.populate(order, {
+        path: 'items.product'
+      }, function (err, orderRes) {
+        User.populate(orderRes, {
+          path: 'items.product.user'
+        }, function (err, orderRes2) {
+          var sellerMessage = 'คุณมีรายการสั่งซื้อใหม่';
+          var buyerMessage = 'ขอขอบคุณที่ใช้บริการ';
+          for (var i = 0; i < orderRes2.items.length; i++) {
+            var ids = orderRes2.items[i].product ? orderRes2.items[i].product.user ? orderRes2.items[i].product.user.pushnotifications ? orderRes2.items[i].product.user.pushnotifications : [] : [] : [];
+            if (ids.length > 0) {
+              sentNotiToSeller(sellerMessage, ids);
+            }
+          }
+          sentNotiToBuyer(buyerMessage, req.user.pushnotifications);
+          req.resOrder = orderRes2;
+          next();
+        });
+      });
     }
   });
 };
@@ -456,7 +471,7 @@ exports.waitingToReject = function (req, res) {
   });
 };
 
-function sentNotiToSeller(message) {
+function sentNotiToSeller(message, ids) {
   request({
     url: pushNotiUrl,
     headers: {
@@ -468,7 +483,7 @@ function sentNotiToSeller(message) {
       contents: {
         en: message
       },
-      included_segments: ['All']
+      include_player_ids: ids
     }
   }, function (error, response, body) {
     if (error) {
