@@ -293,7 +293,7 @@ exports.cookingOrderByShop = function (req, res, next) {
     return: []
   };
   req.orders.forEach(function (order) {
-    if (order.items) {
+    if (order.items && order.items.length > 0) {
       order.items.forEach(function (itm) {
         var shop = itm.product.shop ? itm.product.shop.toString() === req.shop._id.toString() : false;
         if (shop) {
