@@ -21,10 +21,8 @@ exports.notificationUser = function (req, res) {
         });
       }
       user.pushnotifications = user.pushnotifications ? user.pushnotifications : [];
-      for (var i = 0; i < req.body.length; i++) {
-        if (user.pushnotifications.indexOf(req.body[i] === -1)) {
-          user.pushnotifications.push(req.body[i]);
-        }
+      if (user.pushnotifications.indexOf(req.body === -1)) {
+        user.pushnotifications.push(req.body[i]);
       }
       user.save(function (err) {
         if (err) {
