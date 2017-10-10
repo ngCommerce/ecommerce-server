@@ -26,7 +26,7 @@ exports.notificationUser = function (req, res) {
       console.log(user.pushnotifications.indexOf(req.body));
     
       if (user.pushnotifications.indexOf(req.body) === -1) {
-        user.pushnotifications.push(req.body[i]);
+        user.pushnotifications.push(req.body);
       }
       console.log(user.pushnotifications);
       
