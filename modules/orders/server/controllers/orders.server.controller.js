@@ -294,7 +294,7 @@ exports.cookingOrderByShop = function (req, res, next) {
     req.orders.forEach(function (order) {
       if (order.items && order.items.length > 0) {
         order.items.forEach(function (itm) {
-          var shop = itm.product.shop ? itm.product.shop.toString() === req.shop._id.toString() : false;
+          var shop = itm.product ? itm.product.shop ? itm.product.shop.toString() === req.shop._id.toString() : false : false;
           if (shop) {
             if (itm.status === 'waiting') {
               data.waiting.push({
