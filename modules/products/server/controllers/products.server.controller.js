@@ -183,7 +183,7 @@ exports.productByID = function (req, res, next, id) {
     });
   }
 
-  Product.findById(id).populate('user', 'displayName').populate('shop').populate('shippings').exec(function (err, product) {
+  Product.findById(id).populate('user', 'displayName').populate('categories').populate('shop').populate('shippings').exec(function (err, product) {
     if (err) {
       return next(err);
     } else if (!product) {
