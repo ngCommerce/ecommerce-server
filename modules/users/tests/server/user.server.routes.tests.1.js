@@ -69,7 +69,7 @@ describe('User Update Pushnotification have Token', function () {
   });
 
   it('add pushnoti', function (done) {
-    var data = ['dsafdas'];
+    var data = 'dsafdas';
     agent.put('/api/user/notification')
       .set('authorization', 'Bearer ' + token)
       .send(data)
