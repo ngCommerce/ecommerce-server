@@ -290,7 +290,7 @@ exports.cookingOrderByShop = function (req, res, next) {
     sent: [],
     return: []
   };
-  if (req.orders && req.orders.length > 0) {
+  if (req.orders && req.orders.length > 0 && req.shop) {
     req.orders.forEach(function (order) {
       if (order.items && order.items.length > 0) {
         order.items.forEach(function (itm) {
