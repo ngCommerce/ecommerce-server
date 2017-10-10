@@ -259,9 +259,7 @@ exports.getShopByUser = function (req, res, next) {
         req.shop = shops[0];
         next();
       } else {
-        return res.status(404).send({
-          message: 'Shop not found'
-        });
+        next();
       }
 
     }
@@ -292,68 +290,70 @@ exports.cookingOrderByShop = function (req, res, next) {
     sent: [],
     return: []
   };
-  req.orders.forEach(function (order) {
-    if (order.items && order.items.length > 0) {
-      order.items.forEach(function (itm) {
-        var shop = itm.product.shop ? itm.product.shop.toString() === req.shop._id.toString() : false;
-        if (shop) {
-          if (itm.status === 'waiting') {
-            data.waiting.push({
-              order_id: order._id,
-              item_id: itm._id,
-              name: itm.product.name,
-              price: itm.totalamount && itm.totalamount > 0 ? itm.totalamount : (itm.amount || 0) - (itm.discount || 0),
-              qty: itm.qty,
-              rate: itm.product.rate || 0,
-              image: itm.product.images[0] || 'No image',
-              status: itm.status,
-              shipping: order.shipping,
-              delivery: itm.delivery
-            });
-          } else if (itm.status === 'accept') {
-            data.accept.push({
-              order_id: order._id,
-              item_id: itm._id,
-              name: itm.product.name,
-              price: itm.totalamount && itm.totalamount > 0 ? itm.totalamount : (itm.amount || 0) - (itm.discount || 0),
-              qty: itm.qty,
-              rate: itm.product.rate || 0,
-              image: itm.product.images[0] || 'No image',
-              status: itm.status,
-              shipping: order.shipping,
-              delivery: itm.delivery
-            });
-          } else if (itm.status === 'sent') {
-            data.sent.push({
-              order_id: order._id,
-              item_id: itm._id,
-              name: itm.product.name,
-              price: itm.totalamount && itm.totalamount > 0 ? itm.totalamount : (itm.amount || 0) - (itm.discount || 0),
-              qty: itm.qty,
-              rate: itm.product.rate || 0,
-              image: itm.product.images[0] || 'No image',
-              status: itm.status,
-              shipping: order.shipping,
-              delivery: itm.delivery
-            });
-          } else if (itm.status === 'return') {
-            data.return.push({
-              order_id: order._id,
-              item_id: itm._id,
-              name: itm.product.name,
-              price: itm.totalamount && itm.totalamount > 0 ? itm.totalamount : (itm.amount || 0) - (itm.discount || 0),
-              qty: itm.qty,
-              rate: itm.product.rate || 0,
-              image: itm.product.images[0] || 'No image',
-              status: itm.status,
-              shipping: order.shipping,
-              delivery: itm.delivery
-            });
+  if (req.orders && req.orders.length > 0) {
+    req.orders.forEach(function (order) {
+      if (order.items && order.items.length > 0) {
+        order.items.forEach(function (itm) {
+          var shop = itm.product.shop ? itm.product.shop.toString() === req.shop._id.toString() : false;
+          if (shop) {
+            if (itm.status === 'waiting') {
+              data.waiting.push({
+                order_id: order._id,
+                item_id: itm._id,
+                name: itm.product.name,
+                price: itm.totalamount && itm.totalamount > 0 ? itm.totalamount : (itm.amount || 0) - (itm.discount || 0),
+                qty: itm.qty,
+                rate: itm.product.rate || 0,
+                image: itm.product.images[0] || 'No image',
+                status: itm.status,
+                shipping: order.shipping,
+                delivery: itm.delivery
+              });
+            } else if (itm.status === 'accept') {
+              data.accept.push({
+                order_id: order._id,
+                item_id: itm._id,
+                name: itm.product.name,
+                price: itm.totalamount && itm.totalamount > 0 ? itm.totalamount : (itm.amount || 0) - (itm.discount || 0),
+                qty: itm.qty,
+                rate: itm.product.rate || 0,
+                image: itm.product.images[0] || 'No image',
+                status: itm.status,
+                shipping: order.shipping,
+                delivery: itm.delivery
+              });
+            } else if (itm.status === 'sent') {
+              data.sent.push({
+                order_id: order._id,
+                item_id: itm._id,
+                name: itm.product.name,
+                price: itm.totalamount && itm.totalamount > 0 ? itm.totalamount : (itm.amount || 0) - (itm.discount || 0),
+                qty: itm.qty,
+                rate: itm.product.rate || 0,
+                image: itm.product.images[0] || 'No image',
+                status: itm.status,
+                shipping: order.shipping,
+                delivery: itm.delivery
+              });
+            } else if (itm.status === 'return') {
+              data.return.push({
+                order_id: order._id,
+                item_id: itm._id,
+                name: itm.product.name,
+                price: itm.totalamount && itm.totalamount > 0 ? itm.totalamount : (itm.amount || 0) - (itm.discount || 0),
+                qty: itm.qty,
+                rate: itm.product.rate || 0,
+                image: itm.product.images[0] || 'No image',
+                status: itm.status,
+                shipping: order.shipping,
+                delivery: itm.delivery
+              });
+            }
           }
-        }
-      });
-    }
-  });
+        });
+      }
+    });
+  }
   req.orderByShop = data;
   next();
 };
