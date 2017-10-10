@@ -79,7 +79,8 @@ exports.read = function (req, res) {
   // NOTE: This field is NOT persisted to the database, since it doesn't exist in the Article model.
   product.isCurrentUserOwner = req.user && product.user && product.user._id.toString() === req.user._id.toString();
 
-  res.jsonp(req.product);
+  res.jsonp(req.product); // all data product but edit product data Incomplete.
+  // res.jsonp(product); // small data before
 };
 
 /**
