@@ -21,7 +21,7 @@ exports.notificationUser = function (req, res) {
         });
       }
       user.pushnotifications = user.pushnotifications ? user.pushnotifications : [];
-      if (user.pushnotifications.indexOf(req.body === -1)) {
+      if (user.pushnotifications.indexOf(req.body)  === -1) {
         user.pushnotifications.push(req.body[i]);
       }
       user.save(function (err) {
