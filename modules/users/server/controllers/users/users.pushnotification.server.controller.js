@@ -22,14 +22,13 @@ exports.notificationUser = function (req, res) {
       }
       user.pushnotifications = user.pushnotifications ? user.pushnotifications : [];
       console.log(req.body);
-      console.log(user.pushnotifications);
-      console.log(user.pushnotifications.indexOf(req.body));
-    
-      if (user.pushnotifications.indexOf(req.body) === -1) {
-        user.pushnotifications.push(req.body);
+      if (user.pushnotifications.length === 0) {
+        user.pushnotifications.push(req.body.id);
+      } else if (user.pushnotifications.indexOf(req.body) === -1) {
+        user.pushnotifications.push(req.body.id);
       }
       console.log(user.pushnotifications);
-      
+
       user.save(function (err) {
         if (err) {
           return res.status(400).send({

@@ -382,7 +382,8 @@ exports.waitingToAccept = function (req, res) {
       });
     } else {
       var buyerMessage = productname + ' ได้รับการยืนยันแล้ว กำลังเตรียมการจัดส่ง'; // คนซื้อ
-      sentNotiToBuyer(buyerMessage, req.order.user.pushnotifications);
+      var pushnotifications = req.order.user ? req.order.user.pushnotifications ? req.order.user.pushnotifications : [] : [];
+      sentNotiToBuyer(buyerMessage, pushnotifications);
       res.jsonp(req.order);
     }
   });
@@ -403,7 +404,8 @@ exports.acceptToSent = function (req, res) {
       });
     } else {
       var buyerMessage = productname + ' จัดส่งแล้ว หมายเลขพัสดุ: 123456789'; // คนซื้อ
-      sentNotiToBuyer(buyerMessage, req.order.user.pushnotifications);
+      var pushnotifications = req.order.user ? req.order.user.pushnotifications ? req.order.user.pushnotifications : [] : [];
+      sentNotiToBuyer(buyerMessage, pushnotifications);
       res.jsonp(req.order);
     }
   });
@@ -424,7 +426,8 @@ exports.sentToComplete = function (req, res) {
       });
     } else {
       var buyerMessage = productname + ' ดำเนินการเสร็จสิ้น ขอบคุณที่ใช้บริการ'; // คนซื้อ
-      sentNotiToBuyer(buyerMessage, req.order.user.pushnotifications);
+      var pushnotifications = req.order.user ? req.order.user.pushnotifications ? req.order.user.pushnotifications : [] : [];
+      sentNotiToBuyer(buyerMessage, pushnotifications);
       res.jsonp(req.order);
     }
   });
@@ -446,7 +449,8 @@ exports.waitingToReject = function (req, res) {
       });
     } else {
       var buyerMessage = productname + ' ถูกยกเลิกคำสั่งซื้อ ขออภัยในความไม่สะดวก'; // คนซื้อ
-      sentNotiToBuyer(buyerMessage, req.order.user.pushnotifications);
+      var pushnotifications = req.order.user ? req.order.user.pushnotifications ? req.order.user.pushnotifications : [] : [];
+      sentNotiToBuyer(buyerMessage, pushnotifications);
       res.jsonp(req.order);
     }
   });
