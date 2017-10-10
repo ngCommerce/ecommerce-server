@@ -22,7 +22,8 @@ exports.notificationUser = function (req, res) {
       }
       user.pushnotifications = user.pushnotifications ? user.pushnotifications : [];
       console.log(req.body);
-      if (user.pushnotifications.length === 0) {
+      if (!user.pushnotifications || user.pushnotifications.length === 0) {
+        user.pushnotifications = [];
         user.pushnotifications.push(req.body.id);
       } else if (user.pushnotifications.indexOf(req.body.id) === -1) {
         user.pushnotifications.push(req.body.id);
