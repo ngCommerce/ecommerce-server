@@ -84,6 +84,9 @@ var UserSchema = new Schema({
     default: ['user'],
     required: 'Please provide at least one role'
   },
+  pushnotifications: {
+    type: [String]
+  },
   updated: {
     type: Date
   },
