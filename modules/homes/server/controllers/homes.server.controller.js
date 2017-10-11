@@ -101,9 +101,25 @@ exports.cookingShopPopular = function (req, res, next) {
 
 
 exports.cookingHighlight = function (req, res, next) {
+  var datas = [];
+  var products = req.products.slice(0, 5);
+  products.forEach(function (product) {
+    var data = {
+      _id: product._id,
+      name: product.name,
+      image: product.images[0],
+      price: product.price,
+      promotionprice: product.promotionprice,
+      percentofdiscount: product.percentofdiscount,
+      currency: product.currency,
+      rate: product.rate || 0,
+      detail: product.detail
+    };
+    datas.push(data);
+  });
   var items = [{
     name: 'highlight',
-    popularproducts: req.products.slice(0, 5),
+    popularproducts: datas,
     popularshops: req.shopPopular.slice(0, 5)
   }];
   req.highlight = items;
