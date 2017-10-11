@@ -98,11 +98,16 @@ exports.cookingListShop = function (req, res, next) {
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      shops.forEach(function(shop){
-        shop = shop ? shop.toJSON() : {};
-        shop.rate = 5;
+      var dataShops = [];
+      shops.forEach(function (shop) {
+        dataShops.push({
+          _id: shop._id,
+          name: shop.name,
+          image: shop.image,
+          rate: shop.rate || 5
+        });
       });
-      req.shops = shops;
+      req.shops = dataShops;
       next();
     }
   });

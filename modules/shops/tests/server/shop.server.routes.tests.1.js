@@ -149,6 +149,7 @@ describe('Shop CRUD token tests', function () {
             (shops[0]._id).should.match(shopSaveRes.body._id);
             (shops[0].name).should.match(shop.name);
             (shops[0].image).should.match(shop.image);
+            (shops[0].rate).should.match(5);
 
 
             // Call the assertion callback
