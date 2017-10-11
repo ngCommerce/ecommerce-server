@@ -525,6 +525,130 @@ describe('home', function () {
       });
   });
 
+  it('see all shop highlight cate', function (done) {
+    var product1 = new Product({
+      name: 'Product name',
+      detail: 'Product detail',
+      price: 100,
+      promotionprice: 80,
+      percentofdiscount: 20,
+      currency: 'Product currency',
+      images: ['Product images'],
+      shippings: [shipping],
+      categories: [category],
+      historylog: [{
+        user: user,
+        created: new Date()
+      }, {
+        user: user,
+        created: new Date()
+      }, {
+        user: user,
+        created: new Date()
+      }, {
+        user: user,
+        created: new Date()
+      }, {
+        user: user,
+        created: new Date()
+      }],
+      cod: false,
+      shop: shop,
+    });
+    var product2 = new Product({
+      name: 'Product name',
+      detail: 'Product detail',
+      price: 100,
+      promotionprice: 80,
+      percentofdiscount: 20,
+      currency: 'Product currency',
+      images: ['Product images'],
+      shippings: [shipping],
+      categories: [category],
+      cod: false,
+      shop: shop,
+      historylog: [{
+        user: user,
+        created: new Date()
+      }, {
+        user: user,
+        created: new Date()
+      }, {
+        user: user,
+        created: new Date()
+      }, {
+        user: user,
+        created: new Date()
+      }]
+    });
+    var product3 = new Product({
+      name: 'Product name',
+      detail: 'Product detail',
+      price: 100,
+      promotionprice: 80,
+      percentofdiscount: 20,
+      currency: 'Product currency',
+      images: ['Product images'],
+      shippings: [shipping],
+      categories: [category],
+      cod: false,
+      shop: shop,
+      historylog: [{
+        user: user,
+        created: new Date()
+      }, {
+        user: user,
+        created: new Date()
+      }, {
+        user: user,
+        created: new Date()
+      }]
+    });
+    var olddate = new Date();
+    olddate.setMonth(1);
+    var product4 = new Product({
+      name: 'Product name4',
+      detail: 'Product detail',
+      price: 100,
+      promotionprice: 80,
+      percentofdiscount: 20,
+      currency: 'Product currency',
+      images: ['Product images'],
+      shippings: [shipping],
+      categories: [category],
+      cod: false,
+      shop: shop,
+      historylog: [{
+        user: user,
+        created: new Date()
+      }, {
+        user: user,
+        created: olddate
+      }]
+    });
+    product1.save();
+    product2.save();
+    product3.save();
+    product4.save();
+    var cate = new Category({
+      name: 'mos'
+    });
+    cate.save();
+    agent.get('/api/seeallshop/highlight')
+      .end(function (homeGetErr, homeGetRes) {
+        // Handle Home save error
+        if (homeGetErr) {
+          return done(homeGetErr);
+        }
+        // Get Home list
+        var home = homeGetRes.body;
+
+        (home.title).should.match('See All highlight');
+        (home.items.length).should.match(1);
+        done();
+      });
+  });
+
 
 
   afterEach(function (done) {

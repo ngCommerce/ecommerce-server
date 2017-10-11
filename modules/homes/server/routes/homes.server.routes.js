@@ -12,7 +12,10 @@ module.exports = function (app) {
     .get(homes.getCate, homes.getProducts, homes.historyProductsFilterOfMounth, homes.cookingShopPopular, homes.cookingHighlight, homes.cookingData, homes.list);
 
   app.route('/api/seeallproduct/:catename').all(homesPolicy.isAllowed)
-    .get(homes.getProducts, homes.historyProductsFilterOfMounth, homes.cookingSeeAll);
+    .get(homes.getProducts, homes.historyProductsFilterOfMounth, homes.cookingSeeAll, homes.seeAllProduct);
+
+  app.route('/api/seeallshop/:catename').all(homesPolicy.isAllowed)
+    .get(homes.getProducts, homes.historyProductsFilterOfMounth, homes.cookingSeeAll, homes.seeAllShop);
 
   // app.route('/api/homes/:homeId').all(homesPolicy.isAllowed)
   //   .get(homes.read)

@@ -202,11 +202,12 @@ exports.list = function (req, res) {
   });
 };
 
-exports.cookingSeeAll = function (req, res) {
-  var seealls = [];
+exports.cookingSeeAll = function (req, res, next) {
+  var seeallProduct = [];
+  var seeallShop = [];
   if (req.catename.toString() === 'highlight') {
     req.products.forEach(function (product) {
-      seealls.push({
+      seeallProduct.push({
         _id: product._id,
         name: product.name,
         image: product.images[0],
@@ -216,13 +217,18 @@ exports.cookingSeeAll = function (req, res) {
         currency: product.currency,
         rate: product.rate ? product.rate : 5
       });
+      if (product.shop) {
+        if (seeallShop.indexOf(product.shop._id.toString()) === -1) {
+          seeallShop.push(product.shop._id.toString());
+        }
+      }
     });
   } else {
     req.products.forEach(function (product) {
       if (product.categories && product.categories.length > 0) {
         product.categories.forEach(function (cate) {
           if (cate && cate.name.toString() === req.catename.toString()) {
-            seealls.push({
+            seeallProduct.push({
               _id: product._id,
               name: product.name,
               image: product.images[0],
@@ -232,15 +238,49 @@ exports.cookingSeeAll = function (req, res) {
               currency: product.currency,
               rate: product.rate ? product.rate : 5
             });
+            if (product.shop) {
+              if (seeallShop.indexOf(product.shop._id.toString()) === -1) {
+                seeallShop.push(product.shop._id.toString());
+              }
+            }
           }
         });
       }
     });
   }
 
+  req.seeallproduct = seeallProduct;
+  req.shopsId = seeallShop;
+  next();
+};
+
+exports.seeAllProduct = function (req, res) {
   res.jsonp({
     title: 'See All ' + req.catename,
-    items: seealls
+    items: req.seeallproduct
+  });
+};
+
+exports.seeAllShop = function (req, res) {
+  var shopsSeeAll = [];
+  Shop.find({
+    '_id': {
+      $in: req.shopsId
+    }
+  }, function (err, shops) {
+    shopsSeeAll = [];
+    shops.forEach(function (shop) {
+      shopsSeeAll.push({
+        _id: shop._id,
+        name: shop.name,
+        image: shop.image,
+        rate: shop.rate || 5
+      });
+    });
+    res.jsonp({
+      title: 'See All ' + req.catename,
+      items: shopsSeeAll
+    });
   });
 
 };
