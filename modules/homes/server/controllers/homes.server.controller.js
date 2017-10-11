@@ -75,7 +75,7 @@ exports.historyProductsFilterOfMounth = function (req, res, next) {
 exports.cookingShopPopular = function (req, res, next) {
   var shopsPopular = [];
   req.products.forEach(function (product) {
-    if(product.shop){
+    if (product.shop) {
       if (shopsPopular.indexOf(product.shop._id.toString()) === -1) {
         shopsPopular.push(product.shop._id.toString());
       }
@@ -146,8 +146,10 @@ exports.cookingData = function (req, res, next) {
           if (item.popularshops.length > 0) {
             var chkShop = false;
             item.popularshops.forEach(function (shopPop) {
-              if (product.shop._id.toString() === shopPop._id.toString()) {
-                chkShop = true;
+              if (product.shop) {
+                if (product.shop._id.toString() === shopPop._id.toString()) {
+                  chkShop = true;
+                }
               }
             });
             if (!chkShop) {
