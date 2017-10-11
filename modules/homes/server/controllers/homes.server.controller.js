@@ -120,7 +120,8 @@ exports.cookingHighlight = function (req, res, next) {
   var items = [{
     name: 'highlight',
     popularproducts: datas,
-    popularshops: req.shopPopular.slice(0, 5)
+    popularshops: req.shopPopular.slice(0, 5),
+    bestseller: []
   }];
   req.highlight = items;
   next();
@@ -132,13 +133,15 @@ exports.cookingData = function (req, res, next) {
   var item = {
     name: '',
     popularproducts: [],
-    popularshops: []
+    popularshops: [],
+    bestseller: []
   };
   req.categories.forEach(function (cate) {
     item = {
       name: cate.name,
       popularproducts: [],
-      popularshops: []
+      popularshops: [],
+      bestseller: []
     };
     req.products.forEach(function (product) {
       product.categories.forEach(function (catep) {
