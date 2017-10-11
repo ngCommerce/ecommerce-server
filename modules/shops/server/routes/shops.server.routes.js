@@ -9,16 +9,20 @@ var shopsPolicy = require('../policies/shops.server.policy'),
 
 module.exports = function (app) {
   // Shops Routes
+  app.route('/api/shops') //.all(core.requiresLoginToken, shopsPolicy.isAllowed)
+    .get(shops.cookingListShop, shops.list);
+
   app.route('/api/shops').all(core.requiresLoginToken, shopsPolicy.isAllowed)
-    .get(shops.cookingListShop, shops.list)
     .post(shops.create);
 
+  app.route('/api/shops/:shopId')//.all(core.requiresLoginToken, shopsPolicy.isAllowed)
+    .get(shops.read);
+
   app.route('/api/shops/:shopId').all(core.requiresLoginToken, shopsPolicy.isAllowed)
-    .get(shops.read)
     .put(shops.update)
     .delete(shops.delete);
 
-  app.route('/api/shops/review/:shopId').all(core.requiresLoginToken, shopsPolicy.isAllowed)
+  app.route('/api/shops/review/:shopId').all(shopsPolicy.isAllowed)
     .put(shops.updateReview);
 
   app.route('/api/shopbyuser').all(core.requiresLoginToken, shopsPolicy.isAllowed)

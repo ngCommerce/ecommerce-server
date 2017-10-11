@@ -68,19 +68,19 @@ exports.read = function (req, res) {
     currency: productDB.currency,
     images: productDB.images,
     rate: productDB.rate ? productDB.rate : 5,
-    // favorites: productDB.favorites,
     reviews: productDB.reviews,
-    shippings: shippings,
-    shop: shop,
-    // isfavorite: isfavorite,
+    // shippings: shippings,
+    // shop: shop,
+    shippings: req.product.shippings,
+    shop: req.product.shop,
+    categories: req.product.categories,
     otherproducts: []
   };
   // Add a custom field to the Article, for determining if the current User is the "owner".
   // NOTE: This field is NOT persisted to the database, since it doesn't exist in the Article model.
   product.isCurrentUserOwner = req.user && product.user && product.user._id.toString() === req.user._id.toString();
 
-  res.jsonp(req.product); // all data product but edit product data Incomplete.
-  // res.jsonp(product); // small data before
+  res.jsonp(product);
 };
 
 /**

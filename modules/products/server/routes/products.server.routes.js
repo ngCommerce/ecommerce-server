@@ -9,12 +9,16 @@ var core = require('../../../core/server/controllers/core.server.controller'),
 
 module.exports = function (app) {
   // Products Routes
+  app.route('/api/products')//.all(core.requiresLoginToken, productsPolicy.isAllowed)
+    .get(products.getProductList, products.cookingProductList, products.list);
+
   app.route('/api/products').all(core.requiresLoginToken, productsPolicy.isAllowed)
-    .get(products.getProductList, products.cookingProductList, products.list)
     .post(products.create);
 
+  app.route('/api/products/:productId')//.all(core.requiresLoginToken, productsPolicy.isAllowed)
+    .get(products.read);
+
   app.route('/api/products/:productId').all(core.requiresLoginToken, productsPolicy.isAllowed)
-    .get(products.read)
     .put(products.update)
     .delete(products.delete);
 
@@ -27,7 +31,7 @@ module.exports = function (app) {
   app.route('/api/productsbyshop/:productbyshopId').all(core.requiresLoginToken, productsPolicy.isAllowed)
     .get(products.cookingProductList, products.productByShop);
 
-  app.route('/api/productupdatehitorylog/:productId').all(core.requiresLoginToken, productsPolicy.isAllowed)
+  app.route('/api/productupdatehitorylog/:productId')//.all(core.requiresLoginToken, productsPolicy.isAllowed)
     .get(products.updateHistoryLog);
 
   // Finish by binding the Product middleware
