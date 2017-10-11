@@ -157,9 +157,9 @@ exports.cookingData = function (req, res, next) {
             rate: product.rate ? product.rate : 5
           });
           if (item.popularshops.length > 0) {
-            if (product.shop) {
 
-              var chkShop = false;
+            var chkShop = false;
+            if (product.shop) {
               item.popularshops.forEach(function (shopPop) {
                 if (shopPop) {
                   if (product.shop._id.toString() === shopPop._id.toString()) {
@@ -174,7 +174,9 @@ exports.cookingData = function (req, res, next) {
                   image: product.shop.image
                 });
               }
-            } else {
+            }
+          } else {
+            if (product.shop) {
               item.popularshops.push({
                 _id: product.shop._id,
                 name: product.shop.name,
