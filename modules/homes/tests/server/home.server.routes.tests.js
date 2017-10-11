@@ -172,6 +172,22 @@ describe('home', function () {
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
+      historylog:[{
+        user: user,
+        created: new Date()
+      },{
+        user: user,
+        created: new Date()
+      },{
+        user: user,
+        created: new Date()
+      },{
+        user: user,
+        created: new Date()
+      },{
+        user: user,
+        created: new Date()
+      }],
       cod: false,
       shop: shop,
     });
@@ -187,6 +203,19 @@ describe('home', function () {
       categories: [category],
       cod: false,
       shop: shop,
+      historylog:[{
+        user: user,
+        created: new Date()
+      },{
+        user: user,
+        created: new Date()
+      },{
+        user: user,
+        created: new Date()
+      },{
+        user: user,
+        created: new Date()
+      }]
     });
     var product3 = new Product({
       name: 'Product name',
@@ -200,9 +229,21 @@ describe('home', function () {
       categories: [category],
       cod: false,
       shop: shop,
+      historylog:[{
+        user: user,
+        created: new Date()
+      },{
+        user: user,
+        created: new Date()
+      },{
+        user: user,
+        created: new Date()
+      }]
     });
+    var olddate = new Date();
+    olddate.setMonth(1);
     var product4 = new Product({
-      name: 'Product name',
+      name: 'Product name4',
       detail: 'Product detail',
       price: 100,
       promotionprice: 80,
@@ -213,6 +254,13 @@ describe('home', function () {
       categories: [category],
       cod: false,
       shop: shop,
+      historylog:[{
+        user: user,
+        created: new Date()
+      },{
+        user: user,
+        created: olddate
+      }]
     });
 
     var shop1 = new Shop({
@@ -287,18 +335,16 @@ describe('home', function () {
         (home.categories.length).should.match(3);
         (home.categories[0].name).should.match('highlight');
         (home.categories[0].popularproducts.length).should.match(5);
-        (home.categories[0].popularshops.length).should.match(5);
-        (home.categories[0].bestseller.length).should.match(5);
+        (home.categories[0].popularshops.length).should.match(1);
+        (home.categories[0].popularshops[0].name).should.match(shop.name);
 
         (home.categories[1].name).should.match(cate.name);
         (home.categories[1].popularproducts.length).should.match(0);
-        (home.categories[1].popularshops.length).should.match(5);
-        (home.categories[1].bestseller.length).should.match(0);
+        (home.categories[1].popularshops.length).should.match(0);
 
         (home.categories[2].name).should.match(category.name);
         (home.categories[2].popularproducts.length).should.match(5);
-        (home.categories[2].popularshops.length).should.match(5);
-        (home.categories[2].bestseller.length).should.match(5);
+        (home.categories[2].popularshops.length).should.match(1);
         done();
       });
   });

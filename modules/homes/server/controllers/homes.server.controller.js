@@ -22,92 +22,173 @@ exports.getCate = function (req, res, next) {
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      console.log('category' + categories.length);
       req.categories = categories;
       next();
     }
   });
 };
 
-exports.getProduct = function (req, res, next) {
-  Product.find({}, '_id name images price promotionprice percentofdiscount currency categories rate').sort('-created').populate('categories').populate('shippings').exec(function (err, products) {
+exports.getProducts = function (req, res, next) {
+  Product.find({}, '_id name images price promotionprice percentofdiscount currency categories rate historylog shop').sort('-created').populate('categories').populate('shippings').populate('shop').exec(function (err, products) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      var productlist = [];
-      products.forEach(function (element) {
-        var categories = [];
-        element.categories.forEach(function (cate) {
-          categories.push({
-            name: cate.name,
-            _id: cate._id
-          });
-        });
-        productlist.push({
-          _id: element._id,
-          name: element.name,
-          image: element.images[0],
-          price: element.price,
-          promotionprice: element.promotionprice,
-          percentofdiscount: element.percentofdiscount,
-          currency: element.currency,
-          categories: categories,
-          rate: element.rate ? element.rate : 5
-        });
-      });
-      console.log('productlist' + productlist.length);
-
-      req.products = productlist;
+      req.products = products;
       next();
     }
   });
 };
 
-exports.getShop = function (req, res, next) {
-  Shop.find().limit(5).sort('-created').exec(function (err, shops) {
-    if (err) {
-      return res.status(400).send({
-        message: errorHandler.getErrorMessage(err)
-      });
-    } else {
-      console.log('shops' + shops.length);
+exports.historyProductsFilterOfMounth = function (req, res, next) {
+  var products = req.products ? req.products : [];
+  var items = [];
+  var start = new Date();
+  start.setDate(1);
+  start.setHours(0);
+  start.setMinutes(0);
+  start.setSeconds(0);
+  var end = new Date();
+  end.setMonth(start.getMonth() + 1);
+  end.setDate(0);
+  end.setHours(23);
+  end.setMinutes(59);
+  end.setSeconds(59);
+  products.forEach(function (product) {
+    product = product ? product.toJSON() : {};
+    product.mounthHistory = product.mounthHistory ? product.mounthHistory : [];
+    product.historylog.forEach(function (his) {
+      if (his.created >= start && his.created <= end) {
+        product.mounthHistory.push(his);
+      }
+    });
+    items.push(product);
+  });
 
-      req.shops = shops;
-      next();
+  items.sort((a, b) => { return (a.mounthHistory.length < b.mounthHistory.length) ? 1 : ((b.mounthHistory.length < a.mounthHistory.length) ? -1 : 0); });
+  req.products = items;
+  next();
+};
+
+
+exports.cookingShopPopular = function (req, res, next) {
+  var shopsPopular = [];
+  req.products.forEach(function (product) {
+    if (product.shop) {
+      if (shopsPopular.indexOf(product.shop._id.toString()) === -1) {
+        shopsPopular.push(product.shop._id.toString());
+      }
     }
   });
+  Shop.find({
+    '_id': {
+      $in: shopsPopular
+    }
+  }, function (err, shops) {
+    var datas = [];
+    shops.forEach(function (shop) {
+      datas.push({
+        _id: shop._id,
+        name: shop.name,
+        image: shop.image
+      });
+    });
+    req.shopPopular = datas;
+    next();
+  });
+};
+
+
+exports.cookingHighlight = function (req, res, next) {
+  var datas = [];
+  var products = req.products.slice(0, 5);
+  products.forEach(function (product) {
+    var data = {
+      _id: product._id,
+      name: product.name,
+      image: product.images[0],
+      price: product.price,
+      promotionprice: product.promotionprice,
+      percentofdiscount: product.percentofdiscount,
+      currency: product.currency,
+      rate: product.rate || 0,
+      detail: product.detail
+    };
+    datas.push(data);
+  });
+  var items = [{
+    name: 'highlight',
+    popularproducts: datas,
+    popularshops: req.shopPopular.slice(0, 5),
+    bestseller: []
+  }];
+  req.highlight = items;
+  next();
 };
 
 exports.cookingData = function (req, res, next) {
-  var items = [{
-    name: 'highlight',
-    popularproducts: req.products.slice(0, 5),
-    popularshops: req.shops,
-    bestseller: req.products.slice(0, 5)
-  }];
+  var items = [];
+  items = items.concat(req.highlight);
   var item = {
     name: '',
     popularproducts: [],
-    popularshops: req.shops,
+    popularshops: [],
     bestseller: []
   };
   req.categories.forEach(function (cate) {
     item = {
       name: cate.name,
       popularproducts: [],
-      popularshops: req.shops,
+      popularshops: [],
       bestseller: []
     };
     req.products.forEach(function (product) {
       product.categories.forEach(function (catep) {
         if (cate._id.toString() === catep._id.toString()) {
-          item.popularproducts.push(product);
-          item.bestseller.push(product);
+          item.popularproducts.push({
+            _id: product._id,
+            name: product.name,
+            image: product.images[0],
+            price: product.price,
+            promotionprice: product.promotionprice,
+            percentofdiscount: product.percentofdiscount,
+            currency: product.currency,
+            rate: product.rate ? product.rate : 5
+          });
+          if (item.popularshops.length > 0) {
+
+            var chkShop = false;
+            if (product.shop) {
+              item.popularshops.forEach(function (shopPop) {
+                if (shopPop) {
+                  if (product.shop._id.toString() === shopPop._id.toString()) {
+                    chkShop = true;
+                  }
+                }
+              });
+              if (!chkShop) {
+                item.popularshops.push({
+                  _id: product.shop._id,
+                  name: product.shop.name,
+                  image: product.shop.image
+                });
+              }
+            }
+          } else {
+            if (product.shop) {
+              item.popularshops.push({
+                _id: product.shop._id,
+                name: product.shop.name,
+                image: product.shop.image
+              });
+            }
+          }
         }
       });
     });
+    item.popularproducts.slice(0, 5);
+    item.popularshops.slice(0, 5);
     items.push(item);
   });
   req.home = items;

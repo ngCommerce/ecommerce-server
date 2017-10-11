@@ -149,6 +149,7 @@ describe('Shop CRUD token tests', function () {
             (shops[0]._id).should.match(shopSaveRes.body._id);
             (shops[0].name).should.match(shop.name);
             (shops[0].image).should.match(shop.image);
+            (shops[0].rate).should.match(5);
 
 
             // Call the assertion callback
@@ -191,6 +192,7 @@ describe('Shop CRUD token tests', function () {
             shops.should.be.instanceof(Object).and.have.property('map', shop.map).and.have.property('long', shop.map.long);
             // shops.products.should.be.instanceof(Array).and.have.lengthOf(0);
             shops.reviews.should.be.instanceof(Array).and.have.lengthOf(0);
+            shops.rate.should.match(5);
             done();
           });
       });
