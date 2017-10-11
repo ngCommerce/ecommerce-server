@@ -163,6 +163,8 @@ exports.cookingData = function (req, res, next) {
         }
       });
     });
+    item.popularproducts.slice(0, 5);
+    item.popularshops.slice(0, 5);
     items.push(item);
   });
   req.home = items;
