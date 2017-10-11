@@ -11,9 +11,10 @@ var path = require('path'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   _ = require('lodash');
 
-/**
- * Create a Home
- */
+exports.cateName = function (req, res, next, catename) {
+  req.catename = catename;
+  next();
+};
 
 exports.getCate = function (req, res, next) {
   Category.find().sort('-created').exec(function (err, categories) {
@@ -199,4 +200,47 @@ exports.list = function (req, res) {
   res.jsonp({
     categories: req.home
   });
+};
+
+exports.cookingSeeAll = function (req, res) {
+  var seealls = [];
+  if (req.catename.toString() === 'highlight') {
+    req.products.forEach(function (product) {
+      seealls.push({
+        _id: product._id,
+        name: product.name,
+        image: product.images[0],
+        price: product.price,
+        promotionprice: product.promotionprice,
+        percentofdiscount: product.percentofdiscount,
+        currency: product.currency,
+        rate: product.rate ? product.rate : 5
+      });
+    });
+  } else {
+    req.products.forEach(function (product) {
+      if (product.categories && product.categories.length > 0) {
+        product.categories.forEach(function (cate) {
+          if (cate && cate.name.toString() === req.catename.toString()) {
+            seealls.push({
+              _id: product._id,
+              name: product.name,
+              image: product.images[0],
+              price: product.price,
+              promotionprice: product.promotionprice,
+              percentofdiscount: product.percentofdiscount,
+              currency: product.currency,
+              rate: product.rate ? product.rate : 5
+            });
+          }
+        });
+      }
+    });
+  }
+
+  res.jsonp({
+    title: 'See All ' + req.catename,
+    items: seealls
+  });
+
 };

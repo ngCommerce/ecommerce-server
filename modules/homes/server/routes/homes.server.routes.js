@@ -11,11 +11,14 @@ module.exports = function (app) {
   app.route('/api/homes').all(homesPolicy.isAllowed)
     .get(homes.getCate, homes.getProducts, homes.historyProductsFilterOfMounth, homes.cookingShopPopular, homes.cookingHighlight, homes.cookingData, homes.list);
 
+  app.route('/api/seeallproduct/:catename').all(homesPolicy.isAllowed)
+    .get(homes.getProducts, homes.historyProductsFilterOfMounth, homes.cookingSeeAll);
+
   // app.route('/api/homes/:homeId').all(homesPolicy.isAllowed)
   //   .get(homes.read)
   //   .put(homes.update)
   //   .delete(homes.delete);
 
   // Finish by binding the Home middleware
-  // app.param('homeId', homes.homeByID);
+  app.param('catename', homes.cateName);
 };
