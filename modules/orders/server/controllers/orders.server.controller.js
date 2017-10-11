@@ -311,18 +311,22 @@ exports.cookingOrderByShop = function (req, res, next) {
         order.items.forEach(function (itm) {
           var shop = itm.product ? itm.product.shop ? itm.product.shop.toString() === req.shop._id.toString() : false : false;
           if (shop) {
+            var price = itm.totalamount && itm.totalamount > 0 ? itm.totalamount : (itm.amount || 0) - (itm.discount || 0);            
             if (itm.status === 'waiting') {
               data.waiting.push({
                 order_id: order._id,
                 item_id: itm._id,
                 name: itm.product.name,
-                price: itm.totalamount && itm.totalamount > 0 ? itm.totalamount : (itm.amount || 0) - (itm.discount || 0),
+                price: price,
                 qty: itm.qty,
                 rate: itm.product.rate || 0,
                 image: itm.product.images[0] || 'No image',
                 status: itm.status,
                 shipping: order.shipping,
-                delivery: itm.delivery
+                delivery: itm.delivery,
+                promotionprice: price - itm.discount,
+                currency: itm.product.currency,
+                percentofdiscount: itm.product.percentofdiscount
               });
             } else if (itm.status === 'accept') {
               data.accept.push({
@@ -335,7 +339,10 @@ exports.cookingOrderByShop = function (req, res, next) {
                 image: itm.product.images[0] || 'No image',
                 status: itm.status,
                 shipping: order.shipping,
-                delivery: itm.delivery
+                delivery: itm.delivery,
+                promotionprice: price - itm.discount,
+                currency: itm.product.currency,
+                percentofdiscount: itm.product.percentofdiscount
               });
             } else if (itm.status === 'sent') {
               data.sent.push({
@@ -348,7 +355,10 @@ exports.cookingOrderByShop = function (req, res, next) {
                 image: itm.product.images[0] || 'No image',
                 status: itm.status,
                 shipping: order.shipping,
-                delivery: itm.delivery
+                delivery: itm.delivery,
+                promotionprice: price - itm.discount,
+                currency: itm.product.currency,
+                percentofdiscount: itm.product.percentofdiscount
               });
             } else if (itm.status === 'return') {
               data.return.push({
@@ -361,7 +371,10 @@ exports.cookingOrderByShop = function (req, res, next) {
                 image: itm.product.images[0] || 'No image',
                 status: itm.status,
                 shipping: order.shipping,
-                delivery: itm.delivery
+                delivery: itm.delivery,
+                promotionprice: price - itm.discount,
+                currency: itm.product.currency,
+                percentofdiscount: itm.product.percentofdiscount
               });
             }
           }

@@ -519,7 +519,7 @@ describe('home', function () {
         // Get Home list
         var home = homeGetRes.body;
 
-        (home.title).should.match('See All highlight');
+        (home.title).should.match('highlight');
         (home.items.length).should.match(5);
         done();
       });
@@ -643,7 +643,7 @@ describe('home', function () {
         // Get Home list
         var home = homeGetRes.body;
 
-        (home.title).should.match('See All highlight');
+        (home.title).should.match('highlight');
         (home.items.length).should.match(1);
         done();
       });

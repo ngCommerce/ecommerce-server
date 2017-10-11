@@ -256,7 +256,7 @@ exports.cookingSeeAll = function (req, res, next) {
 
 exports.seeAllProduct = function (req, res) {
   res.jsonp({
-    title: 'See All ' + req.catename,
+    title: req.catename,
     items: req.seeallproduct
   });
 };
@@ -278,7 +278,7 @@ exports.seeAllShop = function (req, res) {
       });
     });
     res.jsonp({
-      title: 'See All ' + req.catename,
+      title: req.catename,
       items: shopsSeeAll
     });
   });
