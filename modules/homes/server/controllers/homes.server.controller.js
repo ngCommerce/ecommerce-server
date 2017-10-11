@@ -157,29 +157,30 @@ exports.cookingData = function (req, res, next) {
             rate: product.rate ? product.rate : 5
           });
           if (item.popularshops.length > 0) {
-            var chkShop = false;
-            item.popularshops.forEach(function (shopPop) {
-              if (product.shop) {
+            if (product.shop) {
+
+              var chkShop = false;
+              item.popularshops.forEach(function (shopPop) {
                 if (shopPop) {
                   if (product.shop._id.toString() === shopPop._id.toString()) {
                     chkShop = true;
                   }
                 }
+              });
+              if (!chkShop) {
+                item.popularshops.push({
+                  _id: product.shop._id,
+                  name: product.shop.name,
+                  image: product.shop.image
+                });
               }
-            });
-            if (!chkShop) {
+            } else {
               item.popularshops.push({
                 _id: product.shop._id,
                 name: product.shop.name,
                 image: product.shop.image
               });
             }
-          } else {
-            item.popularshops.push({
-              _id: product.shop._id,
-              name: product.shop.name,
-              image: product.shop.image
-            });
           }
         }
       });
