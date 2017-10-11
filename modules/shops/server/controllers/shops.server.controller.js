@@ -98,6 +98,10 @@ exports.cookingListShop = function (req, res, next) {
         message: errorHandler.getErrorMessage(err)
       });
     } else {
+      shops.forEach(function(shop){
+        shop = shop ? shop.toJSON() : {};
+        shop.rate = 5;
+      });
       req.shops = shops;
       next();
     }
