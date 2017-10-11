@@ -147,8 +147,10 @@ exports.cookingData = function (req, res, next) {
             var chkShop = false;
             item.popularshops.forEach(function (shopPop) {
               if (product.shop) {
-                if (product.shop._id.toString() === shopPop._id.toString()) {
-                  chkShop = true;
+                if (shopPop) {
+                  if (product.shop._id.toString() === shopPop._id.toString()) {
+                    chkShop = true;
+                  }
                 }
               }
             });
