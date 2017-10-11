@@ -146,11 +146,6 @@ exports.cookingData = function (req, res, next) {
     req.products.forEach(function (product) {
       product.categories.forEach(function (catep) {
         if (cate._id.toString() === catep._id.toString()) {
-          var categories = [];
-          categories.push({
-            name: catep.name,
-            _id: catep._id
-          });
           item.popularproducts.push({
             _id: product._id,
             name: product.name,
@@ -159,7 +154,6 @@ exports.cookingData = function (req, res, next) {
             promotionprice: product.promotionprice,
             percentofdiscount: product.percentofdiscount,
             currency: product.currency,
-            categories: categories,
             rate: product.rate ? product.rate : 5
           });
           if (item.popularshops.length > 0) {
@@ -174,10 +168,18 @@ exports.cookingData = function (req, res, next) {
               }
             });
             if (!chkShop) {
-              item.popularshops.push(product.shop);
+              item.popularshops.push({
+                _id: product.shop._id,
+                name: product.shop.name,
+                image: product.shop.image
+              });
             }
           } else {
-            item.popularshops.push(product.shop);
+            item.popularshops.push({
+              _id: product.shop._id,
+              name: product.shop.name,
+              image: product.shop.image
+            });
           }
         }
       });
