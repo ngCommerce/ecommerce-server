@@ -75,8 +75,10 @@ exports.historyProductsFilterOfMounth = function (req, res, next) {
 exports.cookingShopPopular = function (req, res, next) {
   var shopsPopular = [];
   req.products.forEach(function (product) {
-    if (shopsPopular.indexOf(product.shop._id.toString()) === -1) {
-      shopsPopular.push(product.shop._id.toString());
+    if(product.shop){
+      if (shopsPopular.indexOf(product.shop._id.toString()) === -1) {
+        shopsPopular.push(product.shop._id.toString());
+      }
     }
   });
   Shop.find({
