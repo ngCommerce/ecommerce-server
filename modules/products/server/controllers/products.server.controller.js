@@ -44,6 +44,7 @@ exports.read = function (req, res) {
     });
   }
   var shop = {
+    _id: productDB.shop ? productDB.shop._id : '',
     name: productDB.shop ? productDB.shop.name : '',
     rate: productDB.shop ? productDB.shop.rate : null
   };
@@ -69,10 +70,10 @@ exports.read = function (req, res) {
     images: productDB.images,
     rate: productDB.rate ? productDB.rate : 5,
     reviews: productDB.reviews,
-    // shippings: shippings,
-    // shop: shop,
-    shippings: req.product.shippings,
-    shop: req.product.shop,
+    shippings: shippings,
+    shop: shop,
+    // shippings: req.product.shippings,
+    // shop: req.product.shop,
     categories: req.product.categories,
     otherproducts: []
   };
