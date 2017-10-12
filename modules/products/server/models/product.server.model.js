@@ -46,9 +46,7 @@ var ProductSchema = new Schema({
     type: Number
   },
   currency: {
-    // type: String
-    type: Schema.ObjectId,
-    ref: 'Currency'
+    type: String
   },
   images: {
     type: [String],

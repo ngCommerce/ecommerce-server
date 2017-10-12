@@ -11,8 +11,6 @@ var should = require('should'),
   Shop = mongoose.model('Shop'),
   Shipping = mongoose.model('Shipping'),
   Category = mongoose.model('Category'),
-
-  Currency = mongoose.model('Currency'),
   Cart = mongoose.model('Cart'),
   express = require(path.resolve('./config/lib/express'));
 
@@ -29,7 +27,6 @@ var app,
   shop,
   shipping,
   category,
-  currency,
   token;
 
 /**
@@ -66,9 +63,6 @@ describe('home', function () {
     category = new Category({
       name: 'แฟชั่น'
     });
-    currency = new Currency({
-      name: 'THB'
-    });
 
     shipping = new Shipping({
       name: 'ส่งแบบส่งด่วน',
@@ -95,7 +89,7 @@ describe('home', function () {
       price: 100,
       promotionprice: 80,
       percentofdiscount: 20,
-      currency: currency,
+      currency: 'Product currency',
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
@@ -116,47 +110,44 @@ describe('home', function () {
 
     // Save a user to the test db and create new Product
     user.save(function () {
-      currency.save(function () {
-
-        address.save(function () {
-          shipping.save(function () {
-            shop.save(function () {
-              category.save(function () {
-                product.save(function () {
-                  order = {
-                    shipping: address,
-                    items: [{
-                      product: product,
-                      qty: 1,
-                      delivery: {
-                        detail: "วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี",
-                        name: "ส่งแบบส่งด่วน",
-                        price: 0
-                      },
-                      amount: 20000,
-                      discount: 2000,
-                      deliveryprice: 0,
-                      totalamount: 18000,
-                    }],
-                    amount: 30000,
+      address.save(function () {
+        shipping.save(function () {
+          shop.save(function () {
+            category.save(function () {
+              product.save(function () {
+                order = {
+                  shipping: address,
+                  items: [{
+                    product: product,
+                    qty: 1,
+                    delivery: {
+                      detail: "วันอังคาร, 1 - วัน อังคาร, 2 ส.ค. 2017 ฟรี",
+                      name: "ส่งแบบส่งด่วน",
+                      price: 0
+                    },
+                    amount: 20000,
                     discount: 2000,
-                    totalamount: 28000,
                     deliveryprice: 0,
-                  };
+                    totalamount: 18000,
+                  }],
+                  amount: 30000,
+                  discount: 2000,
+                  totalamount: 28000,
+                  deliveryprice: 0,
+                };
 
-                  agent.post('/api/auth/signin')
-                    .send(credentials)
-                    .expect(200)
-                    .end(function (signinErr, signinRes) {
-                      // Handle signin error
-                      if (signinErr) {
-                        return done(signinErr);
-                      }
-                      signinRes.body.loginToken.should.not.be.empty();
-                      token = signinRes.body.loginToken;
-                      done();
-                    });
-                });
+                agent.post('/api/auth/signin')
+                  .send(credentials)
+                  .expect(200)
+                  .end(function (signinErr, signinRes) {
+                    // Handle signin error
+                    if (signinErr) {
+                      return done(signinErr);
+                    }
+                    signinRes.body.loginToken.should.not.be.empty();
+                    token = signinRes.body.loginToken;
+                    done();
+                  });
               });
             });
           });
@@ -177,7 +168,7 @@ describe('home', function () {
       price: 100,
       promotionprice: 80,
       percentofdiscount: 20,
-      currency: currency,
+      currency: 'Product currency',
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
@@ -206,7 +197,7 @@ describe('home', function () {
       price: 100,
       promotionprice: 80,
       percentofdiscount: 20,
-      currency: currency,
+      currency: 'Product currency',
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
@@ -232,7 +223,7 @@ describe('home', function () {
       price: 100,
       promotionprice: 80,
       percentofdiscount: 20,
-      currency: currency,
+      currency: 'Product currency',
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
@@ -257,7 +248,7 @@ describe('home', function () {
       price: 100,
       promotionprice: 80,
       percentofdiscount: 20,
-      currency: currency,
+      currency: 'Product currency',
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
@@ -365,7 +356,7 @@ describe('home', function () {
       price: 100,
       promotionprice: 80,
       percentofdiscount: 20,
-      currency: currency,
+      currency: 'Product currency',
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
@@ -394,7 +385,7 @@ describe('home', function () {
       price: 100,
       promotionprice: 80,
       percentofdiscount: 20,
-      currency: currency,
+      currency: 'Product currency',
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
@@ -420,7 +411,7 @@ describe('home', function () {
       price: 100,
       promotionprice: 80,
       percentofdiscount: 20,
-      currency: currency,
+      currency: 'Product currency',
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
@@ -445,7 +436,7 @@ describe('home', function () {
       price: 100,
       promotionprice: 80,
       percentofdiscount: 20,
-      currency: currency,
+      currency: 'Product currency',
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
@@ -541,7 +532,7 @@ describe('home', function () {
       price: 100,
       promotionprice: 80,
       percentofdiscount: 20,
-      currency: currency,
+      currency: 'Product currency',
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
@@ -570,7 +561,7 @@ describe('home', function () {
       price: 100,
       promotionprice: 80,
       percentofdiscount: 20,
-      currency: currency,
+      currency: 'Product currency',
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
@@ -596,7 +587,7 @@ describe('home', function () {
       price: 100,
       promotionprice: 80,
       percentofdiscount: 20,
-      currency: currency,
+      currency: 'Product currency',
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
@@ -621,7 +612,7 @@ describe('home', function () {
       price: 100,
       promotionprice: 80,
       percentofdiscount: 20,
-      currency: currency,
+      currency: 'Product currency',
       images: ['Product images'],
       shippings: [shipping],
       categories: [category],
@@ -662,15 +653,12 @@ describe('home', function () {
 
   afterEach(function (done) {
     User.remove().exec(function () {
-
-      Currency.remove().exec(function () {
-        Address.remove().exec(function () {
-          Shop.remove().exec(function () {
-            Shipping.remove().exec(function () {
-              Category.remove().exec(function () {
-                Product.remove().exec(function () {
-                  Order.remove().exec(done);
-                });
+      Address.remove().exec(function () {
+        Shop.remove().exec(function () {
+          Shipping.remove().exec(function () {
+            Category.remove().exec(function () {
+              Product.remove().exec(function () {
+                Order.remove().exec(done);
               });
             });
           });

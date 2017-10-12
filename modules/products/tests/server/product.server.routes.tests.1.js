@@ -9,7 +9,6 @@ var should = require('should'),
   Category = mongoose.model('Category'),
   Shop = mongoose.model('Shop'),
   Shipping = mongoose.model('Shipping'),
-  Currency = mongoose.model('Currency'),
   express = require(path.resolve('./config/lib/express'));
 
 /**
@@ -23,7 +22,6 @@ var app,
   shop,
   shipping,
   product,
-  currency,
   token;
 
 /**
@@ -59,9 +57,6 @@ describe('Product CRUD tests with Token Base Authen', function () {
     category = new Category({
       name: 'แฟชั่น'
     });
-    currency = new Currency({
-      name: 'THB'
-    });
     shop = new Shop({
       name: 'Shop Name',
       detail: 'Shop Detail',
@@ -86,37 +81,35 @@ describe('Product CRUD tests with Token Base Authen', function () {
 
     // Save a user to the test db and create new Product
     user.save(function () {
-      currency.save(function () {
-        shipping.save(function () {
-          shop.save(function () {
-            category.save(function () {
-              product = {
-                name: 'Product name',
-                detail: 'Product detail',
-                price: 100,
-                promotionprice: 80,
-                percentofdiscount: 20,
-                currency: currency,
-                images: ['Product images'],
-                shippings: [shipping],
-                categories: [category],
-                cod: false,
-                shop: shop,
-              };
+      shipping.save(function () {
+        shop.save(function () {
+          category.save(function () {
+            product = {
+              name: 'Product name',
+              detail: 'Product detail',
+              price: 100,
+              promotionprice: 80,
+              percentofdiscount: 20,
+              currency: 'Product currency',
+              images: ['Product images'],
+              shippings: [shipping],
+              categories: [category],
+              cod: false,
+              shop: shop,
+            };
 
-              agent.post('/api/auth/signin')
-                .send(credentials)
-                .expect(200)
-                .end(function (signinErr, signinRes) {
-                  // Handle signin error
-                  if (signinErr) {
-                    return done(signinErr);
-                  }
-                  signinRes.body.loginToken.should.not.be.empty();
-                  token = signinRes.body.loginToken;
-                  done();
-                });
-            });
+            agent.post('/api/auth/signin')
+              .send(credentials)
+              .expect(200)
+              .end(function (signinErr, signinRes) {
+                // Handle signin error
+                if (signinErr) {
+                  return done(signinErr);
+                }
+                signinRes.body.loginToken.should.not.be.empty();
+                token = signinRes.body.loginToken;
+                done();
+              });
           });
         });
       });
@@ -278,7 +271,7 @@ describe('Product CRUD tests with Token Base Authen', function () {
             (products.items[0].price).should.match(product.price);
             (products.items[0].promotionprice).should.match(product.promotionprice);
             (products.items[0].percentofdiscount).should.match(product.percentofdiscount);
-            (products.items[0].currency.name).should.match(product.currency.name);
+            (products.items[0].currency).should.match(product.currency);
             (products.items[0].rate).should.match(5);
             (products.items[0].categories[0].name).should.match(product.categories[0].name);
             done();
@@ -314,7 +307,7 @@ describe('Product CRUD tests with Token Base Authen', function () {
             (product.price).should.match(productObj.price);
             (product.promotionprice).should.match(productObj.promotionprice);
             (product.percentofdiscount).should.match(productObj.percentofdiscount);
-            (product.currency.name).should.match(currency.name);
+            (product.currency).should.match(productObj.currency);
             (product.rate).should.match(5);
             (product.shippings.length).should.match(1);
             (product.shippings[0]._id).should.match(shipping.id);
@@ -494,7 +487,7 @@ describe('Product CRUD tests with Token Base Authen', function () {
         (products.items[0].price).should.match(product.price);
         (products.items[0].promotionprice).should.match(product.promotionprice);
         (products.items[0].percentofdiscount).should.match(product.percentofdiscount);
-        (products.items[0].currency.name).should.match(product.currency.name);
+        (products.items[0].currency).should.match(product.currency);
         (products.items[0].rate).should.match(5);
         (products.items[0].categories[0].name).should.match(product.categories[0].name);
         done();
