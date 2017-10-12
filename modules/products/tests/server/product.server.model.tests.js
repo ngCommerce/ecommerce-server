@@ -9,8 +9,9 @@ var should = require('should'),
   Category = mongoose.model('Category'),
   Shop = mongoose.model('Shop'),
   Shipping = mongoose.model('Shipping'),
-  Product = mongoose.model('Product');
+  Product = mongoose.model('Product'),
 
+  Currency = mongoose.model('Currency');
 /**
  * Globals
  */
@@ -18,7 +19,9 @@ var user,
   category,
   shop,
   shipping,
-  product;
+  product,
+
+  currency;
 
 /**
  * Unit tests
@@ -36,6 +39,9 @@ describe('Product Model Unit Tests:', function () {
     });
     category = new Category({
       name: 'แฟชั่น'
+    });
+    currency = new Currency({
+      name: 'THB'
     });
     shop = new Shop({
       name: 'Shop Name',
@@ -57,30 +63,33 @@ describe('Product Model Unit Tests:', function () {
       user: user
     });
     user.save(function () {
-      shipping.save(function () {
-        shop.save(function () {
-          category.save(function () {
-            product = new Product({
-              name: 'Product Name',
-              detail: 'Product detail',
-              price: 100,
-              promotionprice: 80,
-              percentofdiscount: 20,
-              currency: 'Product currency',
-              images: ['Product images'],
-              reviews: [{
-                topic: 'Product reviews topic',
-                comment: 'Product reviews comment',
-                rate: 5,
-                created: new Date()
-              }],
-              shippings: [shipping],
-              categories: category,
-              cod: false,
-              shop: shop,
-              user: user
+      currency.save(function () {
+
+        shipping.save(function () {
+          shop.save(function () {
+            category.save(function () {
+              product = new Product({
+                name: 'Product Name',
+                detail: 'Product detail',
+                price: 100,
+                promotionprice: 80,
+                percentofdiscount: 20,
+                currency: currency,
+                images: ['Product images'],
+                reviews: [{
+                  topic: 'Product reviews topic',
+                  comment: 'Product reviews comment',
+                  rate: 5,
+                  created: new Date()
+                }],
+                shippings: [shipping],
+                categories: category,
+                cod: false,
+                shop: shop,
+                user: user
+              });
+              done();
             });
-            done();
           });
         });
       });
@@ -127,11 +136,13 @@ describe('Product Model Unit Tests:', function () {
 
   afterEach(function (done) {
     Product.remove().exec(function () {
-      Category.remove().exec(function () {
-        Shop.remove().exec(function () {
-          Shipping.remove().exec(function () {
-            User.remove().exec(function () {
-              done();
+      Currency.remove().exec(function () {
+        Category.remove().exec(function () {
+          Shop.remove().exec(function () {
+            Shipping.remove().exec(function () {
+              User.remove().exec(function () {
+                done();
+              });
             });
           });
         });

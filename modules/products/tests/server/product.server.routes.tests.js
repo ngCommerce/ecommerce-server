@@ -9,6 +9,8 @@ var should = require('should'),
   Category = mongoose.model('Category'),
   Shop = mongoose.model('Shop'),
   Shipping = mongoose.model('Shipping'),
+
+  Currency = mongoose.model('Currency'),
   express = require(path.resolve('./config/lib/express'));
 
 /**
@@ -21,6 +23,7 @@ var app,
   category,
   shop,
   shipping,
+  currency,
   product;
 
 /**
@@ -57,6 +60,9 @@ describe('Product CRUD tests', function () {
     category = new Category({
       name: 'แฟชั่น'
     });
+    currency = new Currency({
+      name: 'THB'
+    });
     shop = new Shop({
       name: 'Shop Name',
       detail: 'Shop Detail',
@@ -79,30 +85,33 @@ describe('Product CRUD tests', function () {
 
     // Save a user to the test db and create new Product
     user.save(function () {
-      shipping.save(function () {
-        shop.save(function () {
-          category.save(function () {
-            product = {
-              name: 'Product name',
-              detail: 'Product detail',
-              price: 100,
-              promotionprice: 80,
-              percentofdiscount: 20,
-              currency: 'Product currency',
-              images: ['Product images'],
-              reviews: [{
-                topic: 'Product reviews topic',
-                comment: 'Product reviews comment',
-                rate: 5,
-                created: new Date()
-              }],
-              categories: category,
-              shop: shop,
-              shippings: [shipping],
-              cod: false
-            };
+      currency.save(function () {
 
-            done();
+        shipping.save(function () {
+          shop.save(function () {
+            category.save(function () {
+              product = {
+                name: 'Product name',
+                detail: 'Product detail',
+                price: 100,
+                promotionprice: 80,
+                percentofdiscount: 20,
+                currency: currency,
+                images: ['Product images'],
+                reviews: [{
+                  topic: 'Product reviews topic',
+                  comment: 'Product reviews comment',
+                  rate: 5,
+                  created: new Date()
+                }],
+                categories: category,
+                shop: shop,
+                shippings: [shipping],
+                cod: false
+              };
+
+              done();
+            });
           });
         });
       });

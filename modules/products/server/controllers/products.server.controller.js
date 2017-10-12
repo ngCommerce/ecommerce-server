@@ -124,7 +124,7 @@ exports.delete = function (req, res) {
  * Get List Product
  */
 exports.getProductList = function (req, res, next) {
-  Product.find({}, '_id name images price promotionprice percentofdiscount currency categories rate').sort('-created').populate('user', 'displayName').populate('categories').populate('shippings').exec(function (err, products) {
+  Product.find({}, '_id name images price promotionprice percentofdiscount currency categories rate').sort('-created').populate('user', 'displayName').populate('categories').populate('shippings').populate('currency').exec(function (err, products) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -185,7 +185,7 @@ exports.productByID = function (req, res, next, id) {
     });
   }
 
-  Product.findById(id).populate('user', 'displayName').populate('categories').populate('shop').populate('shippings').exec(function (err, product) {
+  Product.findById(id).populate('user', 'displayName').populate('categories').populate('shop').populate('shippings').populate('currency').exec(function (err, product) {
     if (err) {
       return next(err);
     } else if (!product) {
@@ -237,7 +237,7 @@ exports.updateShipping = function (req, res) {
 exports.shopID = function (req, res, next, shopid) {
   Product.find({
     shop: shopid
-  }, '_id name images price promotionprice percentofdiscount currency categories rate').sort('-created').populate('user', 'displayName').populate('categories').populate('shippings').exec(function (err, products) {
+  }, '_id name images price promotionprice percentofdiscount currency categories rate').sort('-created').populate('user', 'displayName').populate('categories').populate('shippings').populate('currency').exec(function (err, products) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
