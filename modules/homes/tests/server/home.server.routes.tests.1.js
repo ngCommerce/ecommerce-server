@@ -200,7 +200,11 @@ describe('home seller', function () {
 
   it('home seller', function (done) {
     var orderObj1 = new Order(order);
+    orderObj1.items[0].status = 'complete';
+    orderObj1.items[1].status = 'complete';
     var orderObj2 = new Order(order);
+    orderObj2.items[0].status = 'complete';
+    orderObj2.items[1].status = 'complete';
     var orderObj3 = new Order(order);
     orderObj3.created = new Date('2017','9','22');
     
@@ -219,7 +223,7 @@ describe('home seller', function () {
         var home = homeGetRes.body;
 
         // Set assertions
-        (home.items.day.amount).should.match(36000);
+        (home.items.day.amount).should.match(72000);
         (home.items.month.amount).should.match(72000);
         (home.items.year.amount).should.match(72000);
         (home.items.categories.length).should.match(2);

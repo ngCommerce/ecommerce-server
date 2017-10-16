@@ -301,6 +301,7 @@ exports.orderToday = function (req, res, next) {
   end.setHours(23);
   end.setMinutes(59);
   end.setSeconds(59);
+  //status: 'complete' กรณีเอาจริง
   Order.find({ status: { $nin: ['cancel'] }, created: { $gte: start, $lt: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
     if (err) {
       return res.status(400).send({
@@ -310,7 +311,7 @@ exports.orderToday = function (req, res, next) {
       var today = 0;
       orders.forEach(function (order) {
         order.items.forEach(function (itm) {
-          if (itm.status === 'complete') {
+          if (itm.status === 'complete') { // เอา ออก กรณีเอาจริง
             if (itm.product && itm.product.shop) {
               if (itm.product.shop.toString() === req.shopId.toString()) {
                 today += itm.totalamount;
@@ -488,7 +489,8 @@ exports.reportSecondMonth = function (req, res, next) {
   end.setHours(23);
   end.setMinutes(59);
   end.setSeconds(59);
-  Order.find({ status: 'complete', created: { $gte: start, $lte: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
+  //status: 'complete' กรณีเอาจริง  
+  Order.find({ status: { $nin: ['cancel'] }, created: { $gte: start, $lte: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -497,9 +499,11 @@ exports.reportSecondMonth = function (req, res, next) {
       var second = 0;
       orders.forEach(function (order) {
         order.items.forEach(function (itm) {
-          if (itm.product && itm.product.shop) {
-            if (itm.product.shop.toString() === req.shopId.toString()) {
-              second += itm.totalamount;
+          if (itm.status === 'complete') { // เอา ออก กรณีเอาจริง             
+            if (itm.product && itm.product.shop) {
+              if (itm.product.shop.toString() === req.shopId.toString()) {
+                second += itm.totalamount;
+              }
             }
           }
         });
@@ -526,7 +530,8 @@ exports.reportThirdMonth = function (req, res, next) {
   end.setHours(23);
   end.setMinutes(59);
   end.setSeconds(59);
-  Order.find({ status: 'complete', created: { $gte: start, $lte: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
+  //status: 'complete' กรณีเอาจริง  
+  Order.find({ status: { $nin: ['cancel'] }, created: { $gte: start, $lte: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -535,9 +540,11 @@ exports.reportThirdMonth = function (req, res, next) {
       var third = 0;
       orders.forEach(function (order) {
         order.items.forEach(function (itm) {
-          if (itm.product && itm.product.shop) {
-            if (itm.product.shop.toString() === req.shopId.toString()) {
-              third += itm.totalamount;
+          if (itm.status === 'complete') { // เอา ออก กรณีเอาจริง            
+            if (itm.product && itm.product.shop) {
+              if (itm.product.shop.toString() === req.shopId.toString()) {
+                third += itm.totalamount;
+              }
             }
           }
         });
@@ -564,7 +571,8 @@ exports.reportFourthMonth = function (req, res, next) {
   end.setHours(23);
   end.setMinutes(59);
   end.setSeconds(59);
-  Order.find({ status: 'complete', created: { $gte: start, $lte: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
+  //status: 'complete' กรณีเอาจริง  
+  Order.find({ status: { $nin: ['cancel'] }, created: { $gte: start, $lte: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -573,9 +581,11 @@ exports.reportFourthMonth = function (req, res, next) {
       var fourth = 0;
       orders.forEach(function (order) {
         order.items.forEach(function (itm) {
-          if (itm.product && itm.product.shop) {
-            if (itm.product.shop.toString() === req.shopId.toString()) {
-              fourth += itm.totalamount;
+          if (itm.status === 'complete') { // เอา ออก กรณีเอาจริง                        
+            if (itm.product && itm.product.shop) {
+              if (itm.product.shop.toString() === req.shopId.toString()) {
+                fourth += itm.totalamount;
+              }
             }
           }
         });
