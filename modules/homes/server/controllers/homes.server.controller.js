@@ -301,7 +301,7 @@ exports.orderToday = function (req, res, next) {
   end.setHours(23);
   end.setMinutes(59);
   end.setSeconds(59);
-  Order.find({ status: 'complete', created: { $gte: start, $lt: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
+  Order.find({ status: { $nin: ['cancel'] }, created: { $gte: start, $lt: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -310,9 +310,11 @@ exports.orderToday = function (req, res, next) {
       var today = 0;
       orders.forEach(function (order) {
         order.items.forEach(function (itm) {
-          if (itm.product && itm.product.shop) {
-            if (itm.product.shop.toString() === req.shopId.toString()) {
-              today += itm.totalamount;
+          if (itm.status === 'complete') {
+            if (itm.product && itm.product.shop) {
+              if (itm.product.shop.toString() === req.shopId.toString()) {
+                today += itm.totalamount;
+              }
             }
           }
         });
@@ -462,8 +464,8 @@ exports.bestCateOfYear = function (req, res, next) {
 
 exports.reportFirstMonth = function (req, res, next) {
   req.reports = [];
-  req.monthNames = ["January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+  req.monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   ];
   var firstMonth = new Date();
   req.reports.push({
