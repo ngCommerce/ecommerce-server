@@ -17,11 +17,14 @@ exports.invokeRolesPolicies = function () {
     allows: [{
       resources: '/api/homes',
       permissions: '*'
-    },{
+    }, {
       resources: '/api/seeallproduct/:catename',
       permissions: ['get']
-    },{
+    }, {
       resources: '/api/seeallshop/:catename',
+      permissions: ['get']
+    }, {
+      resources: '/api/homeseller/:sellerShopId',
       permissions: ['get']
     }]
   }, {
@@ -29,11 +32,14 @@ exports.invokeRolesPolicies = function () {
     allows: [{
       resources: '/api/homes',
       permissions: ['get']
-    },{
+    }, {
       resources: '/api/seeallproduct/:catename',
       permissions: ['get']
-    },{
+    }, {
       resources: '/api/seeallshop/:catename',
+      permissions: ['get']
+    }, {
+      resources: '/api/homeseller/:sellerShopId',
       permissions: ['get']
     }]
   }, {
@@ -41,10 +47,10 @@ exports.invokeRolesPolicies = function () {
     allows: [{
       resources: '/api/homes',
       permissions: ['get']
-    },{
+    }, {
       resources: '/api/seeallproduct/:catename',
       permissions: ['get']
-    },{
+    }, {
       resources: '/api/seeallshop/:catename',
       permissions: ['get']
     }]

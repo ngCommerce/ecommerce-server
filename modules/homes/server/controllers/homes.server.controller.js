@@ -8,6 +8,7 @@ var path = require('path'),
   Product = mongoose.model('Product'),
   Shop = mongoose.model('Shop'),
   Category = mongoose.model('Category'),
+  Order = mongoose.model('Order'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   _ = require('lodash');
 
@@ -283,4 +284,317 @@ exports.seeAllShop = function (req, res) {
     });
   });
 
+};
+
+exports.sellerShopId = function (req, res, next, shopId) {
+  req.shopId = shopId;
+  next();
+};
+
+exports.orderToday = function (req, res, next) {
+  var start = new Date();
+  start.setHours(0);
+  start.setMinutes(0);
+  start.setSeconds(0);
+  var end = new Date();
+  end.setDate(start.getDate() + 1);
+  end.setHours(23);
+  end.setMinutes(59);
+  end.setSeconds(59);
+  Order.find({ status: 'complete', created: { $gte: start, $lt: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      var today = 0;
+      orders.forEach(function (order) {
+        order.items.forEach(function (itm) {
+          if (itm.product && itm.product.shop) {
+            if (itm.product.shop.toString() === req.shopId.toString()) {
+              today += itm.totalamount;
+            }
+          }
+        });
+      });
+      req.ordersToday = today;
+      next();
+    }
+  });
+};
+
+exports.orderMonth = function (req, res, next) {
+  var start = new Date();
+  start.setDate(1);
+  start.setHours(0);
+  start.setMinutes(0);
+  start.setSeconds(0);
+  var end = new Date();
+  end.setMonth(start.getMonth() + 1);
+  end.setDate(0);
+  end.setHours(23);
+  end.setMinutes(59);
+  end.setSeconds(59);
+  Order.find({ status: 'complete', created: { $gte: start, $lte: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      var month = 0;
+      orders.forEach(function (order) {
+        order.items.forEach(function (itm) {
+          if (itm.product && itm.product.shop) {
+            if (itm.product.shop.toString() === req.shopId.toString()) {
+              month += itm.totalamount;
+            }
+          }
+        });
+      });
+      req.ordersMonth = month;
+      next();
+    }
+  });
+};
+
+exports.orderYear = function (req, res, next) {
+  var start = new Date();
+  start.setDate(1);
+  start.setMonth(0);
+  start.setHours(0);
+  start.setMinutes(0);
+  start.setSeconds(0);
+  var end = new Date();
+  end.setMonth(12);
+  end.setFullYear(start.getFullYear() + 1);
+  end.setDate(0);
+  end.setHours(23);
+  end.setMinutes(59);
+  end.setSeconds(59);
+  Order.find({ status: 'complete', created: { $gte: start, $lt: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      var year = 0;
+      var categories = [];
+      orders.forEach(function (order) {
+        order.items.forEach(function (itm) {
+          if (itm.product && itm.product.shop) {
+            if (itm.product.shop.toString() === req.shopId.toString()) {
+              itm.product.categories.forEach(function (cate) {
+                if (categories.length > 0) {
+                  var chk = false;
+
+                  categories.forEach(function (subcate) {
+                    if (cate.toString() === subcate.cate.toString()) {
+                      subcate.qty += itm.qty;
+                      chk = true;
+                    }
+                  });
+
+                  if (!chk) {
+                    categories.push({
+                      cate: cate,
+                      qty: itm.qty
+                    });
+                  }
+                } else {
+                  categories.push({
+                    cate: cate,
+                    qty: itm.qty
+                  });
+                }
+              });
+              year += itm.totalamount;
+            }
+          }
+        });
+      });
+      req.bestCategory = categories;
+      req.ordersYear = year;
+      next();
+    }
+  });
+};
+
+exports.bestCateOfYear = function (req, res, next) {
+  var bestcates = [];
+  if (req.bestCategory.length === 1) {
+    var bestQty1 = req.bestCategory[0].qty;
+    req.bestCategory.forEach(function (cate) {
+      if (cate.qty === bestQty1) {
+        bestcates.push(cate.cate);
+      }
+    });
+  } else if (req.bestCategory.length > 1) {
+    req.bestCategory.sort((a, b) => { return (a.qty < b.qty) ? 1 : ((b.qty < a.qty) ? -1 : 0); });
+    var bestQty2 = req.bestCategory[0].qty;
+    req.bestCategory.forEach(function (cate) {
+      if (cate.qty === bestQty2) {
+        bestcates.push(cate.cate);
+      }
+    });
+  }
+
+  if (bestcates.length > 0) {
+    Category.find({
+      '_id': {
+        $in: bestcates
+      }
+    }, function (err, categories) {
+      var categoryList = [];
+      categories.forEach(function (cate) {
+        categoryList.push({
+          cate: cate.name
+        });
+      });
+      req.bestCate = categoryList;
+      next();
+    });
+  } else {
+    req.bestCate = [];
+    next();
+  }
+
+};
+
+exports.reportFirstMonth = function (req, res, next) {
+  req.reports = [];
+  req.monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  var firstMonth = new Date();
+  req.reports.push({
+    title: req.monthNames[firstMonth.getMonth()] + '/' + firstMonth.getFullYear(),
+    amount: req.ordersMonth
+  });
+  next();
+};
+
+exports.reportSecondMonth = function (req, res, next) {
+  var start = new Date();
+  start.setDate(1);
+  start.setMonth(start.getMonth() - 1);
+  start.setHours(0);
+  start.setMinutes(0);
+  start.setSeconds(0);
+  var end = new Date();
+  end.setMonth(start.getMonth() + 1);
+  end.setDate(0);
+  end.setHours(23);
+  end.setMinutes(59);
+  end.setSeconds(59);
+  Order.find({ status: 'complete', created: { $gte: start, $lte: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      var second = 0;
+      orders.forEach(function (order) {
+        order.items.forEach(function (itm) {
+          if (itm.product && itm.product.shop) {
+            if (itm.product.shop.toString() === req.shopId.toString()) {
+              second += itm.totalamount;
+            }
+          }
+        });
+      });
+      req.reports.push({
+        title: req.monthNames[start.getMonth()] + '/' + start.getFullYear(),
+        amount: second
+      });
+      next();
+    }
+  });
+};
+
+exports.reportThirdMonth = function (req, res, next) {
+  var start = new Date();
+  start.setDate(1);
+  start.setMonth(start.getMonth() - 2);
+  start.setHours(0);
+  start.setMinutes(0);
+  start.setSeconds(0);
+  var end = new Date();
+  end.setMonth(start.getMonth() + 1);
+  end.setDate(0);
+  end.setHours(23);
+  end.setMinutes(59);
+  end.setSeconds(59);
+  Order.find({ status: 'complete', created: { $gte: start, $lte: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      var third = 0;
+      orders.forEach(function (order) {
+        order.items.forEach(function (itm) {
+          if (itm.product && itm.product.shop) {
+            if (itm.product.shop.toString() === req.shopId.toString()) {
+              third += itm.totalamount;
+            }
+          }
+        });
+      });
+      req.reports.push({
+        title: req.monthNames[start.getMonth()] + '/' + start.getFullYear(),
+        amount: third
+      });
+      next();
+    }
+  });
+};
+
+exports.reportFourthMonth = function (req, res, next) {
+  var start = new Date();
+  start.setDate(1);
+  start.setMonth(start.getMonth() - 3);
+  start.setHours(0);
+  start.setMinutes(0);
+  start.setSeconds(0);
+  var end = new Date();
+  end.setMonth(start.getMonth() + 1);
+  end.setDate(0);
+  end.setHours(23);
+  end.setMinutes(59);
+  end.setSeconds(59);
+  Order.find({ status: 'complete', created: { $gte: start, $lte: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      var fourth = 0;
+      orders.forEach(function (order) {
+        order.items.forEach(function (itm) {
+          if (itm.product && itm.product.shop) {
+            if (itm.product.shop.toString() === req.shopId.toString()) {
+              fourth += itm.totalamount;
+            }
+          }
+        });
+      });
+      req.reports.push({
+        title: req.monthNames[start.getMonth()] + '/' + start.getFullYear(),
+        amount: fourth
+      });
+      next();
+    }
+  });
+};
+
+exports.homeSeller = function (req, res) {
+  res.jsonp({
+    items: {
+      day: { amount: req.ordersToday },
+      month: { amount: req.ordersMonth },
+      year: { amount: req.ordersYear },
+      categories: req.bestCate
+    },
+    report: req.reports
+  });
 };

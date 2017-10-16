@@ -4,7 +4,8 @@
  * Module dependencies
  */
 var homesPolicy = require('../policies/homes.server.policy'),
-  homes = require('../controllers/homes.server.controller');
+  homes = require('../controllers/homes.server.controller'),
+  core = require('../../../core/server/controllers/core.server.controller');
 
 module.exports = function (app) {
   // Homes Routes
@@ -22,6 +23,10 @@ module.exports = function (app) {
   //   .put(homes.update)
   //   .delete(homes.delete);
 
+  app.route('/api/homeseller/:sellerShopId').all(core.requiresLoginToken, homesPolicy.isAllowed)
+    .get(homes.orderToday, homes.orderMonth, homes.orderYear, homes.bestCateOfYear, homes.reportFirstMonth, homes.reportSecondMonth, homes.reportThirdMonth, homes.reportFourthMonth, homes.homeSeller);
+
   // Finish by binding the Home middleware
   app.param('catename', homes.cateName);
+  app.param('sellerShopId', homes.sellerShopId);
 };
