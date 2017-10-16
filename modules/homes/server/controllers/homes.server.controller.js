@@ -314,7 +314,7 @@ exports.orderToday = function (req, res, next) {
           if (itm.status === 'complete') { // เอา ออก กรณีเอาจริง
             if (itm.product && itm.product.shop) {
               if (itm.product.shop.toString() === req.shopId.toString()) {
-                today += itm.totalamount;
+                today += itm.totalamount && itm.totalamount > 0 ? itm.totalamount : itm.amount - itm.discount;
               }
             }
           }
@@ -349,7 +349,7 @@ exports.orderMonth = function (req, res, next) {
         order.items.forEach(function (itm) {
           if (itm.product && itm.product.shop) {
             if (itm.product.shop.toString() === req.shopId.toString()) {
-              month += itm.totalamount;
+              month += itm.totalamount && itm.totalamount > 0 ? itm.totalamount : itm.amount - itm.discount;
             }
           }
         });
@@ -410,7 +410,7 @@ exports.orderYear = function (req, res, next) {
                   });
                 }
               });
-              year += itm.totalamount;
+              year += itm.totalamount && itm.totalamount > 0 ? itm.totalamount : itm.amount - itm.discount;
             }
           }
         });
@@ -502,7 +502,7 @@ exports.reportSecondMonth = function (req, res, next) {
           if (itm.status === 'complete') { // เอา ออก กรณีเอาจริง             
             if (itm.product && itm.product.shop) {
               if (itm.product.shop.toString() === req.shopId.toString()) {
-                second += itm.totalamount;
+                second += itm.totalamount && itm.totalamount > 0 ? itm.totalamount : itm.amount - itm.discount;
               }
             }
           }
@@ -543,7 +543,7 @@ exports.reportThirdMonth = function (req, res, next) {
           if (itm.status === 'complete') { // เอา ออก กรณีเอาจริง            
             if (itm.product && itm.product.shop) {
               if (itm.product.shop.toString() === req.shopId.toString()) {
-                third += itm.totalamount;
+                third += itm.totalamount && itm.totalamount > 0 ? itm.totalamount : itm.amount - itm.discount;
               }
             }
           }
@@ -584,7 +584,7 @@ exports.reportFourthMonth = function (req, res, next) {
           if (itm.status === 'complete') { // เอา ออก กรณีเอาจริง                        
             if (itm.product && itm.product.shop) {
               if (itm.product.shop.toString() === req.shopId.toString()) {
-                fourth += itm.totalamount;
+                fourth += itm.totalamount && itm.totalamount > 0 ? itm.totalamount : itm.amount - itm.discount;
               }
             }
           }
