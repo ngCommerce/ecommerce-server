@@ -338,7 +338,8 @@ exports.orderMonth = function (req, res, next) {
   end.setHours(23);
   end.setMinutes(59);
   end.setSeconds(59);
-  Order.find({ status: 'complete', created: { $gte: start, $lte: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
+  //status: 'complete' กรณีเอาจริง
+  Order.find({ status: { $nin: ['cancel'] }, created: { $gte: start, $lte: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -347,9 +348,11 @@ exports.orderMonth = function (req, res, next) {
       var month = 0;
       orders.forEach(function (order) {
         order.items.forEach(function (itm) {
-          if (itm.product && itm.product.shop) {
-            if (itm.product.shop.toString() === req.shopId.toString()) {
-              month += itm.totalamount && itm.totalamount > 0 ? itm.totalamount : itm.amount - itm.discount;
+          if (itm.status === 'complete') { // เอา ออก กรณีเอาจริง            
+            if (itm.product && itm.product.shop) {
+              if (itm.product.shop.toString() === req.shopId.toString()) {
+                month += itm.totalamount && itm.totalamount > 0 ? itm.totalamount : itm.amount - itm.discount;
+              }
             }
           }
         });
@@ -374,7 +377,8 @@ exports.orderYear = function (req, res, next) {
   end.setHours(23);
   end.setMinutes(59);
   end.setSeconds(59);
-  Order.find({ status: 'complete', created: { $gte: start, $lt: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
+  //status: 'complete' กรณีเอาจริง  
+  Order.find({ status: { $nin: ['cancel'] }, created: { $gte: start, $lt: end } }).sort('-created').populate('items.product').exec(function (err, orders) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -384,33 +388,35 @@ exports.orderYear = function (req, res, next) {
       var categories = [];
       orders.forEach(function (order) {
         order.items.forEach(function (itm) {
-          if (itm.product && itm.product.shop) {
-            if (itm.product.shop.toString() === req.shopId.toString()) {
-              itm.product.categories.forEach(function (cate) {
-                if (categories.length > 0) {
-                  var chk = false;
+          if (itm.status === 'complete') { // เอา ออก กรณีเอาจริง                        
+            if (itm.product && itm.product.shop) {
+              if (itm.product.shop.toString() === req.shopId.toString()) {
+                itm.product.categories.forEach(function (cate) {
+                  if (categories.length > 0) {
+                    var chk = false;
 
-                  categories.forEach(function (subcate) {
-                    if (cate.toString() === subcate.cate.toString()) {
-                      subcate.qty += itm.qty;
-                      chk = true;
+                    categories.forEach(function (subcate) {
+                      if (cate.toString() === subcate.cate.toString()) {
+                        subcate.qty += itm.qty;
+                        chk = true;
+                      }
+                    });
+
+                    if (!chk) {
+                      categories.push({
+                        cate: cate,
+                        qty: itm.qty
+                      });
                     }
-                  });
-
-                  if (!chk) {
+                  } else {
                     categories.push({
                       cate: cate,
                       qty: itm.qty
                     });
                   }
-                } else {
-                  categories.push({
-                    cate: cate,
-                    qty: itm.qty
-                  });
-                }
-              });
-              year += itm.totalamount && itm.totalamount > 0 ? itm.totalamount : itm.amount - itm.discount;
+                });
+                year += itm.totalamount && itm.totalamount > 0 ? itm.totalamount : itm.amount - itm.discount;
+              }
             }
           }
         });
