@@ -35,14 +35,18 @@ exports.create = function (req, res, next) {
         User.populate(orderRes, {
           path: 'items.product.user'
         }, function (err, orderRes2) {
-          var sellerMessage = 'คุณมีรายการสั่งซื้อใหม่';
-          var buyerMessage = 'ขอขอบคุณที่ใช้บริการ';
-          for (var i = 0; i < orderRes2.items.length; i++) {
-            var ids = orderRes2.items[i].product ? orderRes2.items[i].product.user ? orderRes2.items[i].product.user.pushnotifications ? orderRes2.items[i].product.user.pushnotifications : [] : [] : [];
-            if (ids.length > 0) {
-              sentNotiToSeller(sellerMessage, ids);
+          Shop.populate(orderRes2, {
+            path: 'items.product.shop'
+          }, function (err, orderRes3) {
+            for (var i = 0; i < orderRes3.items.length; i++) {
+              var ids = orderRes3.items[i].product ? orderRes3.items[i].product.user ? orderRes3.items[i].product.user.pushnotifications ? orderRes3.items[i].product.user.pushnotifications : [] : [] : [];
+              if (ids.length > 0) {
+                var sellerMessage = 'ร้าน ' + orderRes3.items[i].product.shop.name + ' มีรายการสั่งซื้อใหม่';
+                sentNotiToSeller(sellerMessage, ids);
+              }
             }
-          }
+          });
+          var buyerMessage = 'ขอขอบคุณที่ใช้บริการ';
           sentNotiToBuyer(buyerMessage, req.user.pushnotifications);
           req.resOrder = orderRes2;
           next();
