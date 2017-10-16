@@ -171,7 +171,7 @@ describe('create Order Clear Cart', function () {
     orderObj2.status = 'complete';
     orderObj1.save();
     orderObj2.save();
-    agent.get('/api/orderbyshop')
+    agent.get('/api/orderbyshop/' + shop.id)
       .set('authorization', 'Bearer ' + token)
       .end(function (orderErr, orderRes) {
         // Handle signin error

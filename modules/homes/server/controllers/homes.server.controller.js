@@ -11,9 +11,10 @@ var path = require('path'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   _ = require('lodash');
 
-/**
- * Create a Home
- */
+exports.cateName = function (req, res, next, catename) {
+  req.catename = catename;
+  next();
+};
 
 exports.getCate = function (req, res, next) {
   Category.find().sort('-created').exec(function (err, categories) {
@@ -199,4 +200,87 @@ exports.list = function (req, res) {
   res.jsonp({
     categories: req.home
   });
+};
+
+exports.cookingSeeAll = function (req, res, next) {
+  var seeallProduct = [];
+  var seeallShop = [];
+  if (req.catename.toString() === 'highlight') {
+    req.products.forEach(function (product) {
+      seeallProduct.push({
+        _id: product._id,
+        name: product.name,
+        image: product.images[0],
+        price: product.price,
+        promotionprice: product.promotionprice,
+        percentofdiscount: product.percentofdiscount,
+        currency: product.currency,
+        rate: product.rate ? product.rate : 5
+      });
+      if (product.shop) {
+        if (seeallShop.indexOf(product.shop._id.toString()) === -1) {
+          seeallShop.push(product.shop._id.toString());
+        }
+      }
+    });
+  } else {
+    req.products.forEach(function (product) {
+      if (product.categories && product.categories.length > 0) {
+        product.categories.forEach(function (cate) {
+          if (cate && cate.name.toString() === req.catename.toString()) {
+            seeallProduct.push({
+              _id: product._id,
+              name: product.name,
+              image: product.images[0],
+              price: product.price,
+              promotionprice: product.promotionprice,
+              percentofdiscount: product.percentofdiscount,
+              currency: product.currency,
+              rate: product.rate ? product.rate : 5
+            });
+            if (product.shop) {
+              if (seeallShop.indexOf(product.shop._id.toString()) === -1) {
+                seeallShop.push(product.shop._id.toString());
+              }
+            }
+          }
+        });
+      }
+    });
+  }
+
+  req.seeallproduct = seeallProduct;
+  req.shopsId = seeallShop;
+  next();
+};
+
+exports.seeAllProduct = function (req, res) {
+  res.jsonp({
+    title: req.catename,
+    items: req.seeallproduct
+  });
+};
+
+exports.seeAllShop = function (req, res) {
+  var shopsSeeAll = [];
+  Shop.find({
+    '_id': {
+      $in: req.shopsId
+    }
+  }, function (err, shops) {
+    shopsSeeAll = [];
+    shops.forEach(function (shop) {
+      shopsSeeAll.push({
+        _id: shop._id,
+        name: shop.name,
+        image: shop.image,
+        rate: shop.rate || 5
+      });
+    });
+    res.jsonp({
+      title: req.catename,
+      items: shopsSeeAll
+    });
+  });
+
 };

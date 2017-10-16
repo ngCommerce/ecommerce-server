@@ -17,17 +17,35 @@ exports.invokeRolesPolicies = function () {
     allows: [{
       resources: '/api/homes',
       permissions: '*'
+    },{
+      resources: '/api/seeallproduct/:catename',
+      permissions: ['get']
+    },{
+      resources: '/api/seeallshop/:catename',
+      permissions: ['get']
     }]
   }, {
     roles: ['user'],
     allows: [{
       resources: '/api/homes',
       permissions: ['get']
+    },{
+      resources: '/api/seeallproduct/:catename',
+      permissions: ['get']
+    },{
+      resources: '/api/seeallshop/:catename',
+      permissions: ['get']
     }]
   }, {
     roles: ['guest'],
     allows: [{
       resources: '/api/homes',
+      permissions: ['get']
+    },{
+      resources: '/api/seeallproduct/:catename',
+      permissions: ['get']
+    },{
+      resources: '/api/seeallshop/:catename',
       permissions: ['get']
     }]
   }]);
