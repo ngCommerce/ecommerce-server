@@ -18,8 +18,8 @@ module.exports = function (app) {
     .put(orders.update)
     .delete(orders.delete);
 
-  app.route('/api/orderbyshop').all(core.requiresLoginToken, ordersPolicy.isAllowed)
-    .get(orders.getShopByUser, orders.getOrderList, orders.cookingOrderByShop, orders.orderByShops);
+  app.route('/api/orderbyshop/:orderShopId').all(core.requiresLoginToken, ordersPolicy.isAllowed)
+    .get(orders.getOrderList, orders.cookingOrderByShop, orders.orderByShops);
 
   app.route('/api/updateorderaccept/:orderId/:itemId').all(core.requiresLoginToken, ordersPolicy.isAllowed)
     .put(orders.waitingToAccept);
@@ -43,4 +43,5 @@ module.exports = function (app) {
   app.param('orderId', orders.orderByID);
   app.param('message', orders.message);
   app.param('itemId', orders.itemID);
+  app.param('orderShopId', orders.getShopByUser);
 };

@@ -261,24 +261,9 @@ exports.sendNotiSeller = function (req, res) {
   });
 };
 
-exports.getShopByUser = function (req, res, next) {
-  Shop.find({
-    user: req.user._id
-  }).exec(function (err, shops) {
-    if (err) {
-      return res.status(400).send({
-        message: errorHandler.getErrorMessage(err)
-      });
-    } else {
-      if (shops && shops.length > 0) {
-        req.shop = shops[0];
-        next();
-      } else {
-        next();
-      }
-
-    }
-  });
+exports.getShopByUser = function (req, res, next, shopId) {
+  req.shopId = shopId;
+  next();
 };
 
 exports.getOrderList = function (req, res, next) {
@@ -305,13 +290,13 @@ exports.cookingOrderByShop = function (req, res, next) {
     sent: [],
     return: []
   };
-  if (req.orders && req.orders.length > 0 && req.shop) {
+  if (req.orders && req.orders.length > 0 && req.shopId) {
     req.orders.forEach(function (order) {
       if (order.items && order.items.length > 0) {
         order.items.forEach(function (itm) {
-          var shop = itm.product ? itm.product.shop ? itm.product.shop.toString() === req.shop._id.toString() : false : false;
+          var shop = itm.product ? itm.product.shop ? itm.product.shop.toString() === req.shopId.toString() : false : false;
           if (shop) {
-            var price = itm.totalamount && itm.totalamount > 0 ? itm.totalamount : (itm.amount || 0) - (itm.discount || 0);            
+            var price = itm.totalamount && itm.totalamount > 0 ? itm.totalamount : (itm.amount || 0) - (itm.discount || 0);
             if (itm.status === 'waiting') {
               data.waiting.push({
                 order_id: order._id,
