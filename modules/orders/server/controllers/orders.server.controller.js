@@ -41,7 +41,7 @@ exports.create = function (req, res, next) {
             for (var i = 0; i < orderRes3.items.length; i++) {
               var ids = orderRes3.items[i].product ? orderRes3.items[i].product.user ? orderRes3.items[i].product.user.pushnotifications ? orderRes3.items[i].product.user.pushnotifications : [] : [] : [];
               if (ids.length > 0) {
-                var sellerMessage = 'ร้าน' + orderRes3.items[i].product.shop.name + 'มีรายการสั่งซื้อใหม่';
+                var sellerMessage = 'ร้าน ' + orderRes3.items[i].product.shop.name + ' มีรายการสั่งซื้อใหม่';
                 sentNotiToSeller(sellerMessage, ids);
               }
             }
