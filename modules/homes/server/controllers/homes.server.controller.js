@@ -182,7 +182,7 @@ exports.cookingData = function (req, res, next) {
               item.popularshops.push({
                 _id: product.shop._id,
                 name: product.shop.name,
-                image: product.shop.image ? product.shop.image : 'http://res.cloudinary.com/hgwy12jde/image/upload/v1508231334/download_n6ttru.png';
+                image: product.shop.image ? product.shop.image : 'http://res.cloudinary.com/hgwy12jde/image/upload/v1508231334/download_n6ttru.png'
               });
             }
           }
