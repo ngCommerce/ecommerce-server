@@ -26,7 +26,7 @@ var ShopSchema = new Schema({
   },
   image: {
     type: String,
-    default: ''
+    default: 'http://res.cloudinary.com/hgwy12jde/image/upload/v1508231334/download_n6ttru.png'
   },
   tel: {
     type: String,

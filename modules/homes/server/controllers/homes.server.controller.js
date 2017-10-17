@@ -93,7 +93,7 @@ exports.cookingShopPopular = function (req, res, next) {
       datas.push({
         _id: shop._id,
         name: shop.name,
-        image: shop.image
+        image: shop.image ? shop.image : 'http://res.cloudinary.com/hgwy12jde/image/upload/v1508231334/download_n6ttru.png'
       });
     });
     req.shopPopular = datas;
@@ -173,7 +173,7 @@ exports.cookingData = function (req, res, next) {
                 item.popularshops.push({
                   _id: product.shop._id,
                   name: product.shop.name,
-                  image: product.shop.image
+                  image: product.shop.image ? product.shop.image : 'http://res.cloudinary.com/hgwy12jde/image/upload/v1508231334/download_n6ttru.png'
                 });
               }
             }
@@ -182,7 +182,7 @@ exports.cookingData = function (req, res, next) {
               item.popularshops.push({
                 _id: product.shop._id,
                 name: product.shop.name,
-                image: product.shop.image
+                image: product.shop.image ? product.shop.image : 'http://res.cloudinary.com/hgwy12jde/image/upload/v1508231334/download_n6ttru.png';
               });
             }
           }
@@ -274,7 +274,7 @@ exports.seeAllShop = function (req, res) {
       shopsSeeAll.push({
         _id: shop._id,
         name: shop.name,
-        image: shop.image,
+        image: shop.image ? shop.image : 'http://res.cloudinary.com/hgwy12jde/image/upload/v1508231334/download_n6ttru.png',
         rate: shop.rate || 5
       });
     });
