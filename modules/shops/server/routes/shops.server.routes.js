@@ -22,7 +22,7 @@ module.exports = function (app) {
     .put(shops.update)
     .delete(shops.delete);
 
-  app.route('/api/shops/review/:shopId').all(shopsPolicy.isAllowed)
+  app.route('/api/shops/review/:shopId')//.all(shopsPolicy.isAllowed)
     .put(shops.updateReview);
 
   app.route('/api/shopbyuser').all(core.requiresLoginToken, shopsPolicy.isAllowed)

@@ -257,7 +257,7 @@ exports.productByShop = function (req, res) {
 
 exports.updateHistoryLog = function (req, res, next) {
   req.product.historylog.push({
-    user: req.user
+    user: req.user || null
   });
   req.product.save(function (err) {
     if (err) {
