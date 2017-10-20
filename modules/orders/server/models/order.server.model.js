@@ -77,6 +77,9 @@ var OrderSchema = new Schema({
     enum: ['confirm', 'paid', 'prepare', 'deliver', 'complete', 'cancel'],
     default: 'confirm'
   },
+  omiseresponse:{
+
+  },
   created: {
     type: Date,
     default: Date.now

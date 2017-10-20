@@ -23,6 +23,10 @@
           pageTitle: 'Payments List'
         }
       })
+      .state('payments.completed', {
+        url: '/completed',
+        templateUrl: 'modules/payments/client/views/complete-payment.client.view.html'
+      })
       .state('payments.create', {
         url: '/create',
         templateUrl: 'modules/payments/client/views/form-payment.client.view.html',
