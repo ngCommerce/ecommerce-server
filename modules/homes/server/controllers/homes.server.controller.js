@@ -206,7 +206,7 @@ exports.list = function (req, res) {
 exports.cookingSeeAll = function (req, res, next) {
   var seeallProduct = [];
   var seeallShop = [];
-  if (req.catename.toString() === 'highlight') {
+  if (req.catename.toString() === 'Highlight') {
     req.products.forEach(function (product) {
       seeallProduct.push({
         _id: product._id,
