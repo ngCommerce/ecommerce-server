@@ -120,7 +120,7 @@ exports.cookingHighlight = function (req, res, next) {
     datas.push(data);
   });
   var items = [{
-    name: 'highlight',
+    name: 'Highlight',
     popularproducts: datas,
     popularshops: req.shopPopular.slice(0, 5),
     bestseller: []

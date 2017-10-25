@@ -510,7 +510,7 @@ describe('home', function () {
       name: 'mos'
     });
     cate.save();
-    agent.get('/api/seeallproduct/highlight')
+    agent.get('/api/seeallproduct/Highlight')
       .end(function (homeGetErr, homeGetRes) {
         // Handle Home save error
         if (homeGetErr) {
@@ -519,7 +519,7 @@ describe('home', function () {
         // Get Home list
         var home = homeGetRes.body;
 
-        (home.title).should.match('highlight');
+        (home.title).should.match('Highlight');
         (home.items.length).should.match(5);
         done();
       });
