@@ -333,7 +333,7 @@ describe('home', function () {
 
         // Set assertions
         (home.categories.length).should.match(3);
-        (home.categories[0].name).should.match('highlight');
+        (home.categories[0].name).should.match('Highlight');
         (home.categories[0].popularproducts.length).should.match(5);
         (home.categories[0].popularshops.length).should.match(1);
         (home.categories[0].popularshops[0].name).should.match(shop.name);
@@ -634,7 +634,7 @@ describe('home', function () {
       name: 'mos'
     });
     cate.save();
-    agent.get('/api/seeallshop/highlight')
+    agent.get('/api/seeallshop/Highlight')
       .end(function (homeGetErr, homeGetRes) {
         // Handle Home save error
         if (homeGetErr) {
@@ -643,7 +643,7 @@ describe('home', function () {
         // Get Home list
         var home = homeGetRes.body;
 
-        (home.title).should.match('highlight');
+        (home.title).should.match('Highlight');
         (home.items.length).should.match(1);
         done();
       });
