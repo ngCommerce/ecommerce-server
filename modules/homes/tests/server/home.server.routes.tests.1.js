@@ -223,9 +223,9 @@ describe('home seller', function () {
         var home = homeGetRes.body;
 
         // Set assertions
-        (home.items.day.amount).should.match(72000);
-        (home.items.month.amount).should.match(72000);
-        (home.items.year.amount).should.match(72000);
+        (home.items.day.amount).should.match(36000);
+        (home.items.month.amount).should.match(36000);
+        (home.items.year.amount).should.match(36000);
         (home.items.categories.length).should.match(2);
         (home.items.categories[0].cate).should.match(category.name);
         (home.items.categories[1].cate).should.match(category2.name);

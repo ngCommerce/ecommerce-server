@@ -95,6 +95,10 @@ describe('home', function () {
       categories: [category],
       cod: false,
       shop: shop,
+      historylog: [{
+        user: user,
+        created: new Date()
+      }]
     });
 
     address = new Address({
@@ -163,7 +167,7 @@ describe('home', function () {
 
   it('home', function (done) {
     var product1 = new Product({
-      name: 'Product name',
+      name: 'Product name1',
       detail: 'Product detail',
       price: 100,
       promotionprice: 80,
@@ -192,7 +196,7 @@ describe('home', function () {
       shop: shop,
     });
     var product2 = new Product({
-      name: 'Product name',
+      name: 'Product name2',
       detail: 'Product detail',
       price: 100,
       promotionprice: 80,
@@ -218,7 +222,7 @@ describe('home', function () {
       }]
     });
     var product3 = new Product({
-      name: 'Product name',
+      name: 'Product name3',
       detail: 'Product detail',
       price: 100,
       promotionprice: 80,
@@ -351,7 +355,7 @@ describe('home', function () {
 
   it('see all product highlight cate', function (done) {
     var product1 = new Product({
-      name: 'Product name',
+      name: 'Product name1',
       detail: 'Product detail',
       price: 100,
       promotionprice: 80,
@@ -380,7 +384,7 @@ describe('home', function () {
       shop: shop,
     });
     var product2 = new Product({
-      name: 'Product name',
+      name: 'Product name2',
       detail: 'Product detail',
       price: 100,
       promotionprice: 80,
@@ -406,7 +410,7 @@ describe('home', function () {
       }]
     });
     var product3 = new Product({
-      name: 'Product name',
+      name: 'Product name3',
       detail: 'Product detail',
       price: 100,
       promotionprice: 80,

@@ -68,6 +68,7 @@ describe('User CRUD tests', function () {
 
         signupRes.body.username.should.equal(_user.username);
         signupRes.body.email.should.equal(_user.email);
+        signupRes.body.loginToken.should.not.equal(null);        
         // Assert a proper profile image has been set, even if by default
         signupRes.body.profileImageURL.should.not.be.empty();
         // Assert we have just the default 'user' role
