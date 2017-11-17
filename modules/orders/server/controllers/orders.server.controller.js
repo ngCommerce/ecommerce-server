@@ -14,11 +14,42 @@ var path = require('path'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   _ = require('lodash'),
   request = require('request'),
+  omise = require('omise')({
+    'publicKey': 'pkey_test_59owuo5m3qynavw8mac',
+    'secretKey': 'skey_test_59owuo5mlz8nv5s6tux'
+  }),
   pushNotiUrl = process.env.PUSH_NOTI_URL || 'https://onesignal.com/api/v1/notifications';
 
 /**
  * Create a Order
  */
+exports.omiseCard = function (req, res, next) {
+  var order = req.body;
+  if (order.payment && order.payment.paymenttype === 'Credit Card') {
+    var money = order.totalamount * 100;
+    var id = order.omiseToken;
+    omise.charges.create({
+      'description': 'Charge for order ID: 888',
+      'amount': money,
+      'currency': 'thb',
+      'capture': true,
+      'card': id
+    }, function (err, resp) {
+      if (err) {
+        return res.status(400).send({
+          message: errorHandler.getErrorMessage(err)
+        });
+      }
+      else {
+        next();
+      }
+    });
+  } else {
+    next();
+  }
+
+};
+
 exports.create = function (req, res, next) {
   var order = new Order(req.body);
   order.user = req.user;

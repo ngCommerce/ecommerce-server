@@ -40,6 +40,7 @@ describe('User Update Pushnotification have Token', function () {
       email: 'test@test.com',
       username: credentials.username,
       password: credentials.password,
+      tel: '222222',
       provider: 'local'
     };
 
@@ -87,6 +88,24 @@ describe('User Update Pushnotification have Token', function () {
         done();
       });
   });
+
+  it('sign with tel', function (done) {
+    var tel = { tel: '222222' };
+    agent.post('/api/auth/fastsignin')
+      .send(tel)
+      .expect(200)
+      .end(function (notiErr, notiRes) {
+        // Handle signin error
+        if (notiErr) {
+          return done(notiErr);
+        }
+        var userss = notiRes.body;
+        (userss).should.match(tel);
+
+        done();
+      });
+  });
+
 
   afterEach(function (done) {
     User.remove().exec(done);

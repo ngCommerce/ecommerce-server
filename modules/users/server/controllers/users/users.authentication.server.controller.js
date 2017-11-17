@@ -47,7 +47,7 @@ exports.signup = function (req, res, next) {
           // Remove sensitive data before login
           user.password = undefined;
           user.salt = undefined;
-    
+
           req.login(user, function (err) {
             if (err) {
               res.status(400).send(err);
@@ -262,4 +262,8 @@ exports.removeOAuthProvider = function (req, res, next) {
       });
     }
   });
+};
+
+exports.fastsignin = function (req, res) {
+  res.jsonp(req.body);
 };
