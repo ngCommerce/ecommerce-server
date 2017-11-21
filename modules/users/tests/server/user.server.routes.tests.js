@@ -5,6 +5,7 @@ var should = require('should'),
   path = require('path'),
   mongoose = require('mongoose'),
   User = mongoose.model('User'),
+  Address = mongoose.model('Address'),
   express = require(path.resolve('./config/lib/express'));
 
 /**
@@ -51,6 +52,42 @@ describe('User CRUD tests', function () {
       done();
     });
   });
+  it('signup with tel', function (done) {
+    var data = {
+      firstName: 'firstname',
+      lastName: 'lastname',
+      address: 'address',
+      subdistrict: 'subdistrict',
+      district: 'district',
+      province: 'province',
+      postcode: '123',
+      username: '2222',
+      password: 'jjUsr#Pass1234',
+      email: 'adfad@sdf.com',
+      tel: '1234'
+    };
+    agent.post('/api/auth/signupbytel')
+      .send(data)
+      .expect(200)
+      .end(function (signupbytelErr, signupbytelRes) {
+        // Handle signin error
+        if (signupbytelErr) {
+          return done(signupbytelErr);
+        }
+        var userss = signupbytelRes.body;
+        (userss.firstName).should.match(data.firstName);
+        (userss.loginToken).should.not.equal(null);
+        agent.get('/api/addresses')
+          .end(function (addressErr, addressRes) {
+            if (addressErr) {
+              return done(addressErr);
+            }
+            var address = addressRes.body;
+            (address[0].firstname).should.match(data.firstName);
+            done();
+          });
+      });
+  });
 
   it('should be able to register a new user', function (done) {
 
@@ -68,15 +105,15 @@ describe('User CRUD tests', function () {
 
         signupRes.body.username.should.equal(_user.username);
         signupRes.body.email.should.equal(_user.email);
-        signupRes.body.loginToken.should.not.equal(null);        
+        signupRes.body.loginToken.should.not.equal(null);
         // Assert a proper profile image has been set, even if by default
         signupRes.body.profileImageURL.should.not.be.empty();
         // Assert we have just the default 'user' role
         signupRes.body.roles.should.be.instanceof(Array).and.have.lengthOf(1);
         signupRes.body.roles.indexOf('user').should.equal(0);
 
-        
-          
+
+
 
         return done();
       });
@@ -362,7 +399,7 @@ describe('User CRUD tests', function () {
             return done(err);
           }
 
-          User.findOne({ username: user.username.toLowerCase() }, function(err, userRes) {
+          User.findOne({ username: user.username.toLowerCase() }, function (err, userRes) {
             userRes.resetPasswordToken.should.not.be.empty();
             should.exist(userRes.resetPasswordExpires);
             res.body.message.should.be.equal('Failure sending email');
@@ -388,22 +425,22 @@ describe('User CRUD tests', function () {
             return done(err);
           }
 
-          User.findOne({ username: user.username.toLowerCase() }, function(err, userRes) {
+          User.findOne({ username: user.username.toLowerCase() }, function (err, userRes) {
             userRes.resetPasswordToken.should.not.be.empty();
             should.exist(userRes.resetPasswordExpires);
 
             agent.get('/api/auth/reset/' + userRes.resetPasswordToken)
-            .expect(302)
-            .end(function (err, res) {
-              // Handle error
-              if (err) {
-                return done(err);
-              }
+              .expect(302)
+              .end(function (err, res) {
+                // Handle error
+                if (err) {
+                  return done(err);
+                }
 
-              res.headers.location.should.be.equal('/password/reset/' + userRes.resetPasswordToken);
+                res.headers.location.should.be.equal('/password/reset/' + userRes.resetPasswordToken);
 
-              return done();
-            });
+                return done();
+              });
           });
         });
     });
@@ -427,17 +464,17 @@ describe('User CRUD tests', function () {
 
           var invalidToken = 'someTOKEN1234567890';
           agent.get('/api/auth/reset/' + invalidToken)
-          .expect(302)
-          .end(function (err, res) {
-            // Handle error
-            if (err) {
-              return done(err);
-            }
+            .expect(302)
+            .end(function (err, res) {
+              // Handle error
+              if (err) {
+                return done(err);
+              }
 
-            res.headers.location.should.be.equal('/password/reset/invalid');
+              res.headers.location.should.be.equal('/password/reset/invalid');
 
-            return done();
-          });
+              return done();
+            });
         });
     });
   });
@@ -916,6 +953,8 @@ describe('User CRUD tests', function () {
   });
 
   afterEach(function (done) {
-    User.remove().exec(done);
+    User.remove().exec(function () {
+      Address.remove().exec(done);
+    });
   });
 });

@@ -18,8 +18,9 @@ module.exports = function (app) {
   app.route('/api/auth/signup').post(users.signup);
   app.route('/api/auth/signin').post(users.signin);
   app.route('/api/auth/signout').get(users.signout);
-  app.route('/api/auth/fastsignin').post(users.fastsignin);
-
+  // app.route('/api/auth/fastsignin').post(users.fastsignin);
+  app.route('/api/auth/signupbytel').post(users.signupByTel);  
+  
   // Setting the facebook oauth routes
   app.route('/api/auth/facebook').get(users.oauthCall('facebook', {
     scope: ['email']

@@ -89,22 +89,22 @@ describe('User Update Pushnotification have Token', function () {
       });
   });
 
-  it('sign with tel', function (done) {
-    var tel = { tel: '222222' };
-    agent.post('/api/auth/fastsignin')
-      .send(tel)
-      .expect(200)
-      .end(function (notiErr, notiRes) {
-        // Handle signin error
-        if (notiErr) {
-          return done(notiErr);
-        }
-        var userss = notiRes.body;
-        (userss).should.match(tel);
+  // it('sign with tel', function (done) {
+  //   var tel = { tel: '222222' };
+  //   agent.post('/api/auth/fastsignin')
+  //     .send(tel)
+  //     .expect(200)
+  //     .end(function (notiErr, notiRes) {
+  //       // Handle signin error
+  //       if (notiErr) {
+  //         return done(notiErr);
+  //       }
+  //       var userss = notiRes.body;
+  //       (userss).should.match(tel);
 
-        done();
-      });
-  });
+  //       done();
+  //     });
+  // });
 
 
   afterEach(function (done) {
