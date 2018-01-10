@@ -177,7 +177,7 @@ describe('Save Order clear Cart', function () {
     });
     cart.save();
     agent.get('/api/carts')
-      // .set('authorization', 'Bearer ' + token)
+      .set('authorization', 'Bearer ' + token)
       .end(function (orderErr, orderRes) {
         // Handle signin error
         if (orderErr) {

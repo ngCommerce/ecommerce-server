@@ -263,65 +263,65 @@ describe('User Model Unit Tests:', function () {
       });
     });
 
-    it('should not allow a less than 10 characters long - "P@$$w0rd!"', function (done) {
-      var _user1 = new User(user1);
-      _user1.password = 'P@$$w0rd!';
+    // it('should not allow a less than 10 characters long - "P@$$w0rd!"', function (done) {
+    //   var _user1 = new User(user1);
+    //   _user1.password = 'P@$$w0rd!';
 
-      _user1.validate(function (err) {
-        err.errors.password.message.should.equal('The password must be at least 10 characters long.');
-        done();
-      });
-    });
+    //   _user1.validate(function (err) {
+    //     err.errors.password.message.should.equal('The password must be at least 10 characters long.');
+    //     done();
+    //   });
+    // });
 
-    it('should not allow a greater than 128 characters long.', function (done) {
-      var _user1 = new User(user1);
-      _user1.password = ')!/uLT="lh&:`6X!]|15o!$!TJf,.13l?vG].-j],lFPe/QhwN#{Z<[*1nX@n1^?WW-%_.*D)m$toB+N7z}kcN#B_d(f41h%w@0F!]igtSQ1gl~6sEV&r~}~1ub>If1c+';
+    // it('should not allow a greater than 128 characters long.', function (done) {
+    //   var _user1 = new User(user1);
+    //   _user1.password = ')!/uLT="lh&:`6X!]|15o!$!TJf,.13l?vG].-j],lFPe/QhwN#{Z<[*1nX@n1^?WW-%_.*D)m$toB+N7z}kcN#B_d(f41h%w@0F!]igtSQ1gl~6sEV&r~}~1ub>If1c+';
 
-      _user1.validate(function (err) {
-        err.errors.password.message.should.equal('The password must be fewer than 128 characters.');
-        done();
-      });
-    });
+    //   _user1.validate(function (err) {
+    //     err.errors.password.message.should.equal('The password must be fewer than 128 characters.');
+    //     done();
+    //   });
+    // });
 
-    it('should not allow more than 3 or more repeating characters - "P@$$w0rd!!!"', function (done) {
-      var _user1 = new User(user1);
-      _user1.password = 'P@$$w0rd!!!';
+    // it('should not allow more than 3 or more repeating characters - "P@$$w0rd!!!"', function (done) {
+    //   var _user1 = new User(user1);
+    //   _user1.password = 'P@$$w0rd!!!';
 
-      _user1.validate(function (err) {
-        err.errors.password.message.should.equal('The password may not contain sequences of three or more repeated characters.');
-        done();
-      });
-    });
+    //   _user1.validate(function (err) {
+    //     err.errors.password.message.should.equal('The password may not contain sequences of three or more repeated characters.');
+    //     done();
+    //   });
+    // });
 
-    it('should not allow a password with no uppercase letters - "p@$$w0rd!!"', function (done) {
-      var _user1 = new User(user1);
-      _user1.password = 'p@$$w0rd!!';
+    // it('should not allow a password with no uppercase letters - "p@$$w0rd!!"', function (done) {
+    //   var _user1 = new User(user1);
+    //   _user1.password = 'p@$$w0rd!!';
 
-      _user1.validate(function (err) {
-        err.errors.password.message.should.equal('The password must contain at least one uppercase letter.');
-        done();
-      });
-    });
+    //   _user1.validate(function (err) {
+    //     err.errors.password.message.should.equal('The password must contain at least one uppercase letter.');
+    //     done();
+    //   });
+    // });
 
-    it('should not allow a password with less than one number - "P@$$word!!"', function (done) {
-      var _user1 = new User(user1);
-      _user1.password = 'P@$$word!!';
+    // it('should not allow a password with less than one number - "P@$$word!!"', function (done) {
+    //   var _user1 = new User(user1);
+    //   _user1.password = 'P@$$word!!';
 
-      _user1.validate(function (err) {
-        err.errors.password.message.should.equal('The password must contain at least one number.');
-        done();
-      });
-    });
+    //   _user1.validate(function (err) {
+    //     err.errors.password.message.should.equal('The password must contain at least one number.');
+    //     done();
+    //   });
+    // });
 
-    it('should not allow a password with less than one special character - "Passw0rdss"', function (done) {
-      var _user1 = new User(user1);
-      _user1.password = 'Passw0rdss';
+    // it('should not allow a password with less than one special character - "Passw0rdss"', function (done) {
+    //   var _user1 = new User(user1);
+    //   _user1.password = 'Passw0rdss';
 
-      _user1.validate(function (err) {
-        err.errors.password.message.should.equal('The password must contain at least one special character.');
-        done();
-      });
-    });
+    //   _user1.validate(function (err) {
+    //     err.errors.password.message.should.equal('The password must contain at least one special character.');
+    //     done();
+    //   });
+    // });
   });
 
   describe('User E-mail Validation Tests', function() {

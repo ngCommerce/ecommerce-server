@@ -275,7 +275,6 @@ exports.signupByTel = function (req, res, next) {
   userdata.displayName = userdata.firstName + ' ' + userdata.lastName;
   userdata.provider = 'local';
   var user = new User(userdata);
-  console.log(user);
   var data = new User(userdata);
 
   data.displayName = user.displayName;

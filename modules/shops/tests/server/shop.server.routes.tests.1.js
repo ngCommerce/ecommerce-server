@@ -353,10 +353,33 @@ describe('Shop CRUD token tests', function () {
 
   it('should be able to get List a Shop by user if logged in with token', function (done) {
 
-    var ShopObj = new Shop(shop);
-    var ShopObj2 = new Shop(shop);
+    var ShopObj = new Shop({
+      name: 'Shop Name',
+      detail: 'Shop Detail',
+      email: 'asdf@gmail.com',
+      image: 'https://www.onsite.org/assets/images/teaser/online-e-shop.jpg',
+      tel: '097654321',
+      map: {
+        lat: '13.933954',
+        long: '100.7157976'
+      },
+      user: user
+    });
+    var ShopObj2 = new Shop({
+      name: 'Shop Name user null',
+      detail: 'Shop Detail',
+      email: 'asdfww@gmail.com',
+      image: 'https://www.onsite.org/assets/images/teaser/online-e-shop.jpg',
+      tel: '097654321',
+      map: {
+        lat: '13.933954',
+        long: '100.7157976'
+      },
+      user: user
+    });
     ShopObj2.user = null;
     ShopObj2.save();
+    ShopObj.user = user;
     ShopObj.save();
     // Get a list of shops
     agent.get('/api/shopbyuser')
